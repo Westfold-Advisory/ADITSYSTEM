@@ -2,6 +2,7 @@
 import type { Lugar } from "./types";
 
 export const G = {
+  DL2: "#00b991",
   bg: "#050a0e",
   bgPanel: "#080f14",
   bgCard: "#0a1520",
@@ -73,7 +74,7 @@ export const LUGARES_INICIALES: Lugar[] = [
 ];
 
 export const MUNICIPIOS = [
-  "--SELECCIONE UNA OPCION--",
+  "--SELECCIONE SU MUNICIPIO--",
   "ACAJETE",
   "ACATENO",
   "ACATLÁN",
@@ -289,4 +290,34 @@ export const MUNICIPIOS = [
   "ZOPALA",
   "ZOQUIAPAN",
   "ZOQUITLÁN",
+];
+
+export const Dist_Loc = [
+  "--SELECCIONE SU DISTRITO LOCAL--",
+  "1",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6",
+  "7",
+  "8",
+  "9",
+  "10",
+  "11",
+  "12",
+  "13",
+  "14",
+  "15",
+  "16",
+  "17",
+  "18",
+  "19",
+  "20",
+  "21",
+  "22",
+  "23",
+  "24",
+  "25",
+  "26",
 ];

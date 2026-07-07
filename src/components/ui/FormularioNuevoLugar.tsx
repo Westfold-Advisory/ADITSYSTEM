@@ -9,11 +9,14 @@ import {
   Link,
   FileText,
   Loader,
+  CalendarPlus,
+  ChevronDown,
   Phone,
   Edit2,
 } from "lucide-react";
-import { G, MUNICIPIOS } from "./constants";
-import type { Lugar } from "./types";
+import { G, MUNICIPIOS, Dist_Loc } from "./constants";
+import type { Lugar, Evento, EstadoEvento } from "./types";
+import { ESTADO_EVENTO_CONFIG } from "./types";
 
 interface FormularioNuevoLugarProps {
   onAgregar: (lugar: Lugar) => void;
@@ -74,6 +77,131 @@ const sectionTitle: React.CSSProperties = {
   alignItems: "center",
   gap: 6,
 };
+const sectionTitleStyle: React.CSSProperties = {
+  fontSize: 9,
+  color: G.accent,
+  letterSpacing: 2,
+  marginBottom: 10,
+  display: "flex",
+  alignItems: "center",
+  gap: 6,
+};
+const sectionStyle: React.CSSProperties = {
+  border: `1px solid ${G.border}`,
+  padding: 10,
+};
+interface SelectorEstadoProps {
+  value: EstadoEvento;
+  onChange: (v: EstadoEvento) => void;
+}
+
+function SelectorEstado({ value, onChange }: SelectorEstadoProps) {
+  const [open, setOpen] = useState(false);
+  const cfg = ESTADO_EVENTO_CONFIG[value];
+
+  return (
+    <div style={{ position: "relative" }}>
+      <label style={labelStyle}>// ESTADO DEL EVENTO</label>
+      <button
+        onClick={() => setOpen(!open)}
+        style={{
+          width: "100%",
+          background: G.bg,
+          border: `1px solid ${cfg.color}55`,
+          color: cfg.color,
+          padding: "7px 10px",
+          fontSize: 11,
+          fontFamily: "'Courier New', monospace",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          boxShadow: open ? cfg.glow : "none",
+        }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div
+            style={{
+              width: 8,
+              height: 8,
+              borderRadius: "50%",
+              background: cfg.color,
+              boxShadow: cfg.glow,
+              animation: value === "ACTIVO" ? "pulse 2s infinite" : "none",
+            }}
+          />
+          <span style={{ letterSpacing: 2 }}>{cfg.label}</span>
+        </div>
+        <ChevronDown
+          size={11}
+          style={{
+            transform: open ? "rotate(180deg)" : "none",
+            transition: "transform 0.2s",
+          }}
+        />
+      </button>
+
+      {open && (
+        <div
+          style={{
+            position: "absolute",
+            top: "100%",
+            left: 0,
+            right: 0,
+            zIndex: 50,
+            background: G.bgPanel,
+            border: `1px solid ${G.borderBright}`,
+            boxShadow: "0 4px 20px rgba(0,0,0,0.6)",
+          }}>
+          {(
+            Object.entries(ESTADO_EVENTO_CONFIG) as [
+              EstadoEvento,
+              (typeof ESTADO_EVENTO_CONFIG)[EstadoEvento],
+            ][]
+          ).map(([estado, c]) => (
+            <button
+              key={estado}
+              onClick={() => {
+                onChange(estado);
+                setOpen(false);
+              }}
+              style={{
+                width: "100%",
+                padding: "8px 12px",
+                background: value === estado ? c.color + "15" : "transparent",
+                border: "none",
+                borderBottom: `1px solid ${G.border}`,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                fontFamily: "'Courier New', monospace",
+              }}>
+              <div
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: "50%",
+                  background: c.color,
+                  boxShadow: c.glow,
+                  flexShrink: 0,
+                }}
+              />
+              <span style={{ fontSize: 10, color: c.color, letterSpacing: 2 }}>
+                {c.label}
+              </span>
+              {value === estado && (
+                <span
+                  style={{ marginLeft: "auto", fontSize: 9, color: c.color }}>
+                  ✓
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 // ─── Componente ───────────────────────────────────────────────────────────────
 export function FormularioNuevoLugar({
@@ -93,7 +221,7 @@ export function FormularioNuevoLugar({
     lat: lugarEditar ? String(lugarEditar.coords[1]) : "",
     lng: lugarEditar ? String(lugarEditar.coords[0]) : "",
     hours: lugarEditar?.hours ?? "",
-    rating: lugarEditar ? String(lugarEditar.rating) : "Dato Necesario",
+    rating: lugarEditar?.rating ?? Dist_Loc[27],
     cvUrl: lugarEditar?.cvUrl ?? "",
     celular: lugarEditar?.celular ?? "",
     imageUrl: lugarEditar?.image?.startsWith("http") ? lugarEditar.image : "",
@@ -108,6 +236,9 @@ export function FormularioNuevoLugar({
   const [extracting, setExtracting] = useState(false);
   const [extractOk, setExtractOk] = useState(false);
   const [error, setError] = useState("");
+  const [evento, setEvento] = useState<Partial<Evento> | null>(
+    lugarEditar?.evento ?? null,
+  );
 
   const set = (k: string, v: string) => {
     setForm((f) => ({ ...f, [k]: v }));
@@ -164,7 +295,17 @@ export function FormularioNuevoLugar({
         : form.imageUrl ||
           lugarEditar?.image ||
           "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=200&fit=crop";
-
+    const eventoFinal: Evento | undefined = evento
+      ? {
+          id: lugarEditar?.evento?.id ?? Date.now(),
+          nombre: evento.nombre ?? "",
+          descripcion: evento.descripcion ?? "",
+          estado: (evento.estado ?? "ACTIVO") as EstadoEvento,
+          fechaInicio: evento.fechaInicio ?? new Date().toISOString(),
+          fechaFin: evento.fechaFin || undefined,
+          notas: evento.notas || undefined,
+        }
+      : undefined;
     const payload: Lugar = {
       id: lugarEditar?.id ?? Date.now(),
       nombre: form.nombre,
@@ -172,12 +313,13 @@ export function FormularioNuevoLugar({
       category: form.category,
       coords: [lng, lat],
       info: form.info,
-      rating: form.rating || "Solicitar Dato",
+      rating: parseFloat(form.rating) || 4.5,
       reviews: lugarEditar?.reviews ?? 0,
       hours: form.hours || "N/D",
       image: imageFinal,
       cvUrl: form.cvUrl || undefined,
       celular: form.celular || undefined,
+      evento: eventoFinal,
     };
 
     if (esEdicion && onEditar) {
@@ -187,6 +329,7 @@ export function FormularioNuevoLugar({
     }
     onClose();
   };
+  // ─── Render ────────────────────────────────────────────────────────────────
 
   return (
     <div
@@ -203,8 +346,8 @@ export function FormularioNuevoLugar({
       <div
         style={{
           width: 460,
-          maxHeight: "90vh",
-          overflowY: "auto",
+          maxHeight: "100vh",
+          overflowY: "overlay",
           background: G.bgPanel,
           border: `1px solid ${G.borderBright}`,
           fontFamily: "'Courier New', monospace",
@@ -302,7 +445,7 @@ export function FormularioNuevoLugar({
               style={{ ...inputStyle, cursor: "pointer" }}
               value={form.category}
               onChange={(e) => set("category", e.target.value)}>
-              {/* Filtramos duplicados y mapeamos con una key única combinada */}
+              {/* Solucion ID UNICO Filtramos duplicados y mapeamos con una key única combinada */}
               {Array.from(new Set(MUNICIPIOS)).map((c, i) => (
                 <option
                   key={`${c}-${i}`}
@@ -597,16 +740,25 @@ export function FormularioNuevoLugar({
               />
             </div>
             <div>
-              <label style={labelStyle}>// DISTRITO</label>
-              <input
-                style={inputStyle}
+              <label style={labelStyle}>// SELECCIONA UN DISTRITO</label>
+              <select
+                style={{ ...inputStyle, cursor: "pointer" }}
                 value={form.rating}
-                onChange={(e) => set("rating", e.target.value)}
-                placeholder="Distrito"
-              />
+                onChange={(e) => set("rating", e.target.value)}>
+                {/* Solucion ID UNICO Filtramos duplicados y mapeamos con una key única combinada */}
+                {Array.from(new Set(Dist_Loc)).map((c, i) => (
+                  <option
+                    key={`${c}-${i}`}
+                    value={c}
+                    style={{ background: G.bgCard }}>
+                    {c}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
+          {/* Error */}
           {error && (
             <div
               style={{
@@ -620,7 +772,7 @@ export function FormularioNuevoLugar({
               {error}
             </div>
           )}
-
+          {/* Botones */}
           <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
             <button
               onClick={onClose}
@@ -668,8 +820,10 @@ export function FormularioNuevoLugar({
         </div>
       </div>
       <style>{`
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes spin  { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
         input[type=number]::-webkit-inner-spin-button { opacity: 0.3; }
+        input[type=datetime-local]::-webkit-calendar-picker-indicator { filter: invert(0.5); }
       `}</style>
     </div>
   );
