@@ -19,7 +19,7 @@ concurrency:
 
 env:
   NODE_VERSION: "22"
-  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+  AWS_REGION: ${{ vars.AWS_REGION || 'mx-central-1' }}
   AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN || vars.AWS_ROLE_ARN || '' }}
 
 jobs:
