@@ -16,13 +16,14 @@ El repositorio usa GitHub Actions para validar pull requests hacia `main` y desp
 
 El workflow `.github/workflows/ci.yml` ejecuta:
 
-- Gitleaks para detectar secretos expuestos.
+- Gitleaks CLI para detectar secretos expuestos sin depender de licencia comercial del action.
 - `npm run format:check` con Prettier.
 - `npm run lint` con ESLint.
 - `npm test` con `node:test` y `tsx`.
 - `npm audit --audit-level=high` para dependencias vulnerables.
 - Build de produccion con `npm run build`.
-- Semgrep y CodeQL como SAST ligero con publicacion SARIF en GitHub Code Scanning.
+- Semgrep como SAST ligero en PRs y `main`; en `main` publica SARIF en GitHub Code Scanning.
+- CodeQL en `main` y ejecuciones manuales, donde GitHub Code Scanning debe tener permisos de escritura.
 
 ### Deploy a S3
 
