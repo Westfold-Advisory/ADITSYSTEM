@@ -405,9 +405,11 @@ function MapMarker({
       onDragStart?.(lngLat);
     },
   );
-  const handleMarkerDrag = useEffectEvent((lngLat: { lng: number; lat: number }) => {
-    onDrag?.(lngLat);
-  });
+  const handleMarkerDrag = useEffectEvent(
+    (lngLat: { lng: number; lat: number }) => {
+      onDrag?.(lngLat);
+    },
+  );
   const handleMarkerDragEnd = useEffectEvent(
     (lngLat: { lng: number; lat: number }) => {
       onDragEnd?.(lngLat);
