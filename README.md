@@ -22,12 +22,11 @@ El workflow `.github/workflows/ci.yml` ejecuta:
 - `npm test` con `node:test` y `tsx`.
 - `npm audit --audit-level=high` para dependencias vulnerables.
 - Build de produccion con `npm run build`.
-- Semgrep como SAST ligero en PRs y `main`; en `main` publica SARIF en GitHub Code Scanning.
-- CodeQL en `main` y ejecuciones manuales, donde GitHub Code Scanning debe tener permisos de escritura.
+- Semgrep como SAST ligero en PRs y `main`, sin bloquear el deploy S3 si GitHub Code Scanning no esta disponible.
 
 ### Deploy a S3
 
-El job `Deploy to S3` corre solo en `push` a `main`, despues de que los checks de calidad pasan. Construye `dist` y ejecuta:
+El job `Deploy to S3` corre solo en `push` a `main`, despues de que el job `Quality gates` pasa. Construye `dist` y ejecuta:
 
 ```sh
 aws s3 sync ./dist s3://$S3_BUCKET --delete
