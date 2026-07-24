@@ -38,7 +38,7 @@ Configurar en GitHub:
 | ---------------------------- | -------- | ----------------------------------------------- |
 | `AWS_ROLE_ARN`               | Secret   | Rol IAM asumido por OIDC para publicar el sitio |
 | `S3_BUCKET`                  | Variable | Bucket S3 destino                               |
-| `AWS_REGION`                 | Variable | Region AWS; si no se define usa `mx-central-1`     |
+| `AWS_REGION`                 | Variable | Region AWS; si no se define usa `mx-central-1`  |
 | `CLOUDFRONT_DISTRIBUTION_ID` | Variable | Opcional para invalidar CloudFront              |
 
 El rol IAM debe confiar en GitHub OIDC y tener permisos minimos sobre el bucket S3. Si usan CloudFront, agregar permiso para `cloudfront:CreateInvalidation`.
