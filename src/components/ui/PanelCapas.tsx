@@ -293,7 +293,8 @@ export function PanelCapas({
         border: `1px solid ${G.borderBright}`,
         boxShadow: `0 0 20px rgba(0,212,255,0.1)`,
         fontFamily: "'Courier New', monospace",
-      }}>
+      }}
+    >
       <div
         style={{
           display: "flex",
@@ -302,14 +303,16 @@ export function PanelCapas({
           justifyContent: "space-between",
           padding: "10px 14px",
           borderBottom: `1px solid ${G.border}`,
-        }}>
+        }}
+      >
         <div
           style={{
             display: "flex",
             alignItems: "center",
             gap: 8,
             overflowY: "auto",
-          }}>
+          }}
+        >
           <Layers size={12} color={G.accent} />
           <span
             style={{
@@ -318,7 +321,8 @@ export function PanelCapas({
               color: G.accent,
               letterSpacing: 2,
               overflowY: "auto",
-            }}>
+            }}
+          >
             CAPAS
           </span>
         </div>
@@ -331,7 +335,8 @@ export function PanelCapas({
             cursor: "pointer",
             color: G.textDim,
             padding: 0,
-          }}>
+          }}
+        >
           <X size={13} />
         </button>
       </div>
@@ -344,7 +349,8 @@ export function PanelCapas({
           overflowY: "auto",
 
           gap: 8,
-        }}>
+        }}
+      >
         {capas.map(({ label, color, visible, toggle }) => (
           <div
             key={label}
@@ -356,14 +362,16 @@ export function PanelCapas({
               padding: "8px 10px",
               border: `1px solid ${visible ? color + "44" : G.border}`,
               background: visible ? color + "0a" : "transparent",
-            }}>
+            }}
+          >
             <div
               style={{
                 display: "flex",
                 alignItems: "center",
                 gap: 8,
                 overflowY: "auto",
-              }}>
+              }}
+            >
               <div
                 style={{
                   width: 6,
@@ -382,7 +390,8 @@ export function PanelCapas({
                   overflowY: "auto",
                   color: visible ? color : G.textDim,
                   letterSpacing: 1.5,
-                }}>
+                }}
+              >
                 {label}
               </span>
             </div>
@@ -397,7 +406,8 @@ export function PanelCapas({
                 position: "relative",
                 overflowY: "auto",
                 padding: 0,
-              }}>
+              }}
+            >
               <div
                 style={{
                   position: "absolute",

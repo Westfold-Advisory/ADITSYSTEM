@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { Shield, Plus, Layers, CalendarPlus } from "lucide-react";
 import { G, LUGARES_INICIALES } from "./components/ui/constants";
 import type { Lugar, Evento } from "./components/ui/types";
-import { ESTADO_EVENTO_CONFIG } from "./components/ui/types";
 import { Sidebar } from "./components/ui/Sidebar";
 import { MapaVista } from "./components/ui/MapaVista";
 import { InfoBar } from "./components/ui/InfoBar";
@@ -20,8 +19,6 @@ export default function App() {
   const [visibleOaxaca, setVisibleOaxaca] = useState(true);
   const [visibleDistritoLocal01, setvisibleDistritoLocal01] = useState(true);
   const [visibleDistritoLocal02, setvisibleDistritoLocal02] = useState(true);
-  const [visibleDistritoLocal03, setvisibleDistritoLocal03] = useState(true);
-  const [visibleDistritoLocal04, setvisibleDistritoLocal04] = useState(true);
   const [visibleDistritoLocal05, setvisibleDistritoLocal05] = useState(true);
   const [visibleDistritoLocal06, setvisibleDistritoLocal06] = useState(true);
   const [visibleDistritoLocal07, setvisibleDistritoLocal07] = useState(true);
@@ -52,7 +49,7 @@ export default function App() {
   const [eventoEditar, setEventoEditar] = useState<Evento | undefined>(
     undefined,
   );
-  const [tick, setTick] = useState(0);
+  const [, setTick] = useState(0);
 
   const activo = lugares.find((l) => l.id === seleccionado);
 
@@ -123,7 +120,8 @@ export default function App() {
         background: G.bg,
         fontFamily: "'Courier New', monospace",
         color: G.text,
-      }}>
+      }}
+    >
       {/* ── Header ── */}
       <header
         style={{
@@ -136,7 +134,8 @@ export default function App() {
           background: G.bgPanel,
           position: "relative",
           flexShrink: 0,
-        }}>
+        }}
+      >
         <div
           style={{
             position: "absolute",
@@ -157,7 +156,8 @@ export default function App() {
               fontWeight: 700,
               color: G.textBright,
               letterSpacing: 3,
-            }}>
+            }}
+          >
             GOTHAM
           </span>
           <span style={{ fontSize: 10, color: G.textDim, letterSpacing: 1 }}>
@@ -174,7 +174,8 @@ export default function App() {
               alignItems: "center",
               gap: 6,
               marginRight: 4,
-            }}>
+            }}
+          >
             <div
               style={{
                 width: 6,
@@ -186,7 +187,8 @@ export default function App() {
               }}
             />
             <span
-              style={{ fontSize: 10, color: G.accentGreen, letterSpacing: 1 }}>
+              style={{ fontSize: 10, color: G.accentGreen, letterSpacing: 1 }}
+            >
               ACTIVO
             </span>
           </div>
@@ -196,7 +198,8 @@ export default function App() {
               color: G.textDim,
               letterSpacing: 1,
               marginRight: 4,
-            }}>
+            }}
+          >
             {timestamp}
           </span>
 
@@ -221,7 +224,8 @@ export default function App() {
               fontSize: 10,
               letterSpacing: 1.5,
               fontFamily: "'Courier New', monospace",
-            }}>
+            }}
+          >
             <Plus size={11} /> NUEVO
           </button>
 
@@ -244,7 +248,8 @@ export default function App() {
               letterSpacing: 1.5,
               fontFamily: "'Courier New', monospace",
               position: "relative",
-            }}>
+            }}
+          >
             <CalendarPlus size={11} /> EVENTO
             {/* Badge contador eventos activos */}
             {eventosActivos > 0 && (
@@ -264,7 +269,8 @@ export default function App() {
                   alignItems: "center",
                   justifyContent: "center",
                   boxShadow: `0 0 6px ${G.accentGreen}`,
-                }}>
+                }}
+              >
                 {eventosActivos}
               </span>
             )}
@@ -285,7 +291,8 @@ export default function App() {
               fontSize: 10,
               letterSpacing: 1.5,
               fontFamily: "'Courier New', monospace",
-            }}>
+            }}
+          >
             <Layers size={11} /> CAPAS
           </button>
         </div>
@@ -327,7 +334,8 @@ export default function App() {
             flexDirection: "column",
             gap: 10,
             overflow: "hidden",
-          }}>
+          }}
+        >
           <MapaVista
             lugares={lugares}
             eventos={eventos}
@@ -368,12 +376,6 @@ export default function App() {
             }
             onToggleDistritoLocal02={() =>
               setvisibleDistritoLocal02(!visibleDistritoLocal02)
-            }
-            onToggleDistritoLocal03={() =>
-              setvisibleDistritoLocal03(!visibleDistritoLocal03)
-            }
-            onToggleDistritoLocal04={() =>
-              setvisibleDistritoLocal04(!visibleDistritoLocal04)
             }
             onToggleDistritoLocal05={() =>
               setvisibleDistritoLocal05(!visibleDistritoLocal05)

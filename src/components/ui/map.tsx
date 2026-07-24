@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 "use client";
 /*import "maplibre-gl/dist/maplibre-gl.css";*/
 
@@ -327,7 +328,8 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
     <MapContext.Provider value={contextValue}>
       <div
         ref={containerRef}
-        className={cn("relative h-full w-full", className)}>
+        className={cn("relative h-full w-full", className)}
+      >
         {(!isLoaded || loading) && <DefaultLoader />}
         {/* SSR-safe: children render only when map is loaded on client */}
         {mapInstance && children}
@@ -583,13 +585,15 @@ function MarkerPopup({
       className={cn(
         "bg-popover text-popover-foreground animate-in fade-in-0 zoom-in-95 relative rounded-md border p-3 shadow-md",
         className,
-      )}>
+      )}
+    >
       {closeButton && (
         <button
           type="button"
           onClick={handleClose}
           className="ring-offset-background focus:ring-ring absolute top-1 right-1 z-10 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-none"
-          aria-label="Close popup">
+          aria-label="Close popup"
+        >
           <X className="h-4 w-4" />
           <span className="sr-only">Close</span>
         </button>
@@ -667,7 +671,8 @@ function MarkerTooltip({
       className={cn(
         "bg-foreground text-background animate-in fade-in-0 zoom-in-95 rounded-md px-2 py-1 text-xs shadow-md",
         className,
-      )}>
+      )}
+    >
       {children}
     </div>,
     container,
@@ -700,7 +705,8 @@ function MarkerLabel({
         "text-foreground text-[10px] font-medium",
         positionClasses[position],
         className,
-      )}>
+      )}
+    >
       {children}
     </div>
   );
@@ -758,7 +764,8 @@ function ControlButton({
         "hover:bg-accent dark:hover:bg-accent/40 flex size-8 items-center justify-center transition-colors",
         disabled && "pointer-events-none cursor-not-allowed opacity-50",
       )}
-      disabled={disabled}>
+      disabled={disabled}
+    >
       {children}
     </button>
   );
@@ -829,7 +836,8 @@ function MapControls({
         "absolute z-10 flex flex-col gap-1.5",
         positionClasses[position],
         className,
-      )}>
+      )}
+    >
       {showZoom && (
         <ControlGroup>
           <ControlButton onClick={handleZoomIn} label="Zoom in">
@@ -850,7 +858,8 @@ function MapControls({
           <ControlButton
             onClick={handleLocate}
             label="Find my location"
-            disabled={waitingForLocation}>
+            disabled={waitingForLocation}
+          >
             {waitingForLocation ? (
               <Loader2 className="size-4 animate-spin" />
             ) : (
@@ -901,7 +910,8 @@ function CompassButton({ onClick }: { onClick: () => void }) {
         ref={compassRef}
         viewBox="0 0 24 24"
         className="size-5 transition-transform duration-200"
-        style={{ transformStyle: "preserve-3d" }}>
+        style={{ transformStyle: "preserve-3d" }}
+      >
         <path d="M12 2L16 12H12V2Z" className="fill-red-500" />
         <path d="M12 2L8 12H12V2Z" className="fill-red-300" />
         <path d="M12 22L16 12H12V22Z" className="fill-muted-foreground/60" />
@@ -1001,13 +1011,15 @@ function MapPopup({
       className={cn(
         "bg-popover text-popover-foreground animate-in fade-in-0 zoom-in-95 relative rounded-md border p-3 shadow-md",
         className,
-      )}>
+      )}
+    >
       {closeButton && (
         <button
           type="button"
           onClick={handleClose}
           className="ring-offset-background focus:ring-ring absolute top-1 right-1 z-10 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-none"
-          aria-label="Close popup">
+          aria-label="Close popup"
+        >
           <X className="h-4 w-4" />
           <span className="sr-only">Close</span>
         </button>

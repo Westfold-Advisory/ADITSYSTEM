@@ -2,21 +2,17 @@
 import { useState, useRef } from "react";
 import {
   Plus,
-  CircleUser,
   MapPin,
   X,
   Upload,
   Link,
   FileText,
   Loader,
-  CalendarPlus,
-  ChevronDown,
   Phone,
   Edit2,
 } from "lucide-react";
 import { G, MUNICIPIOS, Dist_Loc } from "./constants";
 import type { Lugar, Evento, EstadoEvento } from "./types";
-import { ESTADO_EVENTO_CONFIG } from "./types";
 
 interface FormularioNuevoLugarProps {
   onAgregar: (lugar: Lugar) => void;
@@ -77,132 +73,6 @@ const sectionTitle: React.CSSProperties = {
   alignItems: "center",
   gap: 6,
 };
-const sectionTitleStyle: React.CSSProperties = {
-  fontSize: 9,
-  color: G.accent,
-  letterSpacing: 2,
-  marginBottom: 10,
-  display: "flex",
-  alignItems: "center",
-  gap: 6,
-};
-const sectionStyle: React.CSSProperties = {
-  border: `1px solid ${G.border}`,
-  padding: 10,
-};
-interface SelectorEstadoProps {
-  value: EstadoEvento;
-  onChange: (v: EstadoEvento) => void;
-}
-
-function SelectorEstado({ value, onChange }: SelectorEstadoProps) {
-  const [open, setOpen] = useState(false);
-  const cfg = ESTADO_EVENTO_CONFIG[value];
-
-  return (
-    <div style={{ position: "relative" }}>
-      <label style={labelStyle}>// ESTADO DEL EVENTO</label>
-      <button
-        onClick={() => setOpen(!open)}
-        style={{
-          width: "100%",
-          background: G.bg,
-          border: `1px solid ${cfg.color}55`,
-          color: cfg.color,
-          padding: "7px 10px",
-          fontSize: 11,
-          fontFamily: "'Courier New', monospace",
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          boxShadow: open ? cfg.glow : "none",
-        }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <div
-            style={{
-              width: 8,
-              height: 8,
-              borderRadius: "50%",
-              background: cfg.color,
-              boxShadow: cfg.glow,
-              animation: value === "ACTIVO" ? "pulse 2s infinite" : "none",
-            }}
-          />
-          <span style={{ letterSpacing: 2 }}>{cfg.label}</span>
-        </div>
-        <ChevronDown
-          size={11}
-          style={{
-            transform: open ? "rotate(180deg)" : "none",
-            transition: "transform 0.2s",
-          }}
-        />
-      </button>
-
-      {open && (
-        <div
-          style={{
-            position: "absolute",
-            top: "100%",
-            left: 0,
-            right: 0,
-            zIndex: 50,
-            background: G.bgPanel,
-            border: `1px solid ${G.borderBright}`,
-            boxShadow: "0 4px 20px rgba(0,0,0,0.6)",
-          }}>
-          {(
-            Object.entries(ESTADO_EVENTO_CONFIG) as [
-              EstadoEvento,
-              (typeof ESTADO_EVENTO_CONFIG)[EstadoEvento],
-            ][]
-          ).map(([estado, c]) => (
-            <button
-              key={estado}
-              onClick={() => {
-                onChange(estado);
-                setOpen(false);
-              }}
-              style={{
-                width: "100%",
-                padding: "8px 12px",
-                background: value === estado ? c.color + "15" : "transparent",
-                border: "none",
-                borderBottom: `1px solid ${G.border}`,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                fontFamily: "'Courier New', monospace",
-              }}>
-              <div
-                style={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: "50%",
-                  background: c.color,
-                  boxShadow: c.glow,
-                  flexShrink: 0,
-                }}
-              />
-              <span style={{ fontSize: 10, color: c.color, letterSpacing: 2 }}>
-                {c.label}
-              </span>
-              {value === estado && (
-                <span
-                  style={{ marginLeft: "auto", fontSize: 9, color: c.color }}>
-                  ✓
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
 // ─── Componente ───────────────────────────────────────────────────────────────
 export function FormularioNuevoLugar({
   onAgregar,
@@ -236,7 +106,7 @@ export function FormularioNuevoLugar({
   const [extracting, setExtracting] = useState(false);
   const [extractOk, setExtractOk] = useState(false);
   const [error, setError] = useState("");
-  const [evento, setEvento] = useState<Partial<Evento> | null>(
+  const [evento] = useState<Partial<Evento> | null>(
     lugarEditar?.evento ?? null,
   );
 
@@ -298,6 +168,7 @@ export function FormularioNuevoLugar({
     const eventoFinal: Evento | undefined = evento
       ? {
           id: lugarEditar?.evento?.id ?? Date.now(),
+          category: "Evento",
           nombre: evento.nombre ?? "",
           descripcion: evento.descripcion ?? "",
           estado: (evento.estado ?? "ACTIVO") as EstadoEvento,
@@ -313,7 +184,7 @@ export function FormularioNuevoLugar({
       category: form.category,
       coords: [lng, lat],
       info: form.info,
-      rating: parseFloat(form.rating) || 4.5,
+      rating: form.rating || Dist_Loc[0],
       reviews: lugarEditar?.reviews ?? 0,
       hours: form.hours || "N/D",
       image: imageFinal,
@@ -342,7 +213,8 @@ export function FormularioNuevoLugar({
         justifyContent: "center",
         background: "rgba(0,0,0,0.75)",
         backdropFilter: "blur(4px)",
-      }}>
+      }}
+    >
       <div
         style={{
           width: 460,
@@ -352,7 +224,8 @@ export function FormularioNuevoLugar({
           border: `1px solid ${G.borderBright}`,
           fontFamily: "'Courier New', monospace",
           boxShadow: `0 0 40px rgba(0,212,255,0.15)`,
-        }}>
+        }}
+      >
         {/* Header */}
         <div
           style={{
@@ -365,7 +238,8 @@ export function FormularioNuevoLugar({
             top: 0,
             background: G.bgPanel,
             zIndex: 2,
-          }}>
+          }}
+        >
           <div
             style={{
               position: "absolute",
@@ -388,7 +262,8 @@ export function FormularioNuevoLugar({
                 fontWeight: 700,
                 color: esEdicion ? G.warn : G.accentGreen,
                 letterSpacing: 2,
-              }}>
+              }}
+            >
               {esEdicion ? "EDITAR INFORMACION" : "REGISTRAR NUEVO INTEGRANTE"}
             </span>
           </div>
@@ -399,7 +274,8 @@ export function FormularioNuevoLugar({
               border: "none",
               cursor: "pointer",
               color: G.textDim,
-            }}>
+            }}
+          >
             <X size={14} />
           </button>
         </div>
@@ -410,14 +286,16 @@ export function FormularioNuevoLugar({
             display: "flex",
             flexDirection: "column",
             gap: 14,
-          }}>
+          }}
+        >
           {/* Nombre + Label */}
           <div
             style={{
               display: "grid",
               gridTemplateColumns: "1fr 1fr",
               gap: 10,
-            }}>
+            }}
+          >
             <div>
               <label style={labelStyle}>// NOMBRE </label>
               <input
@@ -444,13 +322,15 @@ export function FormularioNuevoLugar({
             <select
               style={{ ...inputStyle, cursor: "pointer" }}
               value={form.category}
-              onChange={(e) => set("category", e.target.value)}>
+              onChange={(e) => set("category", e.target.value)}
+            >
               {/* Solucion ID UNICO Filtramos duplicados y mapeamos con una key única combinada */}
               {Array.from(new Set(MUNICIPIOS)).map((c, i) => (
                 <option
                   key={`${c}-${i}`}
                   value={c}
-                  style={{ background: G.bgCard }}>
+                  style={{ background: G.bgCard }}
+                >
                   {c}
                 </option>
               ))}
@@ -492,7 +372,8 @@ export function FormularioNuevoLugar({
                   href={`https://wa.me/${form.celular}`}
                   target="_blank"
                   rel="noreferrer"
-                  style={{ color: G.accentGreen }}>
+                  style={{ color: G.accentGreen }}
+                >
                   wa.me/{form.celular}
                 </a>
               </div>
@@ -536,7 +417,8 @@ export function FormularioNuevoLugar({
                     gap: 5,
                     whiteSpace: "nowrap",
                     opacity: extracting || !form.ubicLink.trim() ? 0.5 : 1,
-                  }}>
+                  }}
+                >
                   {extracting ? (
                     <Loader
                       size={10}
@@ -554,7 +436,8 @@ export function FormularioNuevoLugar({
                 display: "grid",
                 gridTemplateColumns: "1fr 1fr",
                 gap: 10,
-              }}>
+              }}
+            >
               <div>
                 <label style={labelStyle}>// LATITUD *</label>
                 <input
@@ -610,7 +493,8 @@ export function FormularioNuevoLugar({
                     fontSize: 9,
                     letterSpacing: 1.5,
                     fontFamily: "'Courier New', monospace",
-                  }}>
+                  }}
+                >
                   {modo === "url" ? "URL EXTERNA" : "SUBIR ARCHIVO"}
                 </button>
               ))}
@@ -653,7 +537,8 @@ export function FormularioNuevoLugar({
                     alignItems: "center",
                     justifyContent: "center",
                     gap: 6,
-                  }}>
+                  }}
+                >
                   <Upload size={11} />
                   {imageBase64 ? "IMAGEN CARGADA ✓" : "SELECCIONAR IMAGEN"}
                 </button>
@@ -687,7 +572,8 @@ export function FormularioNuevoLugar({
                     cursor: "pointer",
                     color: G.error,
                     padding: 2,
-                  }}>
+                  }}
+                >
                   <X size={10} />
                 </button>
               </div>
@@ -714,7 +600,8 @@ export function FormularioNuevoLugar({
                   href={form.cvUrl}
                   target="_blank"
                   rel="noreferrer"
-                  style={{ color: G.accent }}>
+                  style={{ color: G.accent }}
+                >
                   {form.cvUrl.length > 48
                     ? form.cvUrl.slice(0, 48) + "…"
                     : form.cvUrl}
@@ -729,7 +616,8 @@ export function FormularioNuevoLugar({
               display: "grid",
               gridTemplateColumns: "1fr 1fr",
               gap: 10,
-            }}>
+            }}
+          >
             <div>
               <label style={labelStyle}>// PERFIL ACADEMICO</label>
               <input
@@ -744,13 +632,15 @@ export function FormularioNuevoLugar({
               <select
                 style={{ ...inputStyle, cursor: "pointer" }}
                 value={form.rating}
-                onChange={(e) => set("rating", e.target.value)}>
+                onChange={(e) => set("rating", e.target.value)}
+              >
                 {/* Solucion ID UNICO Filtramos duplicados y mapeamos con una key única combinada */}
                 {Array.from(new Set(Dist_Loc)).map((c, i) => (
                   <option
                     key={`${c}-${i}`}
                     value={c}
-                    style={{ background: G.bgCard }}>
+                    style={{ background: G.bgCard }}
+                  >
                     {c}
                   </option>
                 ))}
@@ -768,7 +658,8 @@ export function FormularioNuevoLugar({
                 padding: "6px 10px",
                 border: `1px solid ${G.error}44`,
                 background: G.error + "11",
-              }}>
+              }}
+            >
               {error}
             </div>
           )}
@@ -786,7 +677,8 @@ export function FormularioNuevoLugar({
                 fontSize: 10,
                 letterSpacing: 1.5,
                 fontFamily: "'Courier New', monospace",
-              }}>
+              }}
+            >
               CANCELAR
             </button>
             <button
@@ -805,7 +697,8 @@ export function FormularioNuevoLugar({
                 alignItems: "center",
                 justifyContent: "center",
                 gap: 6,
-              }}>
+              }}
+            >
               {esEdicion ? (
                 <>
                   <Edit2 size={11} /> GUARDAR CAMBIOS

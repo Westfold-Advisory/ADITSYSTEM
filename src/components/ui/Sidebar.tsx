@@ -49,7 +49,6 @@ export function Sidebar({
   const [busqueda, setBusqueda] = useState("");
   const [categoriaFiltro, setCategoriaFiltro] = useState<string>("TODAS");
   const [colapsadas, setColapsadas] = useState<Set<string>>(new Set());
-  const [eventosColapsados, setEventosColapsados] = useState(false);
 
   // ── Categorías ──
   const categoriasPresentes = useMemo(() => {
@@ -95,7 +94,11 @@ export function Sidebar({
   const toggleColapso = (cat: string) =>
     setColapsadas((prev) => {
       const next = new Set(prev);
-      next.has(cat) ? next.delete(cat) : next.add(cat);
+      if (next.has(cat)) {
+        next.delete(cat);
+      } else {
+        next.add(cat);
+      }
       return next;
     });
 
@@ -115,14 +118,16 @@ export function Sidebar({
         flexDirection: "column",
         flexShrink: 0,
         overflow: "hidden",
-      }}>
+      }}
+    >
       {/* ── Tabs OBJETIVOS / EVENTOS ── */}
       <div
         style={{
           display: "flex",
           borderBottom: `1px solid ${G.border}`,
           flexShrink: 0,
-        }}>
+        }}
+      >
         {(["OBJETIVOS", "EVENTOS"] as Tab[]).map((t) => {
           const activa = tab === t;
           const badge = t === "EVENTOS" ? eventos.length : null;
@@ -146,7 +151,8 @@ export function Sidebar({
                 justifyContent: "center",
                 gap: 5,
                 transition: "all 0.15s",
-              }}>
+              }}
+            >
               {t === "EVENTOS" ? <CalendarPlus size={10} /> : null}
               {t}
               {badge !== null && badge > 0 && (
@@ -160,7 +166,8 @@ export function Sidebar({
                     borderRadius: 2,
                     minWidth: 14,
                     textAlign: "center",
-                  }}>
+                  }}
+                >
                   {badge}
                 </span>
               )}
@@ -176,7 +183,8 @@ export function Sidebar({
           borderBottom: `1px solid ${G.border}`,
           position: "relative",
           flexShrink: 0,
-        }}>
+        }}
+      >
         <Search
           size={10}
           color={G.textDim}
@@ -219,7 +227,8 @@ export function Sidebar({
               cursor: "pointer",
               color: G.textDim,
               padding: 0,
-            }}>
+            }}
+          >
             <X size={9} />
           </button>
         )}
@@ -240,7 +249,8 @@ export function Sidebar({
               scrollbarWidth: "none",
               flexShrink: 0,
               borderBottom: `1px solid ${G.border}`,
-            }}>
+            }}
+          >
             <span
               style={{
                 fontSize: 9,
@@ -249,7 +259,8 @@ export function Sidebar({
                 alignSelf: "center",
                 marginRight: 2,
                 whiteSpace: "nowrap",
-              }}>
+              }}
+            >
               {lugaresFiltrados.length}/{lugares.length}
             </span>
             {categoriasPresentes.map((cat) => {
@@ -270,7 +281,8 @@ export function Sidebar({
                     letterSpacing: 1,
                     fontFamily: "'Courier New', monospace",
                     whiteSpace: "nowrap",
-                  }}>
+                  }}
+                >
                   {cat === "TODAS" ? "TODAS" : cat}
                 </button>
               );
@@ -287,7 +299,8 @@ export function Sidebar({
                   fontSize: 10,
                   color: G.textDim,
                   letterSpacing: 1,
-                }}>
+                }}
+              >
                 // SIN RESULTADOS
               </div>
             )}
@@ -308,18 +321,21 @@ export function Sidebar({
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "space-between",
-                    }}>
+                    }}
+                  >
                     <span
                       style={{
                         fontSize: 8,
                         color: G.accent,
                         letterSpacing: 2,
                         fontFamily: "'Courier New', monospace",
-                      }}>
+                      }}
+                    >
                       {categoria}
                     </span>
                     <div
-                      style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      style={{ display: "flex", alignItems: "center", gap: 6 }}
+                    >
                       <span style={{ fontSize: 8, color: G.textDim }}>
                         {items.length}
                       </span>
@@ -346,7 +362,8 @@ export function Sidebar({
                               : "transparent",
                             transition: "all 0.15s",
                             position: "relative",
-                          }}>
+                          }}
+                        >
                           <button
                             onClick={() => onSeleccionar(lugar.id)}
                             style={{
@@ -356,19 +373,22 @@ export function Sidebar({
                               background: "transparent",
                               border: "none",
                               cursor: "pointer",
-                            }}>
+                            }}
+                          >
                             <div
                               style={{
                                 display: "flex",
                                 justifyContent: "space-between",
                                 alignItems: "flex-start",
-                              }}>
+                              }}
+                            >
                               <span
                                 style={{
                                   fontSize: 9,
                                   color: G.textDim,
                                   letterSpacing: 1,
-                                }}>
+                                }}
+                              >
                                 OBJ-{String(globalIdx + 1).padStart(2, "0")}
                               </span>
                               <div
@@ -392,7 +412,8 @@ export function Sidebar({
                                 color: esSeleccionado ? G.textBright : G.text,
                                 margin: "3px 0 2px",
                                 letterSpacing: 0.5,
-                              }}>
+                              }}
+                            >
                               {lugar.nombre}
                             </p>
                             <p
@@ -400,7 +421,8 @@ export function Sidebar({
                                 fontSize: 10,
                                 color: G.textDim,
                                 margin: 0,
-                              }}>
+                              }}
+                            >
                               {lugar.info || lugar.label}
                             </p>
                           </button>
@@ -417,7 +439,8 @@ export function Sidebar({
                                 cursor: "pointer",
                                 color: G.error + "88",
                                 padding: 2,
-                              }}>
+                              }}
+                            >
                               <X size={10} />
                             </button>
                           )}
@@ -456,7 +479,8 @@ export function Sidebar({
                 (e.currentTarget as HTMLButtonElement).style.borderColor =
                   G.border;
                 (e.currentTarget as HTMLButtonElement).style.color = G.textDim;
-              }}>
+              }}
+            >
               <Plus size={11} /> AGREGAR OBJETIVO
             </button>
           </div>
@@ -473,7 +497,8 @@ export function Sidebar({
             overflowY: "auto",
             display: "flex",
             flexDirection: "column",
-          }}>
+          }}
+        >
           {/* Sin eventos */}
           {eventosFiltrados.length === 0 && (
             <div style={{ padding: "24px 14px", textAlign: "center" }}>
@@ -488,7 +513,8 @@ export function Sidebar({
                   color: G.textDim,
                   letterSpacing: 1,
                   margin: 0,
-                }}>
+                }}
+              >
                 {busqueda ? "// SIN RESULTADOS" : "// SIN EVENTOS REGISTRADOS"}
               </p>
             </div>
@@ -508,7 +534,8 @@ export function Sidebar({
                   background: esSeleccionado ? cfg.color + "0d" : "transparent",
                   transition: "all 0.15s",
                   position: "relative",
-                }}>
+                }}
+              >
                 <button
                   onClick={() => onSeleccionarEvento(ev.id)}
                   style={{
@@ -518,7 +545,8 @@ export function Sidebar({
                     background: "transparent",
                     border: "none",
                     cursor: "pointer",
-                  }}>
+                  }}
+                >
                   {/* Fila superior: índice + badge estado */}
                   <div
                     style={{
@@ -526,13 +554,15 @@ export function Sidebar({
                       justifyContent: "space-between",
                       alignItems: "center",
                       marginBottom: 4,
-                    }}>
+                    }}
+                  >
                     <span
                       style={{
                         fontSize: 9,
                         color: G.textDim,
                         letterSpacing: 1,
-                      }}>
+                      }}
+                    >
                       EVT-{String(idx + 1).padStart(2, "0")}
                     </span>
                     <span
@@ -545,7 +575,8 @@ export function Sidebar({
                         display: "flex",
                         alignItems: "center",
                         gap: 3,
-                      }}>
+                      }}
+                    >
                       <span
                         style={{
                           width: 5,
@@ -568,7 +599,8 @@ export function Sidebar({
                       color: esSeleccionado ? G.textBright : G.text,
                       margin: "0 0 2px",
                       letterSpacing: 0.5,
-                    }}>
+                    }}
+                  >
                     {ev.nombre}
                   </p>
 
@@ -579,7 +611,8 @@ export function Sidebar({
                         fontSize: 10,
                         color: G.textDim,
                         margin: "0 0 4px",
-                      }}>
+                      }}
+                    >
                       {ev.descripcion.length > 40
                         ? ev.descripcion.slice(0, 40) + "…"
                         : ev.descripcion}
@@ -592,7 +625,8 @@ export function Sidebar({
                       fontSize: 9,
                       color: G.textDim,
                       letterSpacing: 0.5,
-                    }}>
+                    }}
+                  >
                     {new Date(ev.fechaInicio).toLocaleString("es-MX", {
                       dateStyle: "short",
                       timeStyle: "short",
@@ -619,7 +653,8 @@ export function Sidebar({
                         gap: 4,
                         fontSize: 8,
                         color: cfg.color + "99",
-                      }}>
+                      }}
+                    >
                       <MapPin size={8} />
                       {ev.coords[1].toFixed(4)}°N{" "}
                       {Math.abs(ev.coords[0]).toFixed(4)}°W
@@ -636,7 +671,8 @@ export function Sidebar({
                         padding: "3px 6px",
                         background: G.bg,
                         border: `1px solid ${G.border}`,
-                      }}>
+                      }}
+                    >
                       {ev.notas.length > 50
                         ? ev.notas.slice(0, 50) + "…"
                         : ev.notas}
@@ -652,7 +688,8 @@ export function Sidebar({
                     right: 8,
                     display: "flex",
                     gap: 4,
-                  }}>
+                  }}
+                >
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -665,7 +702,8 @@ export function Sidebar({
                       cursor: "pointer",
                       color: cfg.color + "88",
                       padding: 2,
-                    }}>
+                    }}
+                  >
                     <Edit2 size={10} />
                   </button>
                   <button
@@ -680,7 +718,8 @@ export function Sidebar({
                       cursor: "pointer",
                       color: G.error + "88",
                       padding: 2,
-                    }}>
+                    }}
+                  >
                     <Trash2 size={10} />
                   </button>
                 </div>
@@ -718,7 +757,8 @@ export function Sidebar({
               (e.currentTarget as HTMLButtonElement).style.borderColor =
                 G.border;
               (e.currentTarget as HTMLButtonElement).style.color = G.textDim;
-            }}>
+            }}
+          >
             <CalendarPlus size={11} /> AGREGAR EVENTO
           </button>
         </div>
