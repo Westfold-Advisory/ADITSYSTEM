@@ -2,6 +2,51 @@
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
+## CI/CD
+
+El repositorio usa GitHub Actions para validar pull requests hacia `main` y desplegar a S3 cuando se integra a `main`.
+
+### Estrategia de ramas
+
+- Crear ramas `feature/*` para cada cambio.
+- Abrir pull request hacia `main`.
+- Proteger `main` en GitHub con pull request obligatorio, checks requeridos y sin push directo.
+
+### Checks requeridos
+
+El workflow `.github/workflows/ci.yml` ejecuta:
+
+- Gitleaks para detectar secretos expuestos.
+- `npm run format:check` con Prettier.
+- `npm run lint` con ESLint.
+- `npm test` con `node:test` y `tsx`.
+- `npm audit --audit-level=high` para dependencias vulnerables.
+- Build de produccion con `npm run build`.
+- Semgrep y CodeQL como SAST ligero con publicacion SARIF en GitHub Code Scanning.
+
+### Deploy a S3
+
+El job `Deploy to S3` corre solo en `push` a `main`, despues de que los checks de calidad pasan. Construye `dist` y ejecuta:
+
+```sh
+aws s3 sync ./dist s3://$S3_BUCKET --delete
+```
+
+Configurar en GitHub:
+
+| Nombre                       | Tipo     | Uso                                             |
+| ---------------------------- | -------- | ----------------------------------------------- |
+| `AWS_ROLE_ARN`               | Secret   | Rol IAM asumido por OIDC para publicar el sitio |
+| `S3_BUCKET`                  | Variable | Bucket S3 destino                               |
+| `AWS_REGION`                 | Variable | Region AWS; si no se define usa `us-east-1`     |
+| `CLOUDFRONT_DISTRIBUTION_ID` | Variable | Opcional para invalidar CloudFront              |
+
+El rol IAM debe confiar en GitHub OIDC y tener permisos minimos sobre el bucket S3. Si usan CloudFront, agregar permiso para `cloudfront:CreateInvalidation`.
+
+### Actualizacion de dependencias
+
+Dependabot esta configurado en `.github/dependabot.yml` para crear PRs semanales de npm y GitHub Actions. Revisar esos PRs con el mismo flujo de checks antes de integrarlos.
+
 Currently, two official plugins are available:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
@@ -17,9 +62,9 @@ If you are developing a production application, we recommend updating the config
 
 ```js
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores(["dist"]),
   {
-    files: ['**/*.{ts,tsx}'],
+    files: ["**/*.{ts,tsx}"],
     extends: [
       // Other configs...
 
@@ -34,40 +79,40 @@ export default defineConfig([
     ],
     languageOptions: {
       parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
         tsconfigRootDir: import.meta.dirname,
       },
       // other options...
     },
   },
-])
+]);
 ```
 
 You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
 ```js
 // eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+import reactX from "eslint-plugin-react-x";
+import reactDom from "eslint-plugin-react-dom";
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores(["dist"]),
   {
-    files: ['**/*.{ts,tsx}'],
+    files: ["**/*.{ts,tsx}"],
     extends: [
       // Other configs...
       // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
+      reactX.configs["recommended-typescript"],
       // Enable lint rules for React DOM
       reactDom.configs.recommended,
     ],
     languageOptions: {
       parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
         tsconfigRootDir: import.meta.dirname,
       },
       // other options...
     },
   },
-])
+]);
 ```

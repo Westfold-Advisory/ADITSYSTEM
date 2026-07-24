@@ -91,7 +91,8 @@ function SelectorEstado({
           alignItems: "center",
           justifyContent: "space-between",
           boxShadow: open ? cfg.glow : "none",
-        }}>
+        }}
+      >
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <div
             style={{
@@ -125,7 +126,8 @@ function SelectorEstado({
             background: G.bgPanel,
             border: `1px solid ${G.borderBright}`,
             boxShadow: "0 4px 20px rgba(0,0,0,0.6)",
-          }}>
+          }}
+        >
           {(
             Object.entries(ESTADO_EVENTO_CONFIG) as [
               EstadoEvento,
@@ -149,7 +151,8 @@ function SelectorEstado({
                 alignItems: "center",
                 gap: 8,
                 fontFamily: "'Courier New', monospace",
-              }}>
+              }}
+            >
               <div
                 style={{
                   width: 8,
@@ -165,7 +168,8 @@ function SelectorEstado({
               </span>
               {value === estado && (
                 <span
-                  style={{ marginLeft: "auto", fontSize: 9, color: c.color }}>
+                  style={{ marginLeft: "auto", fontSize: 9, color: c.color }}
+                >
                   ✓
                 </span>
               )}
@@ -247,6 +251,7 @@ export function FormularioNuevoEvento({
 
     const payload: Evento = {
       id: eventoEditar?.id ?? Date.now(),
+      category: "Evento",
       nombre: form.nombre,
       descripcion: form.descripcion,
       estado: form.estado,
@@ -277,7 +282,8 @@ export function FormularioNuevoEvento({
         justifyContent: "center",
         background: "rgba(0,0,0,0.75)",
         backdropFilter: "blur(4px)",
-      }}>
+      }}
+    >
       <div
         style={{
           width: 550,
@@ -287,7 +293,8 @@ export function FormularioNuevoEvento({
           border: `1px solid ${cfg.color}55`,
           fontFamily: "'Courier New', monospace",
           boxShadow: `0 0 40px ${cfg.color}18`,
-        }}>
+        }}
+      >
         {/* Header */}
         <div
           style={{
@@ -300,7 +307,8 @@ export function FormularioNuevoEvento({
             top: 0,
             background: G.bgPanel,
             zIndex: 2,
-          }}>
+          }}
+        >
           <div
             style={{
               position: "absolute",
@@ -319,7 +327,8 @@ export function FormularioNuevoEvento({
                 fontWeight: 700,
                 color: cfg.color,
                 letterSpacing: 2,
-              }}>
+              }}
+            >
               {esEdicion ? "EDITAR EVENTO" : "NUEVO EVENTO"}
             </span>
           </div>
@@ -330,7 +339,8 @@ export function FormularioNuevoEvento({
               border: "none",
               cursor: "pointer",
               color: G.textDim,
-            }}>
+            }}
+          >
             <X size={14} />
           </button>
         </div>
@@ -341,7 +351,8 @@ export function FormularioNuevoEvento({
             display: "flex",
             flexDirection: "column",
             gap: 12,
-          }}>
+          }}
+        >
           {/* Nombre */}
           <div>
             <label style={labelStyle}>// NOMBRE *</label>
@@ -379,7 +390,8 @@ export function FormularioNuevoEvento({
               display: "flex",
               alignItems: "center",
               gap: 8,
-            }}>
+            }}
+          >
             <div
               style={{
                 width: 8,
@@ -403,7 +415,8 @@ export function FormularioNuevoEvento({
               display: "grid",
               gridTemplateColumns: "1fr 1fr",
               gap: 10,
-            }}>
+            }}
+          >
             <div>
               <label style={labelStyle}>// FECHA INICIO *</label>
               <input
@@ -446,7 +459,8 @@ export function FormularioNuevoEvento({
                 display: "flex",
                 alignItems: "center",
                 gap: 6,
-              }}>
+              }}
+            >
               <MapPin size={10} color={G.accent} />
               // UBICACIÓN EN EL MAPA *
             </div>
@@ -486,7 +500,8 @@ export function FormularioNuevoEvento({
                     gap: 5,
                     whiteSpace: "nowrap",
                     opacity: extracting || !form.ubicLink.trim() ? 0.5 : 1,
-                  }}>
+                  }}
+                >
                   {extracting ? (
                     <Loader
                       size={10}
@@ -506,7 +521,8 @@ export function FormularioNuevoEvento({
                 display: "grid",
                 gridTemplateColumns: "1fr 1fr",
                 gap: 10,
-              }}>
+              }}
+            >
               <div>
                 <label style={labelStyle}>// LATITUD *</label>
                 <input
@@ -548,7 +564,8 @@ export function FormularioNuevoEvento({
                 padding: "6px 10px",
                 border: `1px solid ${G.error}44`,
                 background: G.error + "11",
-              }}>
+              }}
+            >
               {error}
             </div>
           )}
@@ -567,7 +584,8 @@ export function FormularioNuevoEvento({
                 fontSize: 10,
                 letterSpacing: 1.5,
                 fontFamily: "'Courier New', monospace",
-              }}>
+              }}
+            >
               CANCELAR
             </button>
             <button
@@ -586,7 +604,8 @@ export function FormularioNuevoEvento({
                 alignItems: "center",
                 justifyContent: "center",
                 gap: 6,
-              }}>
+              }}
+            >
               <CalendarPlus size={11} />
               {esEdicion ? "GUARDAR EVENTO" : "REGISTRAR EVENTO"}
             </button>

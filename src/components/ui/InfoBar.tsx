@@ -20,7 +20,8 @@ export function InfoBar({ activo }: InfoBarProps) {
           justifyContent: "space-between",
           boxShadow: `0 0 15px rgba(0, 213, 255, 0.08)`,
           flexShrink: 0,
-        }}>
+        }}
+      >
         <div>
           <span style={{ fontSize: 9, color: G.textDim, letterSpacing: 2 }}>
             INFORMACION LIDER ACTIVO
@@ -33,7 +34,8 @@ export function InfoBar({ activo }: InfoBarProps) {
               color: G.textBright,
               margin: "2px 0",
               letterSpacing: 2,
-            }}>
+            }}
+          >
             {activo.nombre}
           </p>
 
@@ -50,7 +52,8 @@ export function InfoBar({ activo }: InfoBarProps) {
                 color: G.textDim,
                 letterSpacing: 2,
                 display: "block",
-              }}>
+              }}
+            >
               MUNICIPIO
             </span>
             <span style={{ fontSize: 13, color: G.accent }}>
@@ -65,7 +68,8 @@ export function InfoBar({ activo }: InfoBarProps) {
                 color: G.textDim,
                 letterSpacing: 2,
                 display: "block",
-              }}>
+              }}
+            >
               COORDENADAS
             </span>
             <span style={{ fontSize: 13, color: G.accent, letterSpacing: 1 }}>
@@ -88,7 +92,8 @@ export function InfoBar({ activo }: InfoBarProps) {
         alignItems: "center",
         gap: 8,
         flexShrink: 0,
-      }}>
+      }}
+    >
       <Radio size={11} color={G.textDim} />
       <span style={{ fontSize: 10, color: G.textDim, letterSpacing: 1.5 }}>
         SELECCIONE UN OBJETIVO EN EL MAPA O EN EL PANEL LATERAL

@@ -200,7 +200,8 @@ export function MapaVista({
         overflow: "hidden",
         position: "relative",
         boxShadow: `inset 0 0 40px rgba(0,0,0,0.8)`,
-      }}>
+      }}
+    >
       {esquinas.map((style, i) => (
         <div
           key={i}
@@ -214,7 +215,7 @@ export function MapaVista({
         />
       ))}
 
-      <Map center={[-98.19810458368215, 19.0437062403317]} zoom={7}>
+      <Map center={center} zoom={zoom}>
         <MapControls />
         <Capa
           visibleOaxaca={visibleOaxaca}
@@ -249,7 +250,8 @@ export function MapaVista({
           <MapMarker
             key={lugar.id}
             longitude={lugar.coords[0]}
-            latitude={lugar.coords[1]}>
+            latitude={lugar.coords[1]}
+          >
             <MarkerContent>
               <div
                 onClick={() => onSeleccionar(lugar.id)}
@@ -273,7 +275,8 @@ export function MapaVista({
                     letterSpacing: 1,
                     fontFamily: "'Courier New', monospace",
                     textShadow: `0 0 8px ${G.accent}`,
-                  }}>
+                  }}
+                >
                   {lugar.label}
                 </span>
               </MarkerLabel>
@@ -286,7 +289,8 @@ export function MapaVista({
                   background: G.bgCard,
                   border: `1px solid ${G.borderBright}`,
                   fontFamily: "'Courier New', monospace",
-                }}>
+                }}
+              >
                 {/* Imagen + botón editar superpuesto */}
                 <div
                   style={{
@@ -295,7 +299,8 @@ export function MapaVista({
                     backgroundSize: "cover",
                     backgroundPosition: "center",
                     position: "relative",
-                  }}>
+                  }}
+                >
                   <div
                     style={{
                       position: "absolute",
@@ -315,7 +320,8 @@ export function MapaVista({
                       background: G.bgCard + "cc",
                       padding: "2px 6px",
                       border: `1px solid ${G.accent}44`,
-                    }}>
+                    }}
+                  >
                     {lugar.category}
                   </div>
                   {/* Botón EDITAR */}
@@ -337,7 +343,8 @@ export function MapaVista({
                       display: "flex",
                       alignItems: "center",
                       gap: 4,
-                    }}>
+                    }}
+                  >
                     <Edit2 size={9} /> EDITAR
                   </button>
                 </div>
@@ -349,19 +356,22 @@ export function MapaVista({
                     display: "flex",
                     flexDirection: "column",
                     gap: 6,
-                  }}>
+                  }}
+                >
                   <p
                     style={{
                       fontSize: 12,
                       fontWeight: 700,
                       color: G.textBright,
                       margin: 0,
-                    }}>
+                    }}
+                  >
                     {lugar.nombre}
                   </p>
 
                   <div
-                    style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                    style={{ display: "flex", alignItems: "center", gap: 4 }}
+                  >
                     <Star size={10} fill="#ffaa00" color="#ffaa00" />
                     <span style={{ fontSize: 10, color: G.textBright }}>
                       {lugar.rating}
@@ -372,7 +382,8 @@ export function MapaVista({
                   </div>
 
                   <div
-                    style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    style={{ display: "flex", alignItems: "center", gap: 6 }}
+                  >
                     <Clock size={10} color={G.textDim} />
                     <span style={{ fontSize: 10, color: G.textDim }}>
                       {lugar.hours}
@@ -393,13 +404,15 @@ export function MapaVista({
                             display: "flex",
                             flexDirection: "column",
                             gap: 4,
-                          }}>
+                          }}
+                        >
                           <div
                             style={{
                               display: "flex",
                               alignItems: "center",
                               gap: 6,
-                            }}>
+                            }}
+                          >
                             <div
                               style={{
                                 width: 7,
@@ -416,7 +429,8 @@ export function MapaVista({
                                 color: cfg.color,
                                 letterSpacing: 1.5,
                                 fontWeight: 700,
-                              }}>
+                              }}
+                            >
                               {lugar.evento.nombre || "EVENTO"}
                             </span>
                             <span
@@ -427,7 +441,8 @@ export function MapaVista({
                                 letterSpacing: 1,
                                 border: `1px solid ${cfg.color}55`,
                                 padding: "1px 4px",
-                              }}>
+                              }}
+                            >
                               {cfg.label}
                             </span>
                           </div>
@@ -437,7 +452,8 @@ export function MapaVista({
                                 fontSize: 9,
                                 color: G.textDim,
                                 paddingLeft: 13,
-                              }}>
+                              }}
+                            >
                               {lugar.evento.descripcion}
                             </span>
                           )}
@@ -463,7 +479,8 @@ export function MapaVista({
                         letterSpacing: 1,
                         textDecoration: "none",
                         marginTop: 2,
-                      }}>
+                      }}
+                    >
                       <FileText size={9} />
                       VER CV / PORTAFOLIO
                       <ExternalLink size={8} style={{ marginLeft: "auto" }} />
@@ -492,7 +509,8 @@ export function MapaVista({
                           justifyContent: "center",
                           gap: 4,
                           fontFamily: "'Courier New', monospace",
-                        }}>
+                        }}
+                      >
                         <MessageCircle size={9} /> WHATSAPP
                       </a>
                     ) : (
@@ -514,7 +532,8 @@ export function MapaVista({
                           justifyContent: "center",
                           gap: 4,
                           fontFamily: "'Courier New', monospace",
-                        }}>
+                        }}
+                      >
                         <Navigation size={9} /> NAVEGAR
                       </a>
                     )}
@@ -534,7 +553,8 @@ export function MapaVista({
                           textDecoration: "none",
                           display: "flex",
                           alignItems: "center",
-                        }}>
+                        }}
+                      >
                         <Navigation size={9} />
                       </a>
                     )}
@@ -552,7 +572,8 @@ export function MapaVista({
                         textDecoration: "none",
                         display: "flex",
                         alignItems: "center",
-                      }}>
+                      }}
+                    >
                       <ExternalLink size={9} />
                     </a>
                   </div>
@@ -598,7 +619,8 @@ export function MapaVista({
                         letterSpacing: 1,
                         fontFamily: "'Courier New', monospace",
                         textShadow: cfg.glow,
-                      }}>
+                      }}
+                    >
                       {ev.nombre?.slice(0, 10) || "EVT"}
                     </span>
                   </MarkerLabel>
@@ -612,7 +634,8 @@ export function MapaVista({
                       border: `1px solid ${cfg.color}55`,
                       fontFamily: "'Courier New', monospace",
                       boxShadow: `0 0 16px ${cfg.color}22`,
-                    }}>
+                    }}
+                  >
                     {/* Header */}
                     <div
                       style={{
@@ -622,7 +645,8 @@ export function MapaVista({
                         display: "flex",
                         alignItems: "center",
                         gap: 8,
-                      }}>
+                      }}
+                    >
                       <div
                         style={{
                           width: 8,
@@ -644,7 +668,8 @@ export function MapaVista({
                           color: cfg.color,
                           letterSpacing: 1,
                           flex: 1,
-                        }}>
+                        }}
+                      >
                         {ev.nombre || "EVENTO"}
                       </span>
                       <span
@@ -653,7 +678,8 @@ export function MapaVista({
                           color: cfg.color,
                           border: `1px solid ${cfg.color}55`,
                           padding: "1px 5px",
-                        }}>
+                        }}
+                      >
                         {cfg.label}
                       </span>
                     </div>
@@ -664,7 +690,8 @@ export function MapaVista({
                         display: "flex",
                         flexDirection: "column",
                         gap: 5,
-                      }}>
+                      }}
+                    >
                       {ev.descripcion && (
                         <div style={{ fontSize: 9, color: G.text }}>
                           {ev.descripcion}
@@ -698,7 +725,8 @@ export function MapaVista({
                             padding: "4px 6px",
                             background: G.bg,
                             border: `1px solid ${G.border}`,
-                          }}>
+                          }}
+                        >
                           {ev.notas}
                         </div>
                       )}
@@ -725,7 +753,8 @@ export function MapaVista({
                             alignItems: "center",
                             justifyContent: "center",
                             gap: 4,
-                          }}>
+                          }}
+                        >
                           <Edit2 size={9} /> EDITAR
                         </button>
                         <button
@@ -738,7 +767,8 @@ export function MapaVista({
                             cursor: "pointer",
                             display: "flex",
                             alignItems: "center",
-                          }}>
+                          }}
+                        >
                           <Trash2 size={9} />
                         </button>
                       </div>

@@ -32,6 +32,12 @@ interface CapaProps {
   visiblePuebla: boolean;
 }
 
+interface EstadoFeature {
+  properties?: {
+    state_name?: string;
+  };
+}
+
 export function Capa({
   visibleDistritoLocal01,
   visibleDistritoLocal02,
@@ -74,7 +80,7 @@ export function Capa({
       .then((data) => {
         const filtered = {
           type: "FeatureCollection",
-          features: data.features.filter((f: any) =>
+          features: data.features.filter((f: EstadoFeature) =>
             [
               "Oaxaca",
               "Puebla",
@@ -104,7 +110,7 @@ export function Capa({
               "DL26",
             ].includes(f.properties?.state_name || ""),
           ),
-        };
+        } as const;
 
         if (map.getSource("estados")) return;
 
