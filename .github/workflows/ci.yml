@@ -20,6 +20,7 @@ concurrency:
 env:
   NODE_VERSION: "22"
   AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+  AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN || vars.AWS_ROLE_ARN || '' }}
 
 jobs:
   quality:
@@ -84,6 +85,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Validate deploy configuration
+        env:
+          S3_BUCKET: ${{ vars.S3_BUCKET || '' }}
+          CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.CLOUDFRONT_DISTRIBUTION_ID || '' }}
+        run: |
+          test -n "${AWS_ROLE_ARN}" || { echo "Missing AWS_ROLE_ARN in GitHub Secrets or Variables."; exit 1; }
+          test -n "${S3_BUCKET}" || { echo "Missing S3_BUCKET in GitHub Variables."; exit 1; }
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -97,9 +106,9 @@ jobs:
         run: npm run build
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Sync build to S3
