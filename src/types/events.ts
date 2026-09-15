@@ -47,7 +47,6 @@ export interface EventInput {
   mapUrl?: string | null;
   startsAt: Date | string;
   endsAt: Date | string;
-  status?: EventStatus;
   maximumCapacity?: number | null;
   requiresCheckin?: boolean;
   checkinOpensAt?: Date | string | null;
