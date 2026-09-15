@@ -106,7 +106,6 @@ export function mapEventInput(
   if (input.startsAt !== undefined)
     payload.fecha_inicio = toUtcDate(input.startsAt);
   if (input.endsAt !== undefined) payload.fecha_fin = toUtcDate(input.endsAt);
-  if (input.status !== undefined) payload.estatus = input.status;
   if (input.maximumCapacity !== undefined)
     payload.capacidad_maxima = input.maximumCapacity;
   if (input.requiresCheckin !== undefined)
