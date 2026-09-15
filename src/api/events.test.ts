@@ -59,6 +59,32 @@ describe("event mappers", () => {
 });
 
 describe("ApiClient", () => {
+  it("calls the browser fetch with its global context by default", async () => {
+    const originalFetch = globalThis.fetch;
+    Object.defineProperty(globalThis, "fetch", {
+      configurable: true,
+      value: function (this: unknown) {
+        if (this !== globalThis)
+          return Promise.reject(new Error("lost context"));
+        return Promise.resolve(
+          new Response(JSON.stringify([]), {
+            headers: { "content-type": "application/json" },
+          }),
+        );
+      },
+    });
+    try {
+      await new ApiClient({ baseUrl: "https://api.example.test" }).request(
+        "/public/events",
+      );
+    } finally {
+      Object.defineProperty(globalThis, "fetch", {
+        configurable: true,
+        value: originalFetch,
+      });
+    }
+  });
+
   it("adds Bearer only to administrative requests and normalizes FastAPI 422 errors", async () => {
     let headers: Headers | undefined;
     const client = new ApiClient({

@@ -93,7 +93,7 @@ export class ApiClient {
   constructor({
     baseUrl = defaultBaseUrl,
     getAccessToken,
-    fetchFn = fetch,
+    fetchFn = (input, init) => globalThis.fetch(input, init),
   }: ApiClientOptions = {}) {
     this.baseUrl = baseUrl.replace(/\/$/, "");
     this.getAccessToken = getAccessToken;
