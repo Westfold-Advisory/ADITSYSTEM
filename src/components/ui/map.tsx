@@ -5,7 +5,6 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 import * as MapLibreGL from "maplibre-gl";
 import type { MarkerOptions, PopupOptions } from "maplibre-gl";
-import type * as GeoJSON from "geojson";
 
 import {
   createContext,
