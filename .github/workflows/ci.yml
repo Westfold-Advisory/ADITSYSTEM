@@ -65,6 +65,15 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Generate build info
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          printf '{"sha":"%s","ref":"%s","built_at":"%s"}\n' \
+            "${GITHUB_SHA}" \
+            "${GITHUB_REF_NAME}" \
+            "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            > dist/build-info.json
+
       - name: Upload validated build
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v4
@@ -99,9 +108,6 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-
       - name: Validate deploy configuration
         env:
           AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN || '' }}
@@ -118,7 +124,11 @@ jobs:
           path: dist
 
       - name: Validate build artifact
-        run: test -f dist/index.html
+        run: |
+          test -f dist/index.html || { echo "dist/index.html not found in artifact"; exit 1; }
+          test -f dist/build-info.json || { echo "dist/build-info.json not found in artifact"; exit 1; }
+          artifact_sha=$(jq -r '.sha' dist/build-info.json)
+          test "${artifact_sha}" = "${GITHUB_SHA}" || { echo "Artifact SHA mismatch: expected ${GITHUB_SHA}, got ${artifact_sha}"; exit 1; }
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
@@ -126,8 +136,29 @@ jobs:
           role-to-assume: ${{ vars.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Sync build to S3
-        run: aws s3 sync ./dist s3://${{ vars.S3_BUCKET }} --delete
+      - name: Sync versioned assets to S3
+        run: |
+          aws s3 sync ./dist "s3://${{ vars.S3_BUCKET }}" \
+            --delete \
+            --exclude "index.html" \
+            --exclude "build-info.json" \
+            --cache-control "max-age=31536000,immutable"
+
+      - name: Upload index.html and build-info.json
+        run: |
+          aws s3 cp ./dist/index.html "s3://${{ vars.S3_BUCKET }}/index.html" \
+            --cache-control "no-cache,no-store,must-revalidate" \
+            --content-type "text/html; charset=utf-8"
+          aws s3 cp ./dist/build-info.json "s3://${{ vars.S3_BUCKET }}/build-info.json" \
+            --cache-control "no-cache,no-store,must-revalidate" \
+            --content-type "application/json"
+
+      - name: Verify deployed revision
+        run: |
+          aws s3 cp "s3://${{ vars.S3_BUCKET }}/build-info.json" /tmp/deployed-build-info.json
+          deployed_sha=$(jq -r '.sha' /tmp/deployed-build-info.json)
+          echo "Deployed SHA: ${deployed_sha}"
+          test "${deployed_sha}" = "${GITHUB_SHA}" || { echo "SHA mismatch: expected ${GITHUB_SHA}, got ${deployed_sha}"; exit 1; }
 
       - name: Invalidate CloudFront
         if: vars.CLOUDFRONT_DISTRIBUTION_ID != ''
