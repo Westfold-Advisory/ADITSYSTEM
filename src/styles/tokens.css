@@ -1,0 +1,62 @@
+/*
+ * ADITSYSTEM — Cyber Design Tokens
+ * ─────────────────────────────────────────────────────────────────────────────
+ * All tokens are CSS custom properties defined in :root (index.css).
+ * This file documents them and adds any derived / semantic utilities.
+ *
+ * COLOR
+ * ─────
+ * --cyber-bg              Deep navy-black backdrop  (#050a0e)
+ * --cyber-surface-1       Panel surface             (#080f14)
+ * --cyber-surface-2       Card surface              (#0a1520)
+ * --cyber-border-subtle   Hairline borders          (#0e2a3a)
+ * --cyber-border          Visible borders           (#1a4a6a)
+ * --cyber-cyan            Primary / interactive     (#00d4ff)  ≥ 7:1 on bg
+ * --cyber-cyan-dim        Cyan background tint      (#004455)
+ * --cyber-violet          Secondary / events        (#a855f7)  ≥ 4.5:1 on bg
+ * --cyber-green           Success / active state    (#00c870)  ≥ 4.5:1 on bg
+ * --cyber-orange          Warning                   (#ff8c42)  ≥ 4.5:1 on bg
+ * --cyber-error           Destructive               (#ff3355)  ≥ 4.5:1 on bg
+ * --cyber-text            Body text                 (#c8e8f0)  ≥ 7:1  on bg
+ * --cyber-text-secondary  Captions / meta           (#7aa8be)  ≥ 4.5:1 on bg
+ * --cyber-text-disabled   Disabled controls                    AA border only
+ * --cyber-text-bright     High-emphasis / headings  (#ffffff)
+ *
+ * SHADOWS / GLOW (decorative — legibility must not depend on these)
+ * ─────────────────────────────────────────────────────────────────
+ * --cyber-shadow-sm / -md / -lg   Elevation
+ * --cyber-glow-cyan/violet/green  Accent halos
+ *
+ * MOTION
+ * ──────
+ * --cyber-duration-fast   150 ms  (micro-interactions)
+ * --cyber-duration-normal 220 ms  (panels, accordions)
+ * --cyber-duration-slow   350 ms  (page transitions)
+ * --cyber-ease            cubic-bezier(0.4, 0, 0.2, 1)
+ *
+ * All durations collapse to 0 ms when prefers-reduced-motion: reduce.
+ *
+ * SPACING
+ * ───────
+ * --cyber-space-xs  4px
+ * --cyber-space-sm  8px
+ * --cyber-space-md  12px
+ * --cyber-space-lg  16px
+ * --cyber-space-xl  24px
+ * --cyber-space-2xl 32px
+ *
+ * TYPOGRAPHY
+ * ──────────
+ * Sans:  "Geist Variable" — UI copy, body
+ * Mono:  "Courier New"    — labels, codes, coordinates, IDs
+ * Neon glow on labels is DECORATIVE.  Contrast must be met by fill color alone.
+ *
+ * RADIUS
+ * ──────
+ * --radius: 0.25rem  (squared, cyber aesthetic)
+ *
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+
+/* Re-export shadcn variants */
+@import "./shadcn-tailwind.css";

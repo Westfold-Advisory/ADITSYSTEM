@@ -1,4 +1,3 @@
-// src/components/Sidebar.tsx
 import { useState, useMemo } from "react";
 import {
   X,
@@ -11,9 +10,10 @@ import {
   Trash2,
   MapPin,
 } from "lucide-react";
-import { G, LUGARES_INICIALES } from "./constants";
+import { LUGARES_INICIALES } from "./constants";
 import type { Lugar, Evento } from "./types";
 import { ESTADO_EVENTO_CONFIG } from "./types";
+import { cn } from "@/lib/utils";
 
 interface SidebarProps {
   lugares: Lugar[];
@@ -29,7 +29,6 @@ interface SidebarProps {
   onEditarEvento: (ev: Evento) => void;
 }
 
-// ─── Tab activa ───────────────────────────────────────────────────────────────
 type Tab = "OBJETIVOS" | "EVENTOS";
 
 export function Sidebar({
@@ -50,13 +49,11 @@ export function Sidebar({
   const [categoriaFiltro, setCategoriaFiltro] = useState<string>("TODAS");
   const [colapsadas, setColapsadas] = useState<Set<string>>(new Set());
 
-  // ── Categorías ──
   const categoriasPresentes = useMemo(() => {
     const set = new Set(lugares.map((l) => l.category ?? "SIN CATEGORÍA"));
     return ["TODAS", ...Array.from(set)];
   }, [lugares]);
 
-  // ── Filtrado de lugares ──
   const lugaresFiltrados = useMemo(() => {
     return lugares.filter((l) => {
       const matchBusqueda =
@@ -70,7 +67,6 @@ export function Sidebar({
     });
   }, [lugares, busqueda, categoriaFiltro]);
 
-  // ── Filtrado de eventos ──
   const eventosFiltrados = useMemo(() => {
     if (busqueda.trim() === "") return eventos;
     return eventos.filter(
@@ -80,7 +76,6 @@ export function Sidebar({
     );
   }, [eventos, busqueda]);
 
-  // ── Agrupación lugares ──
   const grupos = useMemo(() => {
     const map = new Map<string, Lugar[]>();
     lugaresFiltrados.forEach((l) => {
@@ -94,11 +89,8 @@ export function Sidebar({
   const toggleColapso = (cat: string) =>
     setColapsadas((prev) => {
       const next = new Set(prev);
-      if (next.has(cat)) {
-        next.delete(cat);
-      } else {
-        next.add(cat);
-      }
+      if (next.has(cat)) next.delete(cat);
+      else next.add(cat);
       return next;
     });
 
@@ -110,23 +102,18 @@ export function Sidebar({
 
   return (
     <aside
+      className="flex flex-col w-full h-full overflow-hidden"
       style={{
-        width: 250,
-        borderRight: `1px solid ${G.border}`,
-        background: G.bgPanel,
-        display: "flex",
-        flexDirection: "column",
-        flexShrink: 0,
-        overflow: "hidden",
+        background: "var(--cyber-surface-1)",
+        borderRight: "1px solid var(--cyber-border-subtle)",
       }}
     >
-      {/* ── Tabs OBJETIVOS / EVENTOS ── */}
+      {/* ── Tabs ────────────────────────────────────────────────────────── */}
       <div
-        style={{
-          display: "flex",
-          borderBottom: `1px solid ${G.border}`,
-          flexShrink: 0,
-        }}
+        className="flex shrink-0 border-b"
+        style={{ borderColor: "var(--cyber-border-subtle)" }}
+        role="tablist"
+        aria-label="Secciones"
       >
         {(["OBJETIVOS", "EVENTOS"] as Tab[]).map((t) => {
           const activa = tab === t;
@@ -134,38 +121,30 @@ export function Sidebar({
           return (
             <button
               key={t}
+              role="tab"
+              aria-selected={activa}
               onClick={() => setTab(t)}
+              className={cn(
+                "flex-1 flex items-center justify-center gap-1.5 py-2.5",
+                "font-mono text-[9px] tracking-[0.18em] uppercase border-b-2",
+                "transition-colors focus-visible:outline focus-visible:outline-2",
+              )}
               style={{
-                flex: 1,
-                padding: "10px 0",
-                background: activa ? G.accentDim + "44" : "transparent",
-                border: "none",
-                borderBottom: `2px solid ${activa ? G.accent : "transparent"}`,
-                color: activa ? G.accent : G.textDim,
-                cursor: "pointer",
-                fontSize: 9,
-                letterSpacing: 2,
-                fontFamily: "'Courier New', monospace",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 5,
-                transition: "all 0.15s",
+                background: activa ? "var(--cyber-cyan-dim)" : "transparent",
+                borderBottomColor: activa ? "var(--cyber-cyan)" : "transparent",
+                color: activa ? "var(--cyber-cyan)" : "var(--cyber-text-secondary)",
+                outlineColor: "var(--cyber-cyan)",
+                transitionDuration: "var(--cyber-duration-fast)",
               }}
             >
-              {t === "EVENTOS" ? <CalendarPlus size={10} /> : null}
+              {t === "EVENTOS" && <CalendarPlus size={10} aria-hidden="true" />}
               {t}
               {badge !== null && badge > 0 && (
                 <span
+                  className="font-mono text-[8px] font-bold px-1 rounded-sm min-w-[14px] text-center"
                   style={{
-                    background: G.accent,
-                    color: G.bg,
-                    fontSize: 8,
-                    fontWeight: 700,
-                    padding: "0 4px",
-                    borderRadius: 2,
-                    minWidth: 14,
-                    textAlign: "center",
+                    background: "var(--cyber-cyan)",
+                    color: "var(--cyber-bg)",
                   }}
                 >
                   {badge}
@@ -176,57 +155,39 @@ export function Sidebar({
         })}
       </div>
 
-      {/* ── Buscador (compartido) ── */}
+      {/* ── Search ──────────────────────────────────────────────────────── */}
       <div
-        style={{
-          padding: "8px 10px",
-          borderBottom: `1px solid ${G.border}`,
-          position: "relative",
-          flexShrink: 0,
-        }}
+        className="relative px-2.5 py-2 shrink-0 border-b"
+        style={{ borderColor: "var(--cyber-border-subtle)" }}
       >
         <Search
           size={10}
-          color={G.textDim}
-          style={{
-            position: "absolute",
-            left: 18,
-            top: "50%",
-            transform: "translateY(-50%)",
-          }}
+          aria-hidden="true"
+          className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
+          style={{ color: "var(--cyber-text-secondary)" }}
         />
         <input
+          type="search"
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
-          placeholder={
-            tab === "OBJETIVOS" ? "BUSCAR OBJETIVO..." : "BUSCAR EVENTO..."
-          }
+          placeholder={tab === "OBJETIVOS" ? "Buscar objetivo…" : "Buscar evento…"}
+          aria-label={tab === "OBJETIVOS" ? "Buscar objetivo" : "Buscar evento"}
+          className="w-full pl-6 pr-7 py-1.5 font-mono text-[10px] rounded border bg-transparent focus-visible:outline focus-visible:outline-2"
           style={{
-            width: "100%",
-            boxSizing: "border-box",
-            background: G.bg,
-            border: `1px solid ${G.border}`,
-            color: G.text,
-            padding: "5px 8px 5px 24px",
-            fontSize: 10,
-            fontFamily: "'Courier New', monospace",
-            outline: "none",
-            letterSpacing: 0.5,
+            borderColor: "var(--cyber-border-subtle)",
+            color: "var(--cyber-text)",
+            outlineColor: "var(--cyber-cyan)",
           }}
         />
         {busqueda && (
           <button
+            type="button"
             onClick={() => setBusqueda("")}
+            aria-label="Limpiar búsqueda"
+            className="absolute right-4 top-1/2 -translate-y-1/2 p-0.5 rounded focus-visible:outline focus-visible:outline-2"
             style={{
-              position: "absolute",
-              right: 16,
-              top: "50%",
-              transform: "translateY(-50%)",
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              color: G.textDim,
-              padding: 0,
+              color: "var(--cyber-text-secondary)",
+              outlineColor: "var(--cyber-cyan)",
             }}
           >
             <X size={9} />
@@ -234,32 +195,19 @@ export function Sidebar({
         )}
       </div>
 
-      {/* ══════════════════════════════════════════
+      {/* ══════════════════════════════════════════════════════════════════
           TAB: OBJETIVOS
-      ══════════════════════════════════════════ */}
+      ══════════════════════════════════════════════════════════════════ */}
       {tab === "OBJETIVOS" && (
         <>
-          {/* Filtro categoría */}
+          {/* Category filter chips */}
           <div
-            style={{
-              padding: "6px 10px",
-              overflowX: "auto",
-              display: "flex",
-              gap: 4,
-              scrollbarWidth: "none",
-              flexShrink: 0,
-              borderBottom: `1px solid ${G.border}`,
-            }}
+            className="flex gap-1.5 px-2.5 py-1.5 overflow-x-auto no-scrollbar shrink-0 border-b"
+            style={{ borderColor: "var(--cyber-border-subtle)" }}
           >
             <span
-              style={{
-                fontSize: 9,
-                color: G.accent,
-                letterSpacing: 1,
-                alignSelf: "center",
-                marginRight: 2,
-                whiteSpace: "nowrap",
-              }}
+              className="font-mono text-[9px] self-center whitespace-nowrap shrink-0"
+              style={{ color: "var(--cyber-cyan)" }}
             >
               {lugaresFiltrados.length}/{lugares.length}
             </span>
@@ -268,259 +216,196 @@ export function Sidebar({
               return (
                 <button
                   key={cat}
+                  type="button"
                   onClick={() => setCategoriaFiltro(cat)}
                   title={cat}
+                  className={cn(
+                    "shrink-0 px-2 py-0.5 rounded border font-mono text-[8px] tracking-wide uppercase",
+                    "whitespace-nowrap transition-colors focus-visible:outline focus-visible:outline-2",
+                  )}
                   style={{
-                    flexShrink: 0,
-                    padding: "3px 7px",
-                    background: activa ? G.accentDim : "transparent",
-                    border: `1px solid ${activa ? G.accent : G.border}`,
-                    color: activa ? G.accent : G.textDim,
-                    cursor: "pointer",
-                    fontSize: 8,
-                    letterSpacing: 1,
-                    fontFamily: "'Courier New', monospace",
-                    whiteSpace: "nowrap",
+                    background: activa ? "var(--cyber-cyan-dim)" : "transparent",
+                    borderColor: activa ? "var(--cyber-cyan)" : "var(--cyber-border-subtle)",
+                    color: activa ? "var(--cyber-cyan)" : "var(--cyber-text-secondary)",
+                    outlineColor: "var(--cyber-cyan)",
+                    transitionDuration: "var(--cyber-duration-fast)",
                   }}
                 >
-                  {cat === "TODAS" ? "TODAS" : cat}
+                  {cat}
                 </button>
               );
             })}
           </div>
 
-          {/* Lista agrupada */}
-          <div style={{ flex: 1, overflowY: "auto" }}>
+          {/* Grouped list */}
+          <div className="flex-1 overflow-y-auto">
             {grupos.size === 0 && (
-              <div
-                style={{
-                  padding: "20px 14px",
-                  textAlign: "center",
-                  fontSize: 10,
-                  color: G.textDim,
-                  letterSpacing: 1,
-                }}
+              <p
+                className="text-center font-mono text-[10px] py-8 px-3"
+                style={{ color: "var(--cyber-text-secondary)" }}
               >
-                // SIN RESULTADOS
-              </div>
+                // Sin resultados
+              </p>
             )}
+
             {Array.from(grupos.entries()).map(([categoria, items]) => {
               const colapsada = colapsadas.has(categoria);
               return (
                 <div key={categoria}>
+                  {/* Group header */}
                   <button
+                    type="button"
                     onClick={() => toggleColapso(categoria)}
+                    aria-expanded={!colapsada}
+                    className={cn(
+                      "w-full flex items-center justify-between px-3 py-1.5 border-b",
+                      "focus-visible:outline focus-visible:outline-2",
+                    )}
                     style={{
-                      width: "100%",
-                      textAlign: "left",
-                      padding: "6px 14px",
-                      background: G.bg + "88",
-                      border: "none",
-                      borderBottom: `1px solid ${G.border}`,
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
+                      background: "var(--cyber-bg)",
+                      borderColor: "var(--cyber-border-subtle)",
+                      outlineColor: "var(--cyber-cyan)",
                     }}
                   >
                     <span
-                      style={{
-                        fontSize: 8,
-                        color: G.accent,
-                        letterSpacing: 2,
-                        fontFamily: "'Courier New', monospace",
-                      }}
+                      className="font-mono text-[8px] tracking-[0.2em] uppercase"
+                      style={{ color: "var(--cyber-cyan)" }}
                     >
                       {categoria}
                     </span>
-                    <div
-                      style={{ display: "flex", alignItems: "center", gap: 6 }}
-                    >
-                      <span style={{ fontSize: 8, color: G.textDim }}>
+                    <div className="flex items-center gap-1.5">
+                      <span
+                        className="text-[8px]"
+                        style={{ color: "var(--cyber-text-secondary)" }}
+                      >
                         {items.length}
                       </span>
-                      {colapsada ? (
-                        <ChevronRight size={10} color={G.textDim} />
-                      ) : (
-                        <ChevronDown size={10} color={G.textDim} />
-                      )}
+                      {colapsada
+                        ? <ChevronRight size={10} style={{ color: "var(--cyber-text-secondary)" }} />
+                        : <ChevronDown  size={10} style={{ color: "var(--cyber-text-secondary)" }} />}
                     </div>
                   </button>
-                  {!colapsada &&
-                    items.map((lugar) => {
-                      const globalIdx = inicioIdxMap.get(lugar.id) ?? 0;
-                      const esSeleccionado = seleccionado === lugar.id;
-                      const esUsuario = globalIdx >= LUGARES_INICIALES.length;
-                      return (
-                        <div
-                          key={lugar.id}
-                          style={{
-                            borderBottom: `1px solid ${G.border}`,
-                            borderLeft: `3px solid ${esSeleccionado ? G.accent : "transparent"}`,
-                            background: esSeleccionado
-                              ? G.accentDim + "55"
-                              : "transparent",
-                            transition: "all 0.15s",
-                            position: "relative",
-                          }}
+
+                  {!colapsada && items.map((lugar) => {
+                    const globalIdx = inicioIdxMap.get(lugar.id) ?? 0;
+                    const esSeleccionado = seleccionado === lugar.id;
+                    const esUsuario = globalIdx >= LUGARES_INICIALES.length;
+                    return (
+                      <div
+                        key={lugar.id}
+                        className="relative border-b"
+                        style={{
+                          borderColor: "var(--cyber-border-subtle)",
+                          borderLeft: `3px solid ${esSeleccionado ? "var(--cyber-cyan)" : "transparent"}`,
+                          background: esSeleccionado ? "var(--cyber-cyan-dim)" : "transparent",
+                          transitionProperty: "background, border-left-color",
+                          transitionDuration: "var(--cyber-duration-fast)",
+                        }}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => onSeleccionar(lugar.id)}
+                          className="w-full text-left px-3 py-2.5 focus-visible:outline focus-visible:outline-2"
+                          style={{ outlineColor: "var(--cyber-cyan)" }}
                         >
-                          <button
-                            onClick={() => onSeleccionar(lugar.id)}
+                          <div className="flex justify-between items-start mb-0.5">
+                            <span
+                              className="font-mono text-[9px] tracking-wide"
+                              style={{ color: "var(--cyber-text-secondary)" }}
+                            >
+                              OBJ-{String(globalIdx + 1).padStart(2, "0")}
+                            </span>
+                            <span
+                              className="size-1.5 rounded-full"
+                              style={{
+                                background: esSeleccionado ? "var(--cyber-green)" : "var(--cyber-text-secondary)",
+                                boxShadow: esSeleccionado ? "var(--cyber-glow-green)" : "none",
+                              }}
+                            />
+                          </div>
+                          <p
+                            className="text-[12px] font-bold tracking-[0.03em] mb-0.5"
                             style={{
-                              width: "100%",
-                              textAlign: "left",
-                              padding: "10px 14px 10px 11px",
-                              background: "transparent",
-                              border: "none",
-                              cursor: "pointer",
+                              color: esSeleccionado ? "var(--cyber-text-bright)" : "var(--cyber-text)",
                             }}
                           >
-                            <div
-                              style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "flex-start",
-                              }}
-                            >
-                              <span
-                                style={{
-                                  fontSize: 9,
-                                  color: G.textDim,
-                                  letterSpacing: 1,
-                                }}
-                              >
-                                OBJ-{String(globalIdx + 1).padStart(2, "0")}
-                              </span>
-                              <div
-                                style={{
-                                  width: 5,
-                                  height: 5,
-                                  borderRadius: "50%",
-                                  background: esSeleccionado
-                                    ? G.accentGreen
-                                    : G.textDim,
-                                  boxShadow: esSeleccionado
-                                    ? `0 0 6px ${G.accentGreen}`
-                                    : "none",
-                                }}
-                              />
-                            </div>
-                            <p
-                              style={{
-                                fontSize: 12,
-                                fontWeight: 700,
-                                color: esSeleccionado ? G.textBright : G.text,
-                                margin: "3px 0 2px",
-                                letterSpacing: 0.5,
-                              }}
-                            >
-                              {lugar.nombre}
-                            </p>
-                            <p
-                              style={{
-                                fontSize: 10,
-                                color: G.textDim,
-                                margin: 0,
-                              }}
-                            >
-                              {lugar.info || lugar.label}
-                            </p>
+                            {lugar.nombre}
+                          </p>
+                          <p
+                            className="text-[10px]"
+                            style={{ color: "var(--cyber-text-secondary)" }}
+                          >
+                            {lugar.info || lugar.label}
+                          </p>
+                        </button>
+
+                        {esUsuario && (
+                          <button
+                            type="button"
+                            onClick={() => onEliminar(lugar.id)}
+                            title="Eliminar objetivo"
+                            aria-label={`Eliminar ${lugar.nombre}`}
+                            className="absolute top-2 right-2 p-1 rounded focus-visible:outline focus-visible:outline-2"
+                            style={{
+                              color: "var(--cyber-error)",
+                              outlineColor: "var(--cyber-cyan)",
+                            }}
+                          >
+                            <X size={10} />
                           </button>
-                          {esUsuario && (
-                            <button
-                              onClick={() => onEliminar(lugar.id)}
-                              title="Eliminar"
-                              style={{
-                                position: "absolute",
-                                top: 8,
-                                right: 8,
-                                background: "none",
-                                border: "none",
-                                cursor: "pointer",
-                                color: G.error + "88",
-                                padding: 2,
-                              }}
-                            >
-                              <X size={10} />
-                            </button>
-                          )}
-                        </div>
-                      );
-                    })}
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               );
             })}
+
+            {/* Add button */}
             <button
+              type="button"
               onClick={onAbrirFormulario}
+              className={cn(
+                "w-[calc(100%-20px)] mx-2.5 my-2.5 py-2 flex items-center justify-center gap-1.5",
+                "font-mono text-[10px] tracking-[0.15em] uppercase rounded border border-dashed",
+                "transition-colors focus-visible:outline focus-visible:outline-2",
+                "hover:border-[var(--cyber-green)] hover:text-[var(--cyber-green)]",
+              )}
               style={{
-                margin: 10,
-                padding: "8px",
-                background: "transparent",
-                border: `1px dashed ${G.border}`,
-                color: G.textDim,
-                cursor: "pointer",
-                fontSize: 10,
-                letterSpacing: 1.5,
-                fontFamily: "'Courier New', monospace",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 6,
-                transition: "all 0.2s",
-                width: "calc(100% - 20px)",
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor =
-                  G.accentGreen;
-                (e.currentTarget as HTMLButtonElement).style.color =
-                  G.accentGreen;
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor =
-                  G.border;
-                (e.currentTarget as HTMLButtonElement).style.color = G.textDim;
+                borderColor: "var(--cyber-border-subtle)",
+                color: "var(--cyber-text-secondary)",
+                outlineColor: "var(--cyber-cyan)",
+                transitionDuration: "var(--cyber-duration-fast)",
               }}
             >
-              <Plus size={11} /> AGREGAR OBJETIVO
+              <Plus size={11} aria-hidden="true" />
+              Agregar objetivo
             </button>
           </div>
         </>
       )}
 
-      {/* ══════════════════════════════════════════
+      {/* ══════════════════════════════════════════════════════════════════
           TAB: EVENTOS
-      ══════════════════════════════════════════ */}
+      ══════════════════════════════════════════════════════════════════ */}
       {tab === "EVENTOS" && (
-        <div
-          style={{
-            flex: 1,
-            overflowY: "auto",
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
-          {/* Sin eventos */}
+        <div className="flex flex-col flex-1 overflow-y-auto">
           {eventosFiltrados.length === 0 && (
-            <div style={{ padding: "24px 14px", textAlign: "center" }}>
+            <div className="flex flex-col items-center justify-center py-10 px-4 gap-2">
               <CalendarPlus
                 size={24}
-                color={G.textDim}
-                style={{ margin: "0 auto 8px", display: "block" }}
+                aria-hidden="true"
+                style={{ color: "var(--cyber-text-secondary)" }}
               />
               <p
-                style={{
-                  fontSize: 10,
-                  color: G.textDim,
-                  letterSpacing: 1,
-                  margin: 0,
-                }}
+                className="font-mono text-[10px] tracking-wide text-center"
+                style={{ color: "var(--cyber-text-secondary)" }}
               >
-                {busqueda ? "// SIN RESULTADOS" : "// SIN EVENTOS REGISTRADOS"}
+                {busqueda ? "// Sin resultados" : "// Sin eventos registrados"}
               </p>
             </div>
           )}
 
-          {/* Lista de eventos */}
           {eventosFiltrados.map((ev, idx) => {
             const cfg = ESTADO_EVENTO_CONFIG[ev.estado];
             const esSeleccionado = eventoSeleccionado === ev.id;
@@ -528,62 +413,37 @@ export function Sidebar({
             return (
               <div
                 key={ev.id}
+                className="relative border-b"
                 style={{
-                  borderBottom: `1px solid ${G.border}`,
+                  borderColor: "var(--cyber-border-subtle)",
                   borderLeft: `3px solid ${esSeleccionado ? cfg.color : "transparent"}`,
                   background: esSeleccionado ? cfg.color + "0d" : "transparent",
-                  transition: "all 0.15s",
-                  position: "relative",
+                  transitionProperty: "background, border-left-color",
+                  transitionDuration: "var(--cyber-duration-fast)",
                 }}
               >
                 <button
+                  type="button"
                   onClick={() => onSeleccionarEvento(ev.id)}
-                  style={{
-                    width: "100%",
-                    textAlign: "left",
-                    padding: "10px 36px 10px 11px",
-                    background: "transparent",
-                    border: "none",
-                    cursor: "pointer",
-                  }}
+                  className="w-full text-left px-3 pr-9 py-2.5 focus-visible:outline focus-visible:outline-2"
+                  style={{ outlineColor: "var(--cyber-cyan)" }}
                 >
-                  {/* Fila superior: índice + badge estado */}
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      marginBottom: 4,
-                    }}
-                  >
+                  {/* Header row */}
+                  <div className="flex justify-between items-center mb-1">
                     <span
-                      style={{
-                        fontSize: 9,
-                        color: G.textDim,
-                        letterSpacing: 1,
-                      }}
+                      className="font-mono text-[9px] tracking-wide"
+                      style={{ color: "var(--cyber-text-secondary)" }}
                     >
                       EVT-{String(idx + 1).padStart(2, "0")}
                     </span>
                     <span
-                      style={{
-                        fontSize: 8,
-                        letterSpacing: 1,
-                        color: cfg.color,
-                        border: `1px solid ${cfg.color}55`,
-                        padding: "1px 5px",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 3,
-                      }}
+                      className="font-mono text-[8px] tracking-wide flex items-center gap-1 border px-1.5 py-0.5"
+                      style={{ color: cfg.color, borderColor: cfg.color + "55" }}
                     >
                       <span
+                        className="size-1.5 rounded-full"
                         style={{
-                          width: 5,
-                          height: 5,
-                          borderRadius: "50%",
                           background: cfg.color,
-                          display: "inline-block",
                           boxShadow: ev.estado === "ACTIVO" ? cfg.glow : "none",
                         }}
                       />
@@ -591,27 +451,19 @@ export function Sidebar({
                     </span>
                   </div>
 
-                  {/* Nombre */}
                   <p
+                    className="text-[12px] font-bold tracking-[0.03em] mb-0.5"
                     style={{
-                      fontSize: 12,
-                      fontWeight: 700,
-                      color: esSeleccionado ? G.textBright : G.text,
-                      margin: "0 0 2px",
-                      letterSpacing: 0.5,
+                      color: esSeleccionado ? "var(--cyber-text-bright)" : "var(--cyber-text)",
                     }}
                   >
                     {ev.nombre}
                   </p>
 
-                  {/* Descripción */}
                   {ev.descripcion && (
                     <p
-                      style={{
-                        fontSize: 10,
-                        color: G.textDim,
-                        margin: "0 0 4px",
-                      }}
+                      className="text-[10px] mb-1"
+                      style={{ color: "var(--cyber-text-secondary)" }}
                     >
                       {ev.descripcion.length > 40
                         ? ev.descripcion.slice(0, 40) + "…"
@@ -619,13 +471,9 @@ export function Sidebar({
                     </p>
                   )}
 
-                  {/* Fecha inicio */}
-                  <div
-                    style={{
-                      fontSize: 9,
-                      color: G.textDim,
-                      letterSpacing: 0.5,
-                    }}
+                  <p
+                    className="font-mono text-[9px]"
+                    style={{ color: "var(--cyber-text-secondary)" }}
                   >
                     {new Date(ev.fechaInicio).toLocaleString("es-MX", {
                       dateStyle: "short",
@@ -633,92 +481,65 @@ export function Sidebar({
                     })}
                     {ev.fechaFin && (
                       <span>
-                        {" "}
-                        →{" "}
+                        {" → "}
                         {new Date(ev.fechaFin).toLocaleString("es-MX", {
                           dateStyle: "short",
                           timeStyle: "short",
                         })}
                       </span>
                     )}
-                  </div>
+                  </p>
 
-                  {/* Coords */}
                   {ev.coords && (
                     <div
-                      style={{
-                        marginTop: 4,
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 4,
-                        fontSize: 8,
-                        color: cfg.color + "99",
-                      }}
+                      className="mt-1 flex items-center gap-1 font-mono text-[8px]"
+                      style={{ color: cfg.color + "99" }}
                     >
-                      <MapPin size={8} />
-                      {ev.coords[1].toFixed(4)}°N{" "}
-                      {Math.abs(ev.coords[0]).toFixed(4)}°W
+                      <MapPin size={8} aria-hidden="true" />
+                      {ev.coords[1].toFixed(4)}° N{" "}
+                      {Math.abs(ev.coords[0]).toFixed(4)}° W
                     </div>
                   )}
 
-                  {/* Notas */}
                   {ev.notas && (
-                    <div
+                    <p
+                      className="mt-1 text-[9px] px-1.5 py-1 border rounded"
                       style={{
-                        marginTop: 4,
-                        fontSize: 9,
-                        color: G.textDim,
-                        padding: "3px 6px",
-                        background: G.bg,
-                        border: `1px solid ${G.border}`,
+                        color: "var(--cyber-text-secondary)",
+                        background: "var(--cyber-bg)",
+                        borderColor: "var(--cyber-border-subtle)",
                       }}
                     >
-                      {ev.notas.length > 50
-                        ? ev.notas.slice(0, 50) + "…"
-                        : ev.notas}
-                    </div>
+                      {ev.notas.length > 50 ? ev.notas.slice(0, 50) + "…" : ev.notas}
+                    </p>
                   )}
                 </button>
 
-                {/* Acciones: editar + eliminar */}
-                <div
-                  style={{
-                    position: "absolute",
-                    top: 8,
-                    right: 8,
-                    display: "flex",
-                    gap: 4,
-                  }}
-                >
+                {/* Action buttons */}
+                <div className="absolute top-2 right-2 flex gap-1">
                   <button
+                    type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       onEditarEvento(ev);
                     }}
                     title="Editar evento"
-                    style={{
-                      background: "none",
-                      border: "none",
-                      cursor: "pointer",
-                      color: cfg.color + "88",
-                      padding: 2,
-                    }}
+                    aria-label={`Editar ${ev.nombre}`}
+                    className="p-1 rounded focus-visible:outline focus-visible:outline-2"
+                    style={{ color: cfg.color + "88", outlineColor: "var(--cyber-cyan)" }}
                   >
                     <Edit2 size={10} />
                   </button>
                   <button
+                    type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       onEliminarEvento(ev.id);
                     }}
                     title="Eliminar evento"
-                    style={{
-                      background: "none",
-                      border: "none",
-                      cursor: "pointer",
-                      color: G.error + "88",
-                      padding: 2,
-                    }}
+                    aria-label={`Eliminar ${ev.nombre}`}
+                    className="p-1 rounded focus-visible:outline focus-visible:outline-2"
+                    style={{ color: "var(--cyber-error)", outlineColor: "var(--cyber-cyan)" }}
                   >
                     <Trash2 size={10} />
                   </button>
@@ -727,46 +548,29 @@ export function Sidebar({
             );
           })}
 
-          {/* Botón agregar evento */}
+          {/* Add event button */}
           <button
+            type="button"
             onClick={onAbrirFormularioEvento}
+            className={cn(
+              "w-[calc(100%-20px)] mx-2.5 my-2.5 py-2 flex items-center justify-center gap-1.5",
+              "font-mono text-[10px] tracking-[0.15em] uppercase rounded border border-dashed",
+              "transition-colors focus-visible:outline focus-visible:outline-2",
+              "hover:border-[var(--cyber-violet)] hover:text-[var(--cyber-violet)]",
+              "mt-auto",
+            )}
             style={{
-              margin: 10,
-              padding: "8px",
-              background: "transparent",
-              border: `1px dashed ${G.border}`,
-              color: G.textDim,
-              cursor: "pointer",
-              fontSize: 10,
-              letterSpacing: 1.5,
-              fontFamily: "'Courier New', monospace",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 6,
-              transition: "all 0.2s",
-              width: "calc(100% - 20px)",
-              marginTop: "auto",
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.borderColor =
-                "#a855f7";
-              (e.currentTarget as HTMLButtonElement).style.color = "#a855f7";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.borderColor =
-                G.border;
-              (e.currentTarget as HTMLButtonElement).style.color = G.textDim;
+              borderColor: "var(--cyber-border-subtle)",
+              color: "var(--cyber-text-secondary)",
+              outlineColor: "var(--cyber-cyan)",
+              transitionDuration: "var(--cyber-duration-fast)",
             }}
           >
-            <CalendarPlus size={11} /> AGREGAR EVENTO
+            <CalendarPlus size={11} aria-hidden="true" />
+            Agregar evento
           </button>
         </div>
       )}
-
-      <style>{`
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-      `}</style>
     </aside>
   );
 }

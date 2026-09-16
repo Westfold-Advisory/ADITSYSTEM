@@ -1,4 +1,3 @@
-// src/components/MapaVista.tsx
 import {
   Star,
   Clock,
@@ -17,7 +16,6 @@ import {
   MarkerLabel,
   MarkerPopup,
 } from "@/components/ui/map";
-import { G } from "./constants";
 import { Capa } from "./Capa";
 import { PanelCapas } from "./PanelCapas";
 import type { Lugar, Evento } from "./types";
@@ -30,61 +28,35 @@ interface MapaVistaProps {
   eventoSeleccionado: number | null;
   onSeleccionar: (id: number) => void;
 
-  visibleDistritoLocal01: boolean;
-  visibleDistritoLocal02: boolean;
-  visibleDistritoLocal05: boolean;
-  visibleDistritoLocal06: boolean;
-  visibleDistritoLocal07: boolean;
-  visibleDistritoLocal08: boolean;
-  visibleDistritoLocal09: boolean;
-  visibleDistritoLocal10: boolean;
-  visibleDistritoLocal11: boolean;
-  visibleDistritoLocal12: boolean;
-  visibleDistritoLocal13: boolean;
-  visibleDistritoLocal14: boolean;
-  visibleDistritoLocal15: boolean;
-  visibleDistritoLocal16: boolean;
-  visibleDistritoLocal17: boolean;
-  visibleDistritoLocal18: boolean;
-  visibleDistritoLocal19: boolean;
-  visibleDistritoLocal20: boolean;
-  visibleDistritoLocal21: boolean;
-  visibleDistritoLocal22: boolean;
-  visibleDistritoLocal23: boolean;
-  visibleDistritoLocal24: boolean;
-  visibleDistritoLocal25: boolean;
-  visibleDistritoLocal26: boolean;
+  visibleDistritoLocal01: boolean; visibleDistritoLocal02: boolean;
+  visibleDistritoLocal05: boolean; visibleDistritoLocal06: boolean;
+  visibleDistritoLocal07: boolean; visibleDistritoLocal08: boolean;
+  visibleDistritoLocal09: boolean; visibleDistritoLocal10: boolean;
+  visibleDistritoLocal11: boolean; visibleDistritoLocal12: boolean;
+  visibleDistritoLocal13: boolean; visibleDistritoLocal14: boolean;
+  visibleDistritoLocal15: boolean; visibleDistritoLocal16: boolean;
+  visibleDistritoLocal17: boolean; visibleDistritoLocal18: boolean;
+  visibleDistritoLocal19: boolean; visibleDistritoLocal20: boolean;
+  visibleDistritoLocal21: boolean; visibleDistritoLocal22: boolean;
+  visibleDistritoLocal23: boolean; visibleDistritoLocal24: boolean;
+  visibleDistritoLocal25: boolean; visibleDistritoLocal26: boolean;
 
-  visibleOaxaca: boolean;
-  visiblePuebla: boolean;
+  visibleOaxaca: boolean; visiblePuebla: boolean;
 
-  onToggleDistritoLocal01: () => void;
-  onToggleDistritoLocal02: () => void;
-  onToggleDistritoLocal05: () => void;
-  onToggleDistritoLocal06: () => void;
-  onToggleDistritoLocal07: () => void;
-  onToggleDistritoLocal08: () => void;
-  onToggleDistritoLocal09: () => void;
-  onToggleDistritoLocal10: () => void;
-  onToggleDistritoLocal11: () => void;
-  onToggleDistritoLocal12: () => void;
-  onToggleDistritoLocal13: () => void;
-  onToggleDistritoLocal14: () => void;
-  onToggleDistritoLocal15: () => void;
-  onToggleDistritoLocal16: () => void;
-  onToggleDistritoLocal17: () => void;
-  onToggleDistritoLocal18: () => void;
-  onToggleDistritoLocal19: () => void;
-  onToggleDistritoLocal20: () => void;
-  onToggleDistritoLocal21: () => void;
-  onToggleDistritoLocal22: () => void;
-  onToggleDistritoLocal23: () => void;
-  onToggleDistritoLocal24: () => void;
-  onToggleDistritoLocal25: () => void;
-  onToggleDistritoLocal26: () => void;
+  onToggleDistritoLocal01: () => void; onToggleDistritoLocal02: () => void;
+  onToggleDistritoLocal05: () => void; onToggleDistritoLocal06: () => void;
+  onToggleDistritoLocal07: () => void; onToggleDistritoLocal08: () => void;
+  onToggleDistritoLocal09: () => void; onToggleDistritoLocal10: () => void;
+  onToggleDistritoLocal11: () => void; onToggleDistritoLocal12: () => void;
+  onToggleDistritoLocal13: () => void; onToggleDistritoLocal14: () => void;
+  onToggleDistritoLocal15: () => void; onToggleDistritoLocal16: () => void;
+  onToggleDistritoLocal17: () => void; onToggleDistritoLocal18: () => void;
+  onToggleDistritoLocal19: () => void; onToggleDistritoLocal20: () => void;
+  onToggleDistritoLocal21: () => void; onToggleDistritoLocal22: () => void;
+  onToggleDistritoLocal23: () => void; onToggleDistritoLocal24: () => void;
+  onToggleDistritoLocal25: () => void; onToggleDistritoLocal26: () => void;
 
-  onToggleOaxaca: () => void;
-  onTogglePuebla: () => void;
+  onToggleOaxaca: () => void; onTogglePuebla: () => void;
   panelAbierto: boolean;
   onCerrarPanel: () => void;
   onEditarLugar: (lugar: Lugar) => void;
@@ -92,160 +64,77 @@ interface MapaVistaProps {
   onEliminarEvento: (id: number) => void;
 }
 
-const esquinas = [
-  {
-    top: 0,
-    left: 0,
-    borderTop: `2px solid ${G.accent}`,
-    borderLeft: `2px solid ${G.accent}`,
-  },
-  {
-    top: 0,
-    right: 0,
-    borderTop: `2px solid ${G.accent}`,
-    borderRight: `2px solid ${G.accent}`,
-  },
-  {
-    bottom: 0,
-    left: 0,
-    borderBottom: `2px solid ${G.accent}`,
-    borderLeft: `2px solid ${G.accent}`,
-  },
-  {
-    bottom: 0,
-    right: 0,
-    borderBottom: `2px solid ${G.accent}`,
-    borderRight: `2px solid ${G.accent}`,
-  },
-];
-
 export function MapaVista({
-  lugares,
-  eventos,
-  seleccionado,
-  eventoSeleccionado,
-  onSeleccionar,
-
-  visibleDistritoLocal01,
-  visibleDistritoLocal02,
-  visibleDistritoLocal05,
-  visibleDistritoLocal06,
-  visibleDistritoLocal07,
-  visibleDistritoLocal08,
-  visibleDistritoLocal09,
-  visibleDistritoLocal10,
-  visibleDistritoLocal11,
-  visibleDistritoLocal12,
-  visibleDistritoLocal13,
-  visibleDistritoLocal14,
-  visibleDistritoLocal15,
-  visibleDistritoLocal16,
-  visibleDistritoLocal17,
-  visibleDistritoLocal18,
-  visibleDistritoLocal19,
-  visibleDistritoLocal20,
-  visibleDistritoLocal21,
-  visibleDistritoLocal22,
-  visibleDistritoLocal23,
-  visibleDistritoLocal24,
-  visibleDistritoLocal25,
-  visibleDistritoLocal26,
-
-  visibleOaxaca,
-  visiblePuebla,
-  onToggleOaxaca,
-  onToggleDistritoLocal01,
-  onToggleDistritoLocal02,
-  onToggleDistritoLocal05,
-  onToggleDistritoLocal06,
-  onToggleDistritoLocal07,
-  onToggleDistritoLocal08,
-  onToggleDistritoLocal09,
-  onToggleDistritoLocal10,
-  onToggleDistritoLocal11,
-  onToggleDistritoLocal12,
-  onToggleDistritoLocal13,
-  onToggleDistritoLocal14,
-  onToggleDistritoLocal15,
-  onToggleDistritoLocal16,
-  onToggleDistritoLocal17,
-  onToggleDistritoLocal18,
-  onToggleDistritoLocal19,
-  onToggleDistritoLocal20,
-  onToggleDistritoLocal21,
-  onToggleDistritoLocal22,
-  onToggleDistritoLocal23,
-  onToggleDistritoLocal24,
-  onToggleDistritoLocal25,
-  onToggleDistritoLocal26,
-  onTogglePuebla,
-  panelAbierto,
-  onCerrarPanel,
-  onEditarLugar,
-  onEditarEvento,
-  onEliminarEvento,
+  lugares, eventos, seleccionado, eventoSeleccionado, onSeleccionar,
+  visibleDistritoLocal01, visibleDistritoLocal02,
+  visibleDistritoLocal05, visibleDistritoLocal06,
+  visibleDistritoLocal07, visibleDistritoLocal08,
+  visibleDistritoLocal09, visibleDistritoLocal10,
+  visibleDistritoLocal11, visibleDistritoLocal12,
+  visibleDistritoLocal13, visibleDistritoLocal14,
+  visibleDistritoLocal15, visibleDistritoLocal16,
+  visibleDistritoLocal17, visibleDistritoLocal18,
+  visibleDistritoLocal19, visibleDistritoLocal20,
+  visibleDistritoLocal21, visibleDistritoLocal22,
+  visibleDistritoLocal23, visibleDistritoLocal24,
+  visibleDistritoLocal25, visibleDistritoLocal26,
+  visibleOaxaca, visiblePuebla,
+  onToggleOaxaca, onTogglePuebla,
+  onToggleDistritoLocal01, onToggleDistritoLocal02,
+  onToggleDistritoLocal05, onToggleDistritoLocal06,
+  onToggleDistritoLocal07, onToggleDistritoLocal08,
+  onToggleDistritoLocal09, onToggleDistritoLocal10,
+  onToggleDistritoLocal11, onToggleDistritoLocal12,
+  onToggleDistritoLocal13, onToggleDistritoLocal14,
+  onToggleDistritoLocal15, onToggleDistritoLocal16,
+  onToggleDistritoLocal17, onToggleDistritoLocal18,
+  onToggleDistritoLocal19, onToggleDistritoLocal20,
+  onToggleDistritoLocal21, onToggleDistritoLocal22,
+  onToggleDistritoLocal23, onToggleDistritoLocal24,
+  onToggleDistritoLocal25, onToggleDistritoLocal26,
+  panelAbierto, onCerrarPanel, onEditarLugar, onEditarEvento, onEliminarEvento,
 }: MapaVistaProps) {
   const activo = lugares.find((l) => l.id === seleccionado);
   const activoEvento = eventos.find((e) => e.id === eventoSeleccionado);
 
-  const center: [number, number] = activoEvento?.coords ??
-    activo?.coords ?? [-98.5, 19.0];
+  const center: [number, number] = activoEvento?.coords ?? activo?.coords ?? [-98.5, 19.0];
   const zoom = activoEvento?.coords || activo ? 13 : 7;
+
+  /* Shared popup container style */
+  const popupCardStyle: React.CSSProperties = {
+    background: "var(--cyber-surface-2)",
+    border: "1px solid var(--cyber-border)",
+    fontFamily: "var(--font-mono, 'Courier New', monospace)",
+  };
 
   return (
     <div
+      className="relative flex-1 overflow-hidden border"
       style={{
-        flex: 1,
-        border: `1px solid ${G.border}`,
-        overflow: "hidden",
-        position: "relative",
-        boxShadow: `inset 0 0 40px rgba(0,0,0,0.8)`,
+        borderColor: "var(--cyber-border-subtle)",
+        boxShadow: "inset 0 0 40px oklch(0 0 0 / 0.8)",
       }}
     >
-      {esquinas.map((style, i) => (
-        <div
-          key={i}
-          style={{
-            position: "absolute",
-            width: 12,
-            height: 12,
-            zIndex: 10,
-            ...style,
-          }}
-        />
-      ))}
-
       <Map center={center} zoom={zoom}>
         <MapControls />
+
         <Capa
-          visibleOaxaca={visibleOaxaca}
-          visiblePuebla={visiblePuebla}
-          visibleDistritoLocal01={visibleDistritoLocal01}
-          visibleDistritoLocal02={visibleDistritoLocal02}
-          visibleDistritoLocal05={visibleDistritoLocal05}
-          visibleDistritoLocal06={visibleDistritoLocal06}
-          visibleDistritoLocal07={visibleDistritoLocal07}
-          visibleDistritoLocal08={visibleDistritoLocal08}
-          visibleDistritoLocal09={visibleDistritoLocal09}
-          visibleDistritoLocal10={visibleDistritoLocal10}
-          visibleDistritoLocal11={visibleDistritoLocal11}
-          visibleDistritoLocal12={visibleDistritoLocal12}
-          visibleDistritoLocal13={visibleDistritoLocal13}
-          visibleDistritoLocal14={visibleDistritoLocal14}
-          visibleDistritoLocal15={visibleDistritoLocal15}
-          visibleDistritoLocal16={visibleDistritoLocal16}
-          visibleDistritoLocal17={visibleDistritoLocal17}
-          visibleDistritoLocal18={visibleDistritoLocal18}
-          visibleDistritoLocal19={visibleDistritoLocal19}
-          visibleDistritoLocal20={visibleDistritoLocal20}
-          visibleDistritoLocal21={visibleDistritoLocal21}
-          visibleDistritoLocal22={visibleDistritoLocal22}
-          visibleDistritoLocal23={visibleDistritoLocal23}
-          visibleDistritoLocal24={visibleDistritoLocal24}
-          visibleDistritoLocal25={visibleDistritoLocal25}
-          visibleDistritoLocal26={visibleDistritoLocal26}
+          visibleOaxaca={visibleOaxaca} visiblePuebla={visiblePuebla}
+          visibleDistritoLocal01={visibleDistritoLocal01} visibleDistritoLocal02={visibleDistritoLocal02}
+          visibleDistritoLocal05={visibleDistritoLocal05} visibleDistritoLocal06={visibleDistritoLocal06}
+          visibleDistritoLocal07={visibleDistritoLocal07} visibleDistritoLocal08={visibleDistritoLocal08}
+          visibleDistritoLocal09={visibleDistritoLocal09} visibleDistritoLocal10={visibleDistritoLocal10}
+          visibleDistritoLocal11={visibleDistritoLocal11} visibleDistritoLocal12={visibleDistritoLocal12}
+          visibleDistritoLocal13={visibleDistritoLocal13} visibleDistritoLocal14={visibleDistritoLocal14}
+          visibleDistritoLocal15={visibleDistritoLocal15} visibleDistritoLocal16={visibleDistritoLocal16}
+          visibleDistritoLocal17={visibleDistritoLocal17} visibleDistritoLocal18={visibleDistritoLocal18}
+          visibleDistritoLocal19={visibleDistritoLocal19} visibleDistritoLocal20={visibleDistritoLocal20}
+          visibleDistritoLocal21={visibleDistritoLocal21} visibleDistritoLocal22={visibleDistritoLocal22}
+          visibleDistritoLocal23={visibleDistritoLocal23} visibleDistritoLocal24={visibleDistritoLocal24}
+          visibleDistritoLocal25={visibleDistritoLocal25} visibleDistritoLocal26={visibleDistritoLocal26}
         />
 
+        {/* ── Lugar markers ─────────────────────────────────────────── */}
         {lugares.map((lugar) => (
           <MapMarker
             key={lugar.id}
@@ -253,28 +142,27 @@ export function MapaVista({
             latitude={lugar.coords[1]}
           >
             <MarkerContent>
-              <div
+              <button
+                type="button"
                 onClick={() => onSeleccionar(lugar.id)}
+                aria-label={`Seleccionar ${lugar.nombre}`}
+                className="size-3.5 border-2 cursor-pointer focus-visible:outline focus-visible:outline-2"
                 style={{
-                  width: 14,
-                  height: 14,
-                  border: `2px solid ${G.accent}`,
-                  background:
-                    seleccionado === lugar.id ? G.accent : G.accentDim,
-                  cursor: "pointer",
+                  borderColor: "var(--cyber-cyan)",
+                  background: seleccionado === lugar.id ? "var(--cyber-cyan)" : "var(--cyber-cyan-dim)",
                   transform: "rotate(45deg)",
-                  boxShadow: `0 0 10px ${G.accent}88`,
-                  transition: "all 0.2s",
+                  boxShadow: "0 0 10px var(--cyber-cyan)",
+                  outlineColor: "var(--cyber-cyan)",
+                  transitionProperty: "background",
+                  transitionDuration: "var(--cyber-duration-fast)",
                 }}
               />
               <MarkerLabel position="bottom">
                 <span
+                  className="font-mono text-[9px] tracking-wide"
                   style={{
-                    fontSize: 9,
-                    color: G.accent,
-                    letterSpacing: 1,
-                    fontFamily: "'Courier New', monospace",
-                    textShadow: `0 0 8px ${G.accent}`,
+                    color: "var(--cyber-cyan)",
+                    textShadow: "0 0 8px var(--cyber-cyan)",
                   }}
                 >
                   {lugar.label}
@@ -282,299 +170,175 @@ export function MapaVista({
               </MarkerLabel>
             </MarkerContent>
 
+            {/* Lugar popup */}
             <MarkerPopup className="p-0">
-              <div
-                style={{
-                  width: 265,
-                  background: G.bgCard,
-                  border: `1px solid ${G.borderBright}`,
-                  fontFamily: "'Courier New', monospace",
-                }}
-              >
-                {/* Imagen + botón editar superpuesto */}
+              <div style={{ width: 265, ...popupCardStyle }}>
+                {/* Hero image */}
                 <div
-                  style={{
-                    height: 100,
-                    backgroundImage: `url(${lugar.image})`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                    position: "relative",
-                  }}
+                  className="relative h-24 bg-cover bg-center"
+                  style={{ backgroundImage: `url(${lugar.image})` }}
                 >
                   <div
+                    className="absolute inset-0"
                     style={{
-                      position: "absolute",
-                      inset: 0,
-                      background:
-                        "linear-gradient(to bottom, transparent 50%, #0a1520 100%)",
+                      background: "linear-gradient(to bottom, transparent 50%, var(--cyber-surface-2) 100%)",
                     }}
                   />
-                  <div
+                  <span
+                    className="absolute top-2 left-2 font-mono text-[8px] tracking-[0.2em] uppercase px-1.5 py-0.5 border"
                     style={{
-                      position: "absolute",
-                      top: 8,
-                      left: 8,
-                      fontSize: 8,
-                      color: G.accent,
-                      letterSpacing: 2,
-                      background: G.bgCard + "cc",
-                      padding: "2px 6px",
-                      border: `1px solid ${G.accent}44`,
+                      background: "oklch(0.10 0.03 220 / 0.85)",
+                      borderColor: "var(--cyber-cyan)",
+                      color: "var(--cyber-cyan)",
                     }}
                   >
                     {lugar.category}
-                  </div>
-                  {/* Botón EDITAR */}
+                  </span>
                   <button
+                    type="button"
                     onClick={() => onEditarLugar(lugar)}
-                    title="Editar objetivo"
+                    className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 border font-mono text-[9px] tracking-wide focus-visible:outline focus-visible:outline-2"
                     style={{
-                      position: "absolute",
-                      top: 8,
-                      right: 8,
-                      background: G.bgCard + "dd",
-                      border: `1px solid ${G.warn}66`,
-                      color: G.warn,
-                      cursor: "pointer",
-                      padding: "3px 7px",
-                      fontSize: 9,
-                      letterSpacing: 1,
-                      fontFamily: "'Courier New', monospace",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 4,
+                      background: "oklch(0.10 0.03 220 / 0.85)",
+                      borderColor: "var(--cyber-orange)",
+                      color: "var(--cyber-orange)",
+                      outlineColor: "var(--cyber-cyan)",
                     }}
                   >
-                    <Edit2 size={9} /> EDITAR
+                    <Edit2 size={9} /> Editar
                   </button>
                 </div>
 
-                {/* Info */}
-                <div
-                  style={{
-                    padding: "10px 12px",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 6,
-                  }}
-                >
-                  <p
-                    style={{
-                      fontSize: 12,
-                      fontWeight: 700,
-                      color: G.textBright,
-                      margin: 0,
-                    }}
-                  >
+                {/* Content */}
+                <div className="flex flex-col gap-1.5 px-3 py-2.5">
+                  <p className="text-xs font-bold" style={{ color: "var(--cyber-text-bright)" }}>
                     {lugar.nombre}
                   </p>
 
-                  <div
-                    style={{ display: "flex", alignItems: "center", gap: 4 }}
-                  >
-                    <Star size={10} fill="#ffaa00" color="#ffaa00" />
-                    <span style={{ fontSize: 10, color: G.textBright }}>
+                  <div className="flex items-center gap-1">
+                    <Star size={10} fill="#ffaa00" color="#ffaa00" aria-hidden="true" />
+                    <span className="text-[10px]" style={{ color: "var(--cyber-text-bright)" }}>
                       {lugar.rating}
                     </span>
-                    <span style={{ fontSize: 10, color: G.textDim }}>
+                    <span className="text-[10px]" style={{ color: "var(--cyber-text-secondary)" }}>
                       ({lugar.reviews.toLocaleString()})
                     </span>
                   </div>
 
-                  <div
-                    style={{ display: "flex", alignItems: "center", gap: 6 }}
-                  >
-                    <Clock size={10} color={G.textDim} />
-                    <span style={{ fontSize: 10, color: G.textDim }}>
+                  <div className="flex items-center gap-1.5">
+                    <Clock size={10} aria-hidden="true" style={{ color: "var(--cyber-text-secondary)" }} />
+                    <span className="text-[10px]" style={{ color: "var(--cyber-text-secondary)" }}>
                       {lugar.hours}
                     </span>
                   </div>
 
-                  {/* Evento vinculado */}
-                  {lugar.evento &&
-                    (() => {
-                      const cfg = ESTADO_EVENTO_CONFIG[lugar.evento.estado];
-                      return (
-                        <div
-                          style={{
-                            padding: "6px 8px",
-                            marginTop: 2,
-                            background: cfg.color + "0d",
-                            border: `1px solid ${cfg.color}44`,
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: 4,
-                          }}
-                        >
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 6,
-                            }}
+                  {/* Linked event */}
+                  {lugar.evento && (() => {
+                    const cfg = ESTADO_EVENTO_CONFIG[lugar.evento.estado];
+                    return (
+                      <div
+                        className="flex flex-col gap-1 p-2 border rounded"
+                        style={{
+                          background: cfg.color + "0d",
+                          borderColor: cfg.color + "44",
+                        }}
+                      >
+                        <div className="flex items-center gap-1.5">
+                          <span
+                            className="size-1.5 rounded-full shrink-0"
+                            style={{ background: cfg.color, boxShadow: cfg.glow }}
+                          />
+                          <span
+                            className="font-mono text-[9px] font-bold tracking-wide flex-1"
+                            style={{ color: cfg.color }}
                           >
-                            <div
-                              style={{
-                                width: 7,
-                                height: 7,
-                                borderRadius: "50%",
-                                background: cfg.color,
-                                boxShadow: cfg.glow,
-                                flexShrink: 0,
-                              }}
-                            />
-                            <span
-                              style={{
-                                fontSize: 9,
-                                color: cfg.color,
-                                letterSpacing: 1.5,
-                                fontWeight: 700,
-                              }}
-                            >
-                              {lugar.evento.nombre || "EVENTO"}
-                            </span>
-                            <span
-                              style={{
-                                marginLeft: "auto",
-                                fontSize: 8,
-                                color: cfg.color,
-                                letterSpacing: 1,
-                                border: `1px solid ${cfg.color}55`,
-                                padding: "1px 4px",
-                              }}
-                            >
-                              {cfg.label}
-                            </span>
-                          </div>
-                          {lugar.evento.descripcion && (
-                            <span
-                              style={{
-                                fontSize: 9,
-                                color: G.textDim,
-                                paddingLeft: 13,
-                              }}
-                            >
-                              {lugar.evento.descripcion}
-                            </span>
-                          )}
+                            {lugar.evento.nombre || "EVENTO"}
+                          </span>
+                          <span
+                            className="font-mono text-[8px] border px-1"
+                            style={{ color: cfg.color, borderColor: cfg.color + "55" }}
+                          >
+                            {cfg.label}
+                          </span>
                         </div>
-                      );
-                    })()}
+                        {lugar.evento.descripcion && (
+                          <p
+                            className="text-[9px] pl-3"
+                            style={{ color: "var(--cyber-text-secondary)" }}
+                          >
+                            {lugar.evento.descripcion}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })()}
 
-                  {/* CV */}
+                  {/* CV link */}
                   {lugar.cvUrl && (
                     <a
                       href={lugar.cvUrl}
                       target="_blank"
                       rel="noreferrer"
+                      className="flex items-center gap-1.5 px-2 py-1.5 border font-mono text-[9px] tracking-wide no-underline focus-visible:outline focus-visible:outline-2"
                       style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 6,
-                        padding: "5px 8px",
-                        background: "#001a33",
-                        border: `1px solid ${G.accent}55`,
-                        color: G.accent,
-                        fontSize: 9,
-                        letterSpacing: 1,
-                        textDecoration: "none",
-                        marginTop: 2,
+                        background: "oklch(0 0.01 220 / 0.5)",
+                        borderColor: "var(--cyber-cyan)",
+                        color: "var(--cyber-cyan)",
+                        outlineColor: "var(--cyber-cyan)",
                       }}
                     >
-                      <FileText size={9} />
-                      VER CV / PORTAFOLIO
-                      <ExternalLink size={8} style={{ marginLeft: "auto" }} />
+                      <FileText size={9} aria-hidden="true" />
+                      Ver CV / portafolio
+                      <ExternalLink size={8} className="ml-auto" aria-hidden="true" />
                     </a>
                   )}
 
-                  {/* Botones acción */}
-                  <div style={{ display: "flex", gap: 6, marginTop: 2 }}>
-                    {/* NAVEGAR → WhatsApp si tiene celular, Google Maps si no */}
+                  {/* Action buttons */}
+                  <div className="flex gap-1.5 mt-1">
                     {lugar.celular ? (
-                      <a
-                        href={`https://wa.me/${lugar.celular}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        style={{
-                          flex: 1,
-                          padding: "6px 8px",
-                          background: "#003a1a",
-                          border: `1px solid #25D366`,
-                          color: "#25D366",
-                          fontSize: 9,
-                          letterSpacing: 1,
-                          textDecoration: "none",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          gap: 4,
-                          fontFamily: "'Courier New', monospace",
-                        }}
-                      >
-                        <MessageCircle size={9} /> WHATSAPP
-                      </a>
+                      <>
+                        <a
+                          href={`https://wa.me/${lugar.celular}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 border font-mono text-[9px] no-underline focus-visible:outline focus-visible:outline-2"
+                          style={{ background: "#003a1a", borderColor: "#25D366", color: "#25D366", outlineColor: "var(--cyber-cyan)" }}
+                        >
+                          <MessageCircle size={9} aria-hidden="true" /> WhatsApp
+                        </a>
+                        <a
+                          href={`https://www.google.com/maps/dir/?api=1&destination=${lugar.coords[1]},${lugar.coords[0]}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          title="Navegar"
+                          aria-label="Navegar a ubicación"
+                          className="flex items-center px-2 py-1.5 border no-underline focus-visible:outline focus-visible:outline-2"
+                          style={{ background: "var(--cyber-cyan-dim)", borderColor: "var(--cyber-cyan)", color: "var(--cyber-cyan)", outlineColor: "var(--cyber-cyan)" }}
+                        >
+                          <Navigation size={9} aria-hidden="true" />
+                        </a>
+                      </>
                     ) : (
                       <a
                         href={`https://www.google.com/maps/dir/?api=1&destination=${lugar.coords[1]},${lugar.coords[0]}`}
                         target="_blank"
                         rel="noreferrer"
-                        style={{
-                          flex: 1,
-                          padding: "6px 8px",
-                          background: G.accentDim,
-                          border: `1px solid ${G.accent}`,
-                          color: G.accent,
-                          fontSize: 9,
-                          letterSpacing: 1,
-                          textDecoration: "none",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          gap: 4,
-                          fontFamily: "'Courier New', monospace",
-                        }}
+                        className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 border font-mono text-[9px] no-underline focus-visible:outline focus-visible:outline-2"
+                        style={{ background: "var(--cyber-cyan-dim)", borderColor: "var(--cyber-cyan)", color: "var(--cyber-cyan)", outlineColor: "var(--cyber-cyan)" }}
                       >
-                        <Navigation size={9} /> NAVEGAR
+                        <Navigation size={9} aria-hidden="true" /> Navegar
                       </a>
                     )}
-
-                    {/* Si tiene celular también mostrar navegar */}
-                    {lugar.celular && (
-                      <a
-                        href={`https://www.google.com/maps/dir/?api=1&destination=${lugar.coords[1]},${lugar.coords[0]}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        title="Navegar"
-                        style={{
-                          padding: "6px 8px",
-                          background: G.accentDim,
-                          border: `1px solid ${G.accent}`,
-                          color: G.accent,
-                          textDecoration: "none",
-                          display: "flex",
-                          alignItems: "center",
-                        }}
-                      >
-                        <Navigation size={9} />
-                      </a>
-                    )}
-
                     <a
                       href={`https://www.google.com/maps/search/?api=1&query=${lugar.coords[1]},${lugar.coords[0]}`}
                       target="_blank"
                       rel="noreferrer"
                       title="Ver en Google Maps"
-                      style={{
-                        padding: "6px 8px",
-                        background: "transparent",
-                        border: `1px solid ${G.border}`,
-                        color: G.textDim,
-                        textDecoration: "none",
-                        display: "flex",
-                        alignItems: "center",
-                      }}
+                      aria-label="Ver en Google Maps"
+                      className="flex items-center px-2 py-1.5 border no-underline focus-visible:outline focus-visible:outline-2"
+                      style={{ borderColor: "var(--cyber-border-subtle)", color: "var(--cyber-text-secondary)", outlineColor: "var(--cyber-cyan)" }}
                     >
-                      <ExternalLink size={9} />
+                      <ExternalLink size={9} aria-hidden="true" />
                     </a>
                   </div>
                 </div>
@@ -583,193 +347,146 @@ export function MapaVista({
           </MapMarker>
         ))}
 
-        {/* ── Marcadores de eventos independientes ── */}
+        {/* ── Evento markers ────────────────────────────────────────── */}
         {eventos
           .filter((ev) => ev.coords)
           .map((ev) => {
             const cfg = ESTADO_EVENTO_CONFIG[ev.estado];
             const [eLng, eLat] = ev.coords!;
+            const esSel = eventoSeleccionado === ev.id;
             return (
               <MapMarker key={`ev-${ev.id}`} longitude={eLng} latitude={eLat}>
                 <MarkerContent>
-                  {/* Rombo con color del estado — más grande si está seleccionado */}
-                  <div
+                  <button
+                    type="button"
+                    aria-label={`Evento: ${ev.nombre}`}
+                    className="border-2 cursor-pointer focus-visible:outline focus-visible:outline-2"
                     style={{
-                      width: eventoSeleccionado === ev.id ? 14 : 10,
-                      height: eventoSeleccionado === ev.id ? 14 : 10,
-                      border: `2px solid ${cfg.color}`,
-                      background:
-                        eventoSeleccionado === ev.id
-                          ? cfg.color
-                          : cfg.color + "55",
+                      width: esSel ? 14 : 10,
+                      height: esSel ? 14 : 10,
+                      borderColor: cfg.color,
+                      background: esSel ? cfg.color : cfg.color + "55",
                       transform: "rotate(45deg)",
-                      boxShadow:
-                        eventoSeleccionado === ev.id
-                          ? `0 0 16px ${cfg.color}`
-                          : cfg.glow,
-                      cursor: "pointer",
-                      transition: "all 0.2s",
+                      boxShadow: esSel ? `0 0 16px ${cfg.color}` : cfg.glow,
+                      outlineColor: "var(--cyber-cyan)",
+                      transitionProperty: "width, height, background, box-shadow",
+                      transitionDuration: "var(--cyber-duration-fast)",
                     }}
                   />
                   <MarkerLabel position="bottom">
                     <span
-                      style={{
-                        fontSize: 8,
-                        color: cfg.color,
-                        letterSpacing: 1,
-                        fontFamily: "'Courier New', monospace",
-                        textShadow: cfg.glow,
-                      }}
+                      className="font-mono text-[8px] tracking-wide"
+                      style={{ color: cfg.color, textShadow: cfg.glow }}
                     >
                       {ev.nombre?.slice(0, 10) || "EVT"}
                     </span>
                   </MarkerLabel>
                 </MarkerContent>
 
+                {/* Evento popup */}
                 <MarkerPopup className="p-0">
                   <div
                     style={{
                       width: 240,
-                      background: G.bgCard,
-                      border: `1px solid ${cfg.color}55`,
-                      fontFamily: "'Courier New', monospace",
+                      ...popupCardStyle,
+                      borderColor: cfg.color + "55",
                       boxShadow: `0 0 16px ${cfg.color}22`,
                     }}
                   >
                     {/* Header */}
                     <div
+                      className="flex items-center gap-2 px-3 py-2 border-b"
                       style={{
-                        padding: "8px 10px",
-                        borderBottom: `1px solid ${cfg.color}33`,
                         background: cfg.color + "0d",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 8,
+                        borderColor: cfg.color + "33",
                       }}
                     >
-                      <div
+                      <span
+                        className="size-2 rounded-full shrink-0"
                         style={{
-                          width: 8,
-                          height: 8,
-                          borderRadius: "50%",
                           background: cfg.color,
                           boxShadow: cfg.glow,
-                          flexShrink: 0,
-                          animation:
-                            ev.estado === "ACTIVO"
-                              ? "pulse 2s infinite"
-                              : "none",
+                          animation: ev.estado === "ACTIVO" ? "pulse 2s infinite" : "none",
                         }}
                       />
                       <span
-                        style={{
-                          fontSize: 10,
-                          fontWeight: 700,
-                          color: cfg.color,
-                          letterSpacing: 1,
-                          flex: 1,
-                        }}
+                        className="font-mono text-[10px] font-bold tracking-wide flex-1 min-w-0 truncate"
+                        style={{ color: cfg.color }}
                       >
                         {ev.nombre || "EVENTO"}
                       </span>
                       <span
-                        style={{
-                          fontSize: 8,
-                          color: cfg.color,
-                          border: `1px solid ${cfg.color}55`,
-                          padding: "1px 5px",
-                        }}
+                        className="font-mono text-[8px] border px-1.5 py-0.5 shrink-0"
+                        style={{ color: cfg.color, borderColor: cfg.color + "55" }}
                       >
                         {cfg.label}
                       </span>
                     </div>
 
-                    <div
-                      style={{
-                        padding: "8px 10px",
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 5,
-                      }}
-                    >
+                    {/* Body */}
+                    <div className="flex flex-col gap-1.5 px-3 py-2">
                       {ev.descripcion && (
-                        <div style={{ fontSize: 9, color: G.text }}>
+                        <p className="text-[9px]" style={{ color: "var(--cyber-text)" }}>
                           {ev.descripcion}
-                        </div>
+                        </p>
                       )}
-                      <div style={{ fontSize: 9, color: G.textDim }}>
-                        INICIO:{" "}
-                        <span style={{ color: G.text }}>
-                          {new Date(ev.fechaInicio).toLocaleString("es-MX", {
-                            dateStyle: "short",
-                            timeStyle: "short",
-                          })}
+                      <p className="font-mono text-[9px]" style={{ color: "var(--cyber-text-secondary)" }}>
+                        Inicio:{" "}
+                        <span style={{ color: "var(--cyber-text)" }}>
+                          {new Date(ev.fechaInicio).toLocaleString("es-MX", { dateStyle: "short", timeStyle: "short" })}
                         </span>
-                      </div>
+                      </p>
                       {ev.fechaFin && (
-                        <div style={{ fontSize: 9, color: G.textDim }}>
-                          FIN:{" "}
-                          <span style={{ color: G.text }}>
-                            {new Date(ev.fechaFin).toLocaleString("es-MX", {
-                              dateStyle: "short",
-                              timeStyle: "short",
-                            })}
+                        <p className="font-mono text-[9px]" style={{ color: "var(--cyber-text-secondary)" }}>
+                          Fin:{" "}
+                          <span style={{ color: "var(--cyber-text)" }}>
+                            {new Date(ev.fechaFin).toLocaleString("es-MX", { dateStyle: "short", timeStyle: "short" })}
                           </span>
-                        </div>
+                        </p>
                       )}
                       {ev.notas && (
-                        <div
+                        <p
+                          className="text-[9px] px-1.5 py-1 border"
                           style={{
-                            fontSize: 9,
-                            color: G.textDim,
-                            padding: "4px 6px",
-                            background: G.bg,
-                            border: `1px solid ${G.border}`,
+                            color: "var(--cyber-text-secondary)",
+                            background: "var(--cyber-bg)",
+                            borderColor: "var(--cyber-border-subtle)",
                           }}
                         >
                           {ev.notas}
-                        </div>
+                        </p>
                       )}
-                      <div style={{ fontSize: 8, color: G.textDim }}>
-                        {eLat.toFixed(4)}° N &nbsp; {Math.abs(eLng).toFixed(4)}°
-                        W
-                      </div>
+                      <p className="font-mono text-[8px]" style={{ color: "var(--cyber-text-secondary)" }}>
+                        {eLat.toFixed(4)}° N &nbsp; {Math.abs(eLng).toFixed(4)}° W
+                      </p>
 
-                      {/* Acciones */}
-                      <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
+                      {/* Actions */}
+                      <div className="flex gap-1.5 mt-1">
                         <button
+                          type="button"
                           onClick={() => onEditarEvento(ev)}
+                          className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 border font-mono text-[9px] tracking-wide focus-visible:outline focus-visible:outline-2"
                           style={{
-                            flex: 1,
-                            padding: "5px 8px",
                             background: cfg.color + "18",
-                            border: `1px solid ${cfg.color}55`,
+                            borderColor: cfg.color + "55",
                             color: cfg.color,
-                            cursor: "pointer",
-                            fontSize: 9,
-                            letterSpacing: 1,
-                            fontFamily: "'Courier New', monospace",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            gap: 4,
+                            outlineColor: "var(--cyber-cyan)",
                           }}
                         >
-                          <Edit2 size={9} /> EDITAR
+                          <Edit2 size={9} aria-hidden="true" /> Editar
                         </button>
                         <button
+                          type="button"
                           onClick={() => onEliminarEvento(ev.id)}
+                          aria-label="Eliminar evento"
+                          className="flex items-center px-2 py-1.5 border focus-visible:outline focus-visible:outline-2"
                           style={{
-                            padding: "5px 8px",
-                            background: "transparent",
-                            border: `1px solid ${G.error}55`,
-                            color: G.error,
-                            cursor: "pointer",
-                            display: "flex",
-                            alignItems: "center",
+                            borderColor: "var(--cyber-error)",
+                            color: "var(--cyber-error)",
+                            outlineColor: "var(--cyber-cyan)",
                           }}
                         >
-                          <Trash2 size={9} />
+                          <Trash2 size={9} aria-hidden="true" />
                         </button>
                       </div>
                     </div>
@@ -779,60 +496,35 @@ export function MapaVista({
             );
           })}
 
+        {/* ── Layer panel ───────────────────────────────────────────── */}
         {panelAbierto && (
           <PanelCapas
-            visibleDistritoLocal01={visibleDistritoLocal01}
-            visibleDistritoLocal02={visibleDistritoLocal02}
-            visibleDistritoLocal05={visibleDistritoLocal05}
-            visibleDistritoLocal06={visibleDistritoLocal06}
-            visibleDistritoLocal07={visibleDistritoLocal07}
-            visibleDistritoLocal08={visibleDistritoLocal08}
-            visibleDistritoLocal09={visibleDistritoLocal09}
-            visibleDistritoLocal10={visibleDistritoLocal10}
-            visibleDistritoLocal11={visibleDistritoLocal11}
-            visibleDistritoLocal12={visibleDistritoLocal12}
-            visibleDistritoLocal13={visibleDistritoLocal13}
-            visibleDistritoLocal14={visibleDistritoLocal14}
-            visibleDistritoLocal15={visibleDistritoLocal15}
-            visibleDistritoLocal16={visibleDistritoLocal16}
-            visibleDistritoLocal17={visibleDistritoLocal17}
-            visibleDistritoLocal18={visibleDistritoLocal18}
-            visibleDistritoLocal19={visibleDistritoLocal19}
-            visibleDistritoLocal20={visibleDistritoLocal20}
-            visibleDistritoLocal21={visibleDistritoLocal21}
-            visibleDistritoLocal22={visibleDistritoLocal22}
-            visibleDistritoLocal23={visibleDistritoLocal23}
-            visibleDistritoLocal24={visibleDistritoLocal24}
-            visibleDistritoLocal25={visibleDistritoLocal25}
-            visibleDistritoLocal26={visibleDistritoLocal26}
-            visibleOaxaca={visibleOaxaca}
-            visiblePuebla={visiblePuebla}
-            onToggleDistritoLocal01={onToggleDistritoLocal01}
-            onToggleDistritoLocal02={onToggleDistritoLocal02}
-            onToggleDistritoLocal05={onToggleDistritoLocal05}
-            onToggleDistritoLocal06={onToggleDistritoLocal06}
-            onToggleDistritoLocal07={onToggleDistritoLocal07}
-            onToggleDistritoLocal08={onToggleDistritoLocal08}
-            onToggleDistritoLocal09={onToggleDistritoLocal09}
-            onToggleDistritoLocal10={onToggleDistritoLocal10}
-            onToggleDistritoLocal11={onToggleDistritoLocal11}
-            onToggleDistritoLocal12={onToggleDistritoLocal12}
-            onToggleDistritoLocal13={onToggleDistritoLocal13}
-            onToggleDistritoLocal14={onToggleDistritoLocal14}
-            onToggleDistritoLocal15={onToggleDistritoLocal15}
-            onToggleDistritoLocal16={onToggleDistritoLocal16}
-            onToggleDistritoLocal17={onToggleDistritoLocal17}
-            onToggleDistritoLocal18={onToggleDistritoLocal18}
-            onToggleDistritoLocal19={onToggleDistritoLocal19}
-            onToggleDistritoLocal20={onToggleDistritoLocal20}
-            onToggleDistritoLocal21={onToggleDistritoLocal21}
-            onToggleDistritoLocal22={onToggleDistritoLocal22}
-            onToggleDistritoLocal23={onToggleDistritoLocal23}
-            onToggleDistritoLocal24={onToggleDistritoLocal24}
-            onToggleDistritoLocal25={onToggleDistritoLocal25}
-            onToggleDistritoLocal26={onToggleDistritoLocal26}
-            onToggleOaxaca={onToggleOaxaca}
-            onTogglePuebla={onTogglePuebla}
+            visibleDistritoLocal01={visibleDistritoLocal01} visibleDistritoLocal02={visibleDistritoLocal02}
+            visibleDistritoLocal05={visibleDistritoLocal05} visibleDistritoLocal06={visibleDistritoLocal06}
+            visibleDistritoLocal07={visibleDistritoLocal07} visibleDistritoLocal08={visibleDistritoLocal08}
+            visibleDistritoLocal09={visibleDistritoLocal09} visibleDistritoLocal10={visibleDistritoLocal10}
+            visibleDistritoLocal11={visibleDistritoLocal11} visibleDistritoLocal12={visibleDistritoLocal12}
+            visibleDistritoLocal13={visibleDistritoLocal13} visibleDistritoLocal14={visibleDistritoLocal14}
+            visibleDistritoLocal15={visibleDistritoLocal15} visibleDistritoLocal16={visibleDistritoLocal16}
+            visibleDistritoLocal17={visibleDistritoLocal17} visibleDistritoLocal18={visibleDistritoLocal18}
+            visibleDistritoLocal19={visibleDistritoLocal19} visibleDistritoLocal20={visibleDistritoLocal20}
+            visibleDistritoLocal21={visibleDistritoLocal21} visibleDistritoLocal22={visibleDistritoLocal22}
+            visibleDistritoLocal23={visibleDistritoLocal23} visibleDistritoLocal24={visibleDistritoLocal24}
+            visibleDistritoLocal25={visibleDistritoLocal25} visibleDistritoLocal26={visibleDistritoLocal26}
+            visibleOaxaca={visibleOaxaca} visiblePuebla={visiblePuebla}
+            onToggleDistritoLocal01={onToggleDistritoLocal01} onToggleDistritoLocal02={onToggleDistritoLocal02}
+            onToggleDistritoLocal05={onToggleDistritoLocal05} onToggleDistritoLocal06={onToggleDistritoLocal06}
+            onToggleDistritoLocal07={onToggleDistritoLocal07} onToggleDistritoLocal08={onToggleDistritoLocal08}
+            onToggleDistritoLocal09={onToggleDistritoLocal09} onToggleDistritoLocal10={onToggleDistritoLocal10}
+            onToggleDistritoLocal11={onToggleDistritoLocal11} onToggleDistritoLocal12={onToggleDistritoLocal12}
+            onToggleDistritoLocal13={onToggleDistritoLocal13} onToggleDistritoLocal14={onToggleDistritoLocal14}
+            onToggleDistritoLocal15={onToggleDistritoLocal15} onToggleDistritoLocal16={onToggleDistritoLocal16}
+            onToggleDistritoLocal17={onToggleDistritoLocal17} onToggleDistritoLocal18={onToggleDistritoLocal18}
+            onToggleDistritoLocal19={onToggleDistritoLocal19} onToggleDistritoLocal20={onToggleDistritoLocal20}
+            onToggleDistritoLocal21={onToggleDistritoLocal21} onToggleDistritoLocal22={onToggleDistritoLocal22}
+            onToggleDistritoLocal23={onToggleDistritoLocal23} onToggleDistritoLocal24={onToggleDistritoLocal24}
+            onToggleDistritoLocal25={onToggleDistritoLocal25} onToggleDistritoLocal26={onToggleDistritoLocal26}
+            onToggleOaxaca={onToggleOaxaca} onTogglePuebla={onTogglePuebla}
             onClose={onCerrarPanel}
           />
         )}

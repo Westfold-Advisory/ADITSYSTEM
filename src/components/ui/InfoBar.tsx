@@ -1,6 +1,4 @@
-// src/components/InfoBar.tsx
 import { Radio } from "lucide-react";
-import { G } from "./constants";
 import type { Lugar } from "./types";
 
 interface InfoBarProps {
@@ -11,69 +9,59 @@ export function InfoBar({ activo }: InfoBarProps) {
   if (activo) {
     return (
       <div
+        className="flex items-center justify-between px-4 py-2.5 shrink-0 border-b"
         style={{
-          border: `1px solid ${G.borderBright}`,
-          padding: "10px 16px",
-          background: G.bgCard,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          boxShadow: `0 0 15px rgba(0, 213, 255, 0.08)`,
-          flexShrink: 0,
+          background: "var(--cyber-surface-2)",
+          borderColor: "var(--cyber-border)",
+          boxShadow: "var(--cyber-shadow-sm)",
         }}
       >
-        <div>
-          <span style={{ fontSize: 9, color: G.textDim, letterSpacing: 2 }}>
-            INFORMACION LIDER ACTIVO
+        <div className="flex flex-col gap-0.5 min-w-0">
+          <span
+            className="font-mono text-[10px] tracking-[0.15em] uppercase"
+            style={{ color: "var(--cyber-text-secondary)" }}
+          >
+            Líder activo
           </span>
-
           <p
-            style={{
-              fontSize: 13,
-              fontWeight: 700,
-              color: G.textBright,
-              margin: "2px 0",
-              letterSpacing: 2,
-            }}
+            className="font-bold text-sm tracking-wide truncate"
+            style={{ color: "var(--cyber-text-bright)" }}
           >
             {activo.nombre}
           </p>
-
-          <p style={{ fontSize: 9, color: G.textDim, letterSpacing: 2 }}>
-            Sección:
-          </p>
-          <p style={{ fontSize: 13, color: G.accent }}>{activo.info}</p>
-        </div>
-        <div style={{ display: "flex", gap: 24, alignItems: "center" }}>
-          <div style={{ textAlign: "center" }}>
-            <span
-              style={{
-                fontSize: 9,
-                color: G.textDim,
-                letterSpacing: 2,
-                display: "block",
-              }}
-            >
-              MUNICIPIO
+          <p className="text-[10px]" style={{ color: "var(--cyber-text-secondary)" }}>
+            Sección:{" "}
+            <span className="font-semibold" style={{ color: "var(--cyber-cyan)" }}>
+              {activo.info}
             </span>
-            <span style={{ fontSize: 13, color: G.accent }}>
+          </p>
+        </div>
+
+        <div className="flex items-center gap-6 shrink-0 ml-4">
+          <div className="text-right">
+            <span
+              className="font-mono text-[9px] uppercase tracking-[0.15em] block"
+              style={{ color: "var(--cyber-text-secondary)" }}
+            >
+              Municipio
+            </span>
+            <span className="text-sm font-semibold" style={{ color: "var(--cyber-cyan)" }}>
               {activo.category}
             </span>
           </div>
 
-          <div style={{ textAlign: "right" }}>
+          <div className="text-right hidden sm:block">
             <span
-              style={{
-                fontSize: 9,
-                color: G.textDim,
-                letterSpacing: 2,
-                display: "block",
-              }}
+              className="font-mono text-[9px] uppercase tracking-[0.15em] block"
+              style={{ color: "var(--cyber-text-secondary)" }}
             >
-              COORDENADAS
+              Coordenadas
             </span>
-            <span style={{ fontSize: 13, color: G.accent, letterSpacing: 1 }}>
-              {activo.coords[1].toFixed(4)}° N &nbsp;{" "}
+            <span
+              className="font-mono text-sm tracking-wide"
+              style={{ color: "var(--cyber-cyan)" }}
+            >
+              {activo.coords[1].toFixed(4)}° N&nbsp;&nbsp;
               {Math.abs(activo.coords[0]).toFixed(4)}° W
             </span>
           </div>
@@ -84,20 +72,23 @@ export function InfoBar({ activo }: InfoBarProps) {
 
   return (
     <div
+      className="flex items-center gap-2 px-4 py-2.5 shrink-0 border-b"
       style={{
-        border: `1px solid ${G.border}`,
-        padding: "10px 16px",
-        background: G.bgPanel,
-        display: "flex",
-        alignItems: "center",
-        gap: 8,
-        flexShrink: 0,
+        background: "var(--cyber-surface-1)",
+        borderColor: "var(--cyber-border-subtle)",
       }}
     >
-      <Radio size={11} color={G.textDim} />
-      <span style={{ fontSize: 10, color: G.textDim, letterSpacing: 1.5 }}>
-        SELECCIONE UN OBJETIVO EN EL MAPA O EN EL PANEL LATERAL
-      </span>
+      <Radio
+        size={11}
+        aria-hidden="true"
+        style={{ color: "var(--cyber-text-secondary)" }}
+      />
+      <p
+        className="font-mono text-[10px] tracking-[0.12em] uppercase"
+        style={{ color: "var(--cyber-text-secondary)" }}
+      >
+        Seleccione un objetivo en el mapa o en el panel lateral
+      </p>
     </div>
   );
 }
