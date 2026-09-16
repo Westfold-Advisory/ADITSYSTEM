@@ -26,7 +26,7 @@ El workflow `.github/workflows/ci.yml` ejecuta:
 
 ### Deploy a S3
 
-El job `Deploy to S3` corre solo en `push` a `main`, despues de que el job `Quality gates` pasa. Construye `dist` y ejecuta:
+El job `Deploy to S3` corre solo en `push` a `main`, despues de que los jobs `Quality gates` y `Semgrep SAST` pasan. Publica exactamente el artefacto `dist/` generado y validado por `Quality gates`; no recompila durante el despliegue. El workflow falla si el artefacto no contiene `dist/index.html` y ejecuta:
 
 ```sh
 aws s3 sync ./dist s3://$S3_BUCKET --delete
@@ -34,14 +34,14 @@ aws s3 sync ./dist s3://$S3_BUCKET --delete
 
 Configurar en GitHub:
 
-| Nombre                       | Tipo     | Uso                                             |
-| ---------------------------- | -------- | ----------------------------------------------- |
-| `AWS_ROLE_ARN`               | Secret   | Rol IAM asumido por OIDC para publicar el sitio |
-| `S3_BUCKET`                  | Variable | Bucket S3 destino                               |
-| `AWS_REGION`                 | Variable | Region AWS; si no se define usa `mx-central-1`  |
-| `CLOUDFRONT_DISTRIBUTION_ID` | Variable | Opcional para invalidar CloudFront              |
+| Nombre              | Tipo     | Uso                                                     |
+| ------------------- | -------- | ------------------------------------------------------- |
+| `AWS_ROLE_ARN`      | Variable | ARN del rol IAM asumido por OIDC para publicar el sitio |
+| `S3_BUCKET`         | Variable | Bucket S3 destino                                       |
+| `AWS_REGION`        | Variable | Region AWS; si no se define usa `mx-central-1`          |
+| `VITE_API_BASE_URL` | Variable | URL pública de la API incluida durante el build         |
 
-El rol IAM debe confiar en GitHub OIDC y tener permisos minimos sobre el bucket S3. Si usan CloudFront, agregar permiso para `cloudfront:CreateInvalidation`.
+Configurar estas variables como variables del repositorio: el build de calidad se reutiliza literalmente en el deploy. El job de despliegue usa el GitHub Environment `production`, porque es el subject actualmente confiado por el rol OIDC creado por Terraform para el ambiente AWS de desarrollo. Ninguno de estos valores debe contener credenciales: Vite expone `VITE_API_BASE_URL` al navegador. El rol IAM debe limitarse a `s3:ListBucket`, `s3:GetObject`, `s3:PutObject` y `s3:DeleteObject` sobre el bucket de frontend.
 
 ### Actualizacion de dependencias
 
