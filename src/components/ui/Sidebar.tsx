@@ -132,7 +132,9 @@ export function Sidebar({
               style={{
                 background: activa ? "var(--cyber-cyan-dim)" : "transparent",
                 borderBottomColor: activa ? "var(--cyber-cyan)" : "transparent",
-                color: activa ? "var(--cyber-cyan)" : "var(--cyber-text-secondary)",
+                color: activa
+                  ? "var(--cyber-cyan)"
+                  : "var(--cyber-text-secondary)",
                 outlineColor: "var(--cyber-cyan)",
                 transitionDuration: "var(--cyber-duration-fast)",
               }}
@@ -170,7 +172,9 @@ export function Sidebar({
           type="search"
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
-          placeholder={tab === "OBJETIVOS" ? "Buscar objetivo…" : "Buscar evento…"}
+          placeholder={
+            tab === "OBJETIVOS" ? "Buscar objetivo…" : "Buscar evento…"
+          }
           aria-label={tab === "OBJETIVOS" ? "Buscar objetivo" : "Buscar evento"}
           className="w-full pl-6 pr-7 py-1.5 font-mono text-[10px] rounded border bg-transparent focus-visible:outline focus-visible:outline-2"
           style={{
@@ -224,9 +228,15 @@ export function Sidebar({
                     "whitespace-nowrap transition-colors focus-visible:outline focus-visible:outline-2",
                   )}
                   style={{
-                    background: activa ? "var(--cyber-cyan-dim)" : "transparent",
-                    borderColor: activa ? "var(--cyber-cyan)" : "var(--cyber-border-subtle)",
-                    color: activa ? "var(--cyber-cyan)" : "var(--cyber-text-secondary)",
+                    background: activa
+                      ? "var(--cyber-cyan-dim)"
+                      : "transparent",
+                    borderColor: activa
+                      ? "var(--cyber-cyan)"
+                      : "var(--cyber-border-subtle)",
+                    color: activa
+                      ? "var(--cyber-cyan)"
+                      : "var(--cyber-text-secondary)",
                     outlineColor: "var(--cyber-cyan)",
                     transitionDuration: "var(--cyber-duration-fast)",
                   }}
@@ -280,83 +290,100 @@ export function Sidebar({
                       >
                         {items.length}
                       </span>
-                      {colapsada
-                        ? <ChevronRight size={10} style={{ color: "var(--cyber-text-secondary)" }} />
-                        : <ChevronDown  size={10} style={{ color: "var(--cyber-text-secondary)" }} />}
+                      {colapsada ? (
+                        <ChevronRight
+                          size={10}
+                          style={{ color: "var(--cyber-text-secondary)" }}
+                        />
+                      ) : (
+                        <ChevronDown
+                          size={10}
+                          style={{ color: "var(--cyber-text-secondary)" }}
+                        />
+                      )}
                     </div>
                   </button>
 
-                  {!colapsada && items.map((lugar) => {
-                    const globalIdx = inicioIdxMap.get(lugar.id) ?? 0;
-                    const esSeleccionado = seleccionado === lugar.id;
-                    const esUsuario = globalIdx >= LUGARES_INICIALES.length;
-                    return (
-                      <div
-                        key={lugar.id}
-                        className="relative border-b"
-                        style={{
-                          borderColor: "var(--cyber-border-subtle)",
-                          borderLeft: `3px solid ${esSeleccionado ? "var(--cyber-cyan)" : "transparent"}`,
-                          background: esSeleccionado ? "var(--cyber-cyan-dim)" : "transparent",
-                          transitionProperty: "background, border-left-color",
-                          transitionDuration: "var(--cyber-duration-fast)",
-                        }}
-                      >
-                        <button
-                          type="button"
-                          onClick={() => onSeleccionar(lugar.id)}
-                          className="w-full text-left px-3 py-2.5 focus-visible:outline focus-visible:outline-2"
-                          style={{ outlineColor: "var(--cyber-cyan)" }}
+                  {!colapsada &&
+                    items.map((lugar) => {
+                      const globalIdx = inicioIdxMap.get(lugar.id) ?? 0;
+                      const esSeleccionado = seleccionado === lugar.id;
+                      const esUsuario = globalIdx >= LUGARES_INICIALES.length;
+                      return (
+                        <div
+                          key={lugar.id}
+                          className="relative border-b"
+                          style={{
+                            borderColor: "var(--cyber-border-subtle)",
+                            borderLeft: `3px solid ${esSeleccionado ? "var(--cyber-cyan)" : "transparent"}`,
+                            background: esSeleccionado
+                              ? "var(--cyber-cyan-dim)"
+                              : "transparent",
+                            transitionProperty: "background, border-left-color",
+                            transitionDuration: "var(--cyber-duration-fast)",
+                          }}
                         >
-                          <div className="flex justify-between items-start mb-0.5">
-                            <span
-                              className="font-mono text-[9px] tracking-wide"
-                              style={{ color: "var(--cyber-text-secondary)" }}
-                            >
-                              OBJ-{String(globalIdx + 1).padStart(2, "0")}
-                            </span>
-                            <span
-                              className="size-1.5 rounded-full"
-                              style={{
-                                background: esSeleccionado ? "var(--cyber-green)" : "var(--cyber-text-secondary)",
-                                boxShadow: esSeleccionado ? "var(--cyber-glow-green)" : "none",
-                              }}
-                            />
-                          </div>
-                          <p
-                            className="text-[12px] font-bold tracking-[0.03em] mb-0.5"
-                            style={{
-                              color: esSeleccionado ? "var(--cyber-text-bright)" : "var(--cyber-text)",
-                            }}
-                          >
-                            {lugar.nombre}
-                          </p>
-                          <p
-                            className="text-[10px]"
-                            style={{ color: "var(--cyber-text-secondary)" }}
-                          >
-                            {lugar.info || lugar.label}
-                          </p>
-                        </button>
-
-                        {esUsuario && (
                           <button
                             type="button"
-                            onClick={() => onEliminar(lugar.id)}
-                            title="Eliminar objetivo"
-                            aria-label={`Eliminar ${lugar.nombre}`}
-                            className="absolute top-2 right-2 p-1 rounded focus-visible:outline focus-visible:outline-2"
-                            style={{
-                              color: "var(--cyber-error)",
-                              outlineColor: "var(--cyber-cyan)",
-                            }}
+                            onClick={() => onSeleccionar(lugar.id)}
+                            className="w-full text-left px-3 py-2.5 focus-visible:outline focus-visible:outline-2"
+                            style={{ outlineColor: "var(--cyber-cyan)" }}
                           >
-                            <X size={10} />
+                            <div className="flex justify-between items-start mb-0.5">
+                              <span
+                                className="font-mono text-[9px] tracking-wide"
+                                style={{ color: "var(--cyber-text-secondary)" }}
+                              >
+                                OBJ-{String(globalIdx + 1).padStart(2, "0")}
+                              </span>
+                              <span
+                                className="size-1.5 rounded-full"
+                                style={{
+                                  background: esSeleccionado
+                                    ? "var(--cyber-green)"
+                                    : "var(--cyber-text-secondary)",
+                                  boxShadow: esSeleccionado
+                                    ? "var(--cyber-glow-green)"
+                                    : "none",
+                                }}
+                              />
+                            </div>
+                            <p
+                              className="text-[12px] font-bold tracking-[0.03em] mb-0.5"
+                              style={{
+                                color: esSeleccionado
+                                  ? "var(--cyber-text-bright)"
+                                  : "var(--cyber-text)",
+                              }}
+                            >
+                              {lugar.nombre}
+                            </p>
+                            <p
+                              className="text-[10px]"
+                              style={{ color: "var(--cyber-text-secondary)" }}
+                            >
+                              {lugar.info || lugar.label}
+                            </p>
                           </button>
-                        )}
-                      </div>
-                    );
-                  })}
+
+                          {esUsuario && (
+                            <button
+                              type="button"
+                              onClick={() => onEliminar(lugar.id)}
+                              title="Eliminar objetivo"
+                              aria-label={`Eliminar ${lugar.nombre}`}
+                              className="absolute top-2 right-2 p-1 rounded focus-visible:outline focus-visible:outline-2"
+                              style={{
+                                color: "var(--cyber-error)",
+                                outlineColor: "var(--cyber-cyan)",
+                              }}
+                            >
+                              <X size={10} />
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })}
                 </div>
               );
             })}
@@ -438,7 +465,10 @@ export function Sidebar({
                     </span>
                     <span
                       className="font-mono text-[8px] tracking-wide flex items-center gap-1 border px-1.5 py-0.5"
-                      style={{ color: cfg.color, borderColor: cfg.color + "55" }}
+                      style={{
+                        color: cfg.color,
+                        borderColor: cfg.color + "55",
+                      }}
                     >
                       <span
                         className="size-1.5 rounded-full"
@@ -454,7 +484,9 @@ export function Sidebar({
                   <p
                     className="text-[12px] font-bold tracking-[0.03em] mb-0.5"
                     style={{
-                      color: esSeleccionado ? "var(--cyber-text-bright)" : "var(--cyber-text)",
+                      color: esSeleccionado
+                        ? "var(--cyber-text-bright)"
+                        : "var(--cyber-text)",
                     }}
                   >
                     {ev.nombre}
@@ -510,7 +542,9 @@ export function Sidebar({
                         borderColor: "var(--cyber-border-subtle)",
                       }}
                     >
-                      {ev.notas.length > 50 ? ev.notas.slice(0, 50) + "…" : ev.notas}
+                      {ev.notas.length > 50
+                        ? ev.notas.slice(0, 50) + "…"
+                        : ev.notas}
                     </p>
                   )}
                 </button>
@@ -526,7 +560,10 @@ export function Sidebar({
                     title="Editar evento"
                     aria-label={`Editar ${ev.nombre}`}
                     className="p-1 rounded focus-visible:outline focus-visible:outline-2"
-                    style={{ color: cfg.color + "88", outlineColor: "var(--cyber-cyan)" }}
+                    style={{
+                      color: cfg.color + "88",
+                      outlineColor: "var(--cyber-cyan)",
+                    }}
                   >
                     <Edit2 size={10} />
                   </button>
@@ -539,7 +576,10 @@ export function Sidebar({
                     title="Eliminar evento"
                     aria-label={`Eliminar ${ev.nombre}`}
                     className="p-1 rounded focus-visible:outline focus-visible:outline-2"
-                    style={{ color: "var(--cyber-error)", outlineColor: "var(--cyber-cyan)" }}
+                    style={{
+                      color: "var(--cyber-error)",
+                      outlineColor: "var(--cyber-cyan)",
+                    }}
                   >
                     <Trash2 size={10} />
                   </button>

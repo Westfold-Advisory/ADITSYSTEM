@@ -15,22 +15,59 @@ import { cn } from "@/lib/utils";
 type LayersState = {
   oaxaca: boolean;
   puebla: boolean;
-  dl01: boolean; dl02: boolean; dl05: boolean; dl06: boolean;
-  dl07: boolean; dl08: boolean; dl09: boolean; dl10: boolean;
-  dl11: boolean; dl12: boolean; dl13: boolean; dl14: boolean;
-  dl15: boolean; dl16: boolean; dl17: boolean; dl18: boolean;
-  dl19: boolean; dl20: boolean; dl21: boolean; dl22: boolean;
-  dl23: boolean; dl24: boolean; dl25: boolean; dl26: boolean;
+  dl01: boolean;
+  dl02: boolean;
+  dl05: boolean;
+  dl06: boolean;
+  dl07: boolean;
+  dl08: boolean;
+  dl09: boolean;
+  dl10: boolean;
+  dl11: boolean;
+  dl12: boolean;
+  dl13: boolean;
+  dl14: boolean;
+  dl15: boolean;
+  dl16: boolean;
+  dl17: boolean;
+  dl18: boolean;
+  dl19: boolean;
+  dl20: boolean;
+  dl21: boolean;
+  dl22: boolean;
+  dl23: boolean;
+  dl24: boolean;
+  dl25: boolean;
+  dl26: boolean;
 };
 
 const ALL_HIDDEN: LayersState = {
-  oaxaca: false, puebla: false,
-  dl01: false, dl02: false, dl05: false, dl06: false,
-  dl07: false, dl08: false, dl09: false, dl10: false,
-  dl11: false, dl12: false, dl13: false, dl14: false,
-  dl15: false, dl16: false, dl17: false, dl18: false,
-  dl19: false, dl20: false, dl21: false, dl22: false,
-  dl23: false, dl24: false, dl25: false, dl26: false,
+  oaxaca: false,
+  puebla: false,
+  dl01: false,
+  dl02: false,
+  dl05: false,
+  dl06: false,
+  dl07: false,
+  dl08: false,
+  dl09: false,
+  dl10: false,
+  dl11: false,
+  dl12: false,
+  dl13: false,
+  dl14: false,
+  dl15: false,
+  dl16: false,
+  dl17: false,
+  dl18: false,
+  dl19: false,
+  dl20: false,
+  dl21: false,
+  dl22: false,
+  dl23: false,
+  dl24: false,
+  dl25: false,
+  dl26: false,
 };
 
 function toggle(key: keyof LayersState) {
@@ -45,7 +82,9 @@ export function MapPage() {
 
   /* Eventos */
   const [eventos, setEventos] = useState<Evento[]>([]);
-  const [eventoSeleccionado, setEventoSeleccionado] = useState<number | null>(null);
+  const [eventoSeleccionado, setEventoSeleccionado] = useState<number | null>(
+    null,
+  );
 
   /* Forms */
   const [formularioAbierto, setFormularioAbierto] = useState(false);
@@ -82,24 +121,40 @@ export function MapPage() {
   }, []);
 
   /* ── Evento handlers ─── */
-  const handleAgregarEvento = useCallback((_input: EventInput) => {
-    if (eventoEditar) {
-      setEventos((prev) => prev.map((e) => (e.id === eventoEditar.id ? eventoEditar : e)));
-    } else {
-      const nuevo: Evento = {
-        id: Date.now(),
+  const handleAgregarEvento = useCallback(
+    (input: EventInput) => {
+      const eventData: Omit<Evento, "id"> = {
         category: "Evento",
-        nombre: "",
-        descripcion: "",
+        nombre: input.name,
+        descripcion: input.description,
         estado: "ACTIVO",
-        fechaInicio: new Date().toISOString(),
+        fechaInicio: new Date(input.startsAt).toISOString(),
+        fechaFin: new Date(input.endsAt).toISOString(),
+        notas: input.locationText,
+        coords: [input.coordinates.longitude, input.coordinates.latitude],
       };
-      setEventos((prev) => [...prev, nuevo]);
-    }
-    setFormularioEventoAbierto(false);
-    setEventoEditar(undefined);
-    return Promise.resolve();
-  }, [eventoEditar]);
+
+      if (eventoEditar) {
+        setEventos((prev) =>
+          prev.map((event) =>
+            event.id === eventoEditar.id
+              ? { ...eventData, id: eventoEditar.id }
+              : event,
+          ),
+        );
+      } else {
+        const nuevo: Evento = {
+          id: Date.now(),
+          ...eventData,
+        };
+        setEventos((prev) => [...prev, nuevo]);
+      }
+      setFormularioEventoAbierto(false);
+      setEventoEditar(undefined);
+      return Promise.resolve();
+    },
+    [eventoEditar],
+  );
 
   const handleEliminarEvento = useCallback((id: number) => {
     setEventos((prev) => prev.filter((e) => e.id !== id));
@@ -140,9 +195,11 @@ export function MapPage() {
               color: "var(--cyber-text-secondary)",
             }}
           >
-            {sidebarVisible
-              ? <PanelLeftClose size={16} />
-              : <PanelLeft size={16} />}
+            {sidebarVisible ? (
+              <PanelLeftClose size={16} />
+            ) : (
+              <PanelLeft size={16} />
+            )}
           </button>
 
           <span
@@ -165,9 +222,15 @@ export function MapPage() {
           )}
           style={{
             outlineColor: "var(--cyber-cyan)",
-            borderColor: panelCapasAbierto ? "var(--cyber-cyan)" : "var(--cyber-border-subtle)",
-            background: panelCapasAbierto ? "var(--cyber-cyan-dim)" : "transparent",
-            color: panelCapasAbierto ? "var(--cyber-cyan)" : "var(--cyber-text-secondary)",
+            borderColor: panelCapasAbierto
+              ? "var(--cyber-cyan)"
+              : "var(--cyber-border-subtle)",
+            background: panelCapasAbierto
+              ? "var(--cyber-cyan-dim)"
+              : "transparent",
+            color: panelCapasAbierto
+              ? "var(--cyber-cyan)"
+              : "var(--cyber-text-secondary)",
           }}
         >
           <Layers size={13} />

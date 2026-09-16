@@ -29,9 +29,15 @@ export function InfoBar({ activo }: InfoBarProps) {
           >
             {activo.nombre}
           </p>
-          <p className="text-[10px]" style={{ color: "var(--cyber-text-secondary)" }}>
+          <p
+            className="text-[10px]"
+            style={{ color: "var(--cyber-text-secondary)" }}
+          >
             Sección:{" "}
-            <span className="font-semibold" style={{ color: "var(--cyber-cyan)" }}>
+            <span
+              className="font-semibold"
+              style={{ color: "var(--cyber-cyan)" }}
+            >
               {activo.info}
             </span>
           </p>
@@ -45,7 +51,10 @@ export function InfoBar({ activo }: InfoBarProps) {
             >
               Municipio
             </span>
-            <span className="text-sm font-semibold" style={{ color: "var(--cyber-cyan)" }}>
+            <span
+              className="text-sm font-semibold"
+              style={{ color: "var(--cyber-cyan)" }}
+            >
               {activo.category}
             </span>
           </div>

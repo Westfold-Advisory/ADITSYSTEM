@@ -71,7 +71,7 @@
   margin: 0.75rem 0.5rem 0 0;
   border: 1px solid var(--cyber-violet);
   border-radius: var(--radius);
-  background: oklch(0.60 0.22 290 / 0.12);
+  background: oklch(0.6 0.22 290 / 0.12);
   color: var(--cyber-violet);
   cursor: pointer;
   font: inherit;
@@ -86,7 +86,7 @@
 .event-card button:hover,
 .event-detail a:hover,
 .request-message button:hover {
-  background: oklch(0.60 0.22 290 / 0.22);
+  background: oklch(0.6 0.22 290 / 0.22);
 }
 
 .back-link {
