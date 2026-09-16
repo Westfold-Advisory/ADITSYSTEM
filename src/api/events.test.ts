@@ -51,6 +51,10 @@ describe("event mappers", () => {
     });
     assert.equal(payload.fecha_inicio, "2026-09-15T18:00:00.000Z");
     assert.equal(payload.latitud, 19);
+    assert.equal("estatus" in payload, false);
+    assert.equal("coords" in payload, false);
+    assert.equal("category" in payload, false);
+    assert.equal("notas" in payload, false);
   });
 });
 
