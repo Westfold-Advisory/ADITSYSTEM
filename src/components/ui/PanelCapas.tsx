@@ -1,6 +1,5 @@
-// src/components/PanelCapas.tsx
 import { Layers, X } from "lucide-react";
-import { G } from "./constants";
+import { cn } from "@/lib/utils";
 
 interface PanelCapasProps {
   visibleDistritoLocal01: boolean;
@@ -27,7 +26,6 @@ interface PanelCapasProps {
   visibleDistritoLocal24: boolean;
   visibleDistritoLocal25: boolean;
   visibleDistritoLocal26: boolean;
-
   visibleOaxaca: boolean;
   visiblePuebla: boolean;
 
@@ -86,7 +84,6 @@ export function PanelCapas({
   visibleDistritoLocal24,
   visibleDistritoLocal25,
   visibleDistritoLocal26,
-
   visibleOaxaca,
   visiblePuebla,
   onToggleDistritoLocal01,
@@ -113,164 +110,163 @@ export function PanelCapas({
   onToggleDistritoLocal24,
   onToggleDistritoLocal25,
   onToggleDistritoLocal26,
-
   onToggleOaxaca,
   onTogglePuebla,
   onClose,
 }: PanelCapasProps) {
   const capas = [
     {
-      label: "DISTRITO LOCAL 1",
+      label: "Distrito Local 1",
       color: "#FF4DFF",
       visible: visibleDistritoLocal01,
       toggle: onToggleDistritoLocal01,
     },
     {
-      label: "DISTRITO LOCAL 2",
+      label: "Distrito Local 2",
       color: "#6A5CFF",
       visible: visibleDistritoLocal02,
       toggle: onToggleDistritoLocal02,
     },
     {
-      label: "DISTRITO LOCAL 3",
+      label: "Distrito Local 3",
       color: "#4DEBFF",
       visible: visiblePuebla,
       toggle: onTogglePuebla,
     },
     {
-      label: "DISTRITO LOCAL 4",
+      label: "Distrito Local 4",
       color: "#39FF5A",
       visible: visibleOaxaca,
       toggle: onToggleOaxaca,
     },
     {
-      label: "DISTRITO LOCAL 5",
+      label: "Distrito Local 5",
       color: "#FFFF33",
       visible: visibleDistritoLocal05,
       toggle: onToggleDistritoLocal05,
     },
     {
-      label: "DISTRITO LOCAL 6",
+      label: "Distrito Local 6",
       color: "#33B5FF",
       visible: visibleDistritoLocal06,
       toggle: onToggleDistritoLocal06,
     },
     {
-      label: "DISTRITO LOCAL 7",
+      label: "Distrito Local 7",
       color: "#EFFF00",
       visible: visibleDistritoLocal07,
       toggle: onToggleDistritoLocal07,
     },
     {
-      label: "DISTRITO LOCAL 8",
+      label: "Distrito Local 8",
       color: "#FF6B6B",
       visible: visibleDistritoLocal08,
       toggle: onToggleDistritoLocal08,
     },
     {
-      label: "DISTRITO LOCAL 9",
+      label: "Distrito Local 9",
       color: "#A8FF00",
       visible: visibleDistritoLocal09,
       toggle: onToggleDistritoLocal09,
     },
     {
-      label: "DISTRITO LOCAL 10",
+      label: "Distrito Local 10",
       color: "#E5FF4D",
       visible: visibleDistritoLocal10,
       toggle: onToggleDistritoLocal10,
     },
     {
-      label: "DISTRITO LOCAL 11",
+      label: "Distrito Local 11",
       color: "#B266FF",
       visible: visibleDistritoLocal11,
       toggle: onToggleDistritoLocal11,
     },
     {
-      label: "DISTRITO LOCAL 12",
+      label: "Distrito Local 12",
       color: "#FF8A33",
       visible: visibleDistritoLocal12,
       toggle: onToggleDistritoLocal12,
     },
     {
-      label: "DISTRITO LOCAL 13",
+      label: "Distrito Local 13",
       color: "#FFD166",
       visible: visibleDistritoLocal13,
       toggle: onToggleDistritoLocal13,
     },
     {
-      label: "DISTRITO LOCAL 14",
+      label: "Distrito Local 14",
       color: "#5B7CFF",
       visible: visibleDistritoLocal14,
       toggle: onToggleDistritoLocal14,
     },
     {
-      label: "DISTRITO LOCAL 15",
+      label: "Distrito Local 15",
       color: "#4DFF88",
       visible: visibleDistritoLocal15,
       toggle: onToggleDistritoLocal15,
     },
     {
-      label: "DISTRITO LOCAL 16",
+      label: "Distrito Local 16",
       color: "#FFB347",
       visible: visibleDistritoLocal16,
       toggle: onToggleDistritoLocal16,
     },
     {
-      label: "DISTRITO LOCAL 17",
+      label: "Distrito Local 17",
       color: "#5EC8FF",
       visible: visibleDistritoLocal17,
       toggle: onToggleDistritoLocal17,
     },
     {
-      label: "DISTRITO LOCAL 18",
+      label: "Distrito Local 18",
       color: "#4DFFF3",
       visible: visibleDistritoLocal18,
       toggle: onToggleDistritoLocal18,
     },
     {
-      label: "DISTRITO LOCAL 19",
+      label: "Distrito Local 19",
       color: "#FF5FA2",
       visible: visibleDistritoLocal19,
       toggle: onToggleDistritoLocal19,
     },
     {
-      label: "DISTRITO LOCAL 20",
+      label: "Distrito Local 20",
       color: "#33FF99",
       visible: visibleDistritoLocal20,
       toggle: onToggleDistritoLocal20,
     },
     {
-      label: "DISTRITO LOCAL 21",
+      label: "Distrito Local 21",
       color: "#FF66F7",
       visible: visibleDistritoLocal21,
       toggle: onToggleDistritoLocal21,
     },
     {
-      label: "DISTRITO LOCAL 22",
+      label: "Distrito Local 22",
       color: "#33FFF5",
       visible: visibleDistritoLocal22,
       toggle: onToggleDistritoLocal22,
     },
     {
-      label: "DISTRITO LOCAL 23",
+      label: "Distrito Local 23",
       color: "#CFFF3D",
       visible: visibleDistritoLocal23,
       toggle: onToggleDistritoLocal23,
     },
     {
-      label: "DISTRITO LOCAL 24",
+      label: "Distrito Local 24",
       color: "#9B7BFF",
       visible: visibleDistritoLocal24,
       toggle: onToggleDistritoLocal24,
     },
     {
-      label: "DISTRITO LOCAL 25",
+      label: "Distrito Local 25",
       color: "#FF66CC",
       visible: visibleDistritoLocal25,
       toggle: onToggleDistritoLocal25,
     },
     {
-      label: "DISTRITO LOCAL 26",
+      label: "Distrito Local 26",
       color: "#FFE84D",
       visible: visibleDistritoLocal26,
       toggle: onToggleDistritoLocal26,
@@ -279,144 +275,106 @@ export function PanelCapas({
 
   return (
     <div
+      role="dialog"
+      aria-label="Panel de capas"
+      className="absolute top-3 right-3 z-20 w-56 max-h-[600px] flex flex-col rounded border overflow-hidden"
       style={{
-        position: "absolute",
-        top: 12,
-        right: 12,
-        zIndex: 25,
-        width: 250,
-
-        maxHeight: "650px", // IMPORTANTE
-        overflowY: "auto",
-
-        background: G.bgPanel,
-        border: `1px solid ${G.borderBright}`,
-        boxShadow: `0 0 20px rgba(0,212,255,0.1)`,
-        fontFamily: "'Courier New', monospace",
+        background: "var(--cyber-surface-1)",
+        borderColor: "var(--cyber-border)",
+        boxShadow: "var(--cyber-shadow-md)",
       }}
     >
+      {/* Header */}
       <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          overflowY: "auto",
-          justifyContent: "space-between",
-          padding: "10px 14px",
-          borderBottom: `1px solid ${G.border}`,
-        }}
+        className="flex items-center justify-between px-3 py-2 border-b shrink-0"
+        style={{ borderColor: "var(--cyber-border-subtle)" }}
       >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            overflowY: "auto",
-          }}
-        >
-          <Layers size={12} color={G.accent} />
+        <div className="flex items-center gap-2">
+          <Layers
+            size={12}
+            aria-hidden="true"
+            style={{ color: "var(--cyber-cyan)" }}
+          />
           <span
-            style={{
-              fontSize: 11,
-              fontWeight: 700,
-              color: G.accent,
-              letterSpacing: 2,
-              overflowY: "auto",
-            }}
+            className="font-mono text-[10px] font-bold tracking-[0.2em] uppercase"
+            style={{ color: "var(--cyber-cyan)" }}
           >
-            CAPAS
+            Capas
           </span>
         </div>
         <button
+          type="button"
           onClick={onClose}
+          aria-label="Cerrar panel de capas"
+          className="p-1 rounded hover:bg-white/5 focus-visible:outline focus-visible:outline-2"
           style={{
-            overflowY: "auto",
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            color: G.textDim,
-            padding: 0,
+            color: "var(--cyber-text-secondary)",
+            outlineColor: "var(--cyber-cyan)",
           }}
         >
           <X size={13} />
         </button>
       </div>
 
-      <div
-        style={{
-          padding: 10,
-          display: "flex",
-          flexDirection: "column",
-          overflowY: "auto",
-
-          gap: 8,
-        }}
-      >
+      {/* Layer list */}
+      <div className="flex flex-col gap-1.5 p-2 overflow-y-auto">
         {capas.map(({ label, color, visible, toggle }) => (
           <div
             key={label}
+            className="flex items-center justify-between px-2 py-1.5 rounded border"
             style={{
-              display: "flex",
-              overflowY: "auto",
-              alignItems: "center",
-              justifyContent: "space-between",
-              padding: "8px 10px",
-              border: `1px solid ${visible ? color + "44" : G.border}`,
+              borderColor: visible
+                ? color + "44"
+                : "var(--cyber-border-subtle)",
               background: visible ? color + "0a" : "transparent",
+              transitionProperty: "background, border-color",
+              transitionDuration: "var(--cyber-duration-fast)",
             }}
           >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                overflowY: "auto",
-              }}
-            >
-              <div
+            <div className="flex items-center gap-2 min-w-0">
+              <span
+                className="size-1.5 rounded-full shrink-0"
                 style={{
-                  width: 6,
-                  height: 6,
-                  overflowY: "auto",
-
-                  borderRadius: "50%",
-                  background: visible ? color : G.textDim,
+                  background: visible ? color : "var(--cyber-text-secondary)",
                   boxShadow: visible ? `0 0 6px ${color}` : "none",
                 }}
               />
               <span
+                className="font-mono text-[9px] font-semibold tracking-wide uppercase truncate"
                 style={{
-                  fontSize: 10,
-                  fontWeight: 700,
-                  overflowY: "auto",
-                  color: visible ? color : G.textDim,
-                  letterSpacing: 1.5,
+                  color: visible ? color : "var(--cyber-text-secondary)",
                 }}
               >
                 {label}
               </span>
             </div>
+
+            {/* Toggle switch */}
             <button
+              type="button"
+              role="switch"
+              aria-checked={visible}
+              aria-label={`${visible ? "Ocultar" : "Mostrar"} ${label}`}
               onClick={toggle}
+              className={cn(
+                "relative w-8 h-4 border rounded-sm shrink-0 ml-2",
+                "focus-visible:outline focus-visible:outline-2",
+              )}
               style={{
-                width: 32,
-                height: 16,
-                border: `1px solid ${visible ? color : G.border}`,
+                borderColor: visible ? color : "var(--cyber-border-subtle)",
                 background: visible ? color + "33" : "transparent",
-                cursor: "pointer",
-                position: "relative",
-                overflowY: "auto",
-                padding: 0,
+                outlineColor: "var(--cyber-cyan)",
+                transitionProperty: "background, border-color",
+                transitionDuration: "var(--cyber-duration-fast)",
               }}
             >
-              <div
+              <span
+                className="absolute top-[2px] size-2.5 rounded-sm"
                 style={{
-                  position: "absolute",
-                  top: 2,
-                  left: visible ? 16 : 2,
-                  width: 10,
-                  height: 10,
-                  background: visible ? color : G.textDim,
-                  transition: "left 0.2s",
+                  left: visible ? "calc(100% - 12px)" : "2px",
+                  background: visible ? color : "var(--cyber-text-secondary)",
+                  transitionProperty: "left, background",
+                  transitionDuration: "var(--cyber-duration-fast)",
                 }}
               />
             </button>

@@ -1,4 +1,3 @@
-// src/components/FormularioNuevoLugar.tsx
 import { useState, useRef } from "react";
 import {
   Plus,
@@ -11,18 +10,17 @@ import {
   Phone,
   Edit2,
 } from "lucide-react";
-import { G, MUNICIPIOS, Dist_Loc } from "./constants";
+import { MUNICIPIOS, Dist_Loc } from "./constants";
 import type { Lugar, Evento, EstadoEvento } from "./types";
+import { cn } from "@/lib/utils";
 
 interface FormularioNuevoLugarProps {
   onAgregar: (lugar: Lugar) => void;
   onClose: () => void;
-  /** Si se pasa lugarEditar, el formulario opera en modo EDICIÓN */
   lugarEditar?: Lugar;
   onEditar?: (lugar: Lugar) => void;
 }
 
-// ─── Extractor de coordenadas ─────────────────────────────────────────────────
 function extraerCoordenadas(
   input: string,
 ): { lat: number; lng: number } | null {
@@ -45,35 +43,14 @@ function extraerCoordenadas(
   return null;
 }
 
-// ─── Estilos ──────────────────────────────────────────────────────────────────
-const inputStyle: React.CSSProperties = {
-  width: "100%",
-  background: G.bg,
-  border: `1px solid ${G.border}`,
-  color: G.text,
-  padding: "7px 10px",
-  fontSize: 11,
-  fontFamily: "'Courier New', monospace",
-  outline: "none",
-  boxSizing: "border-box",
-};
-const labelStyle: React.CSSProperties = {
-  fontSize: 9,
-  color: G.textDim,
-  letterSpacing: 2,
-  display: "block",
-  marginBottom: 4,
-};
-const sectionTitle: React.CSSProperties = {
-  fontSize: 9,
-  color: G.accent,
-  letterSpacing: 2,
-  marginBottom: 10,
-  display: "flex",
-  alignItems: "center",
-  gap: 6,
-};
-// ─── Componente ───────────────────────────────────────────────────────────────
+/* ── Shared field style helpers ────────────────────────────────────────── */
+const inputCls = cn(
+  "w-full px-2.5 py-1.5 border rounded font-mono text-[11px] bg-transparent",
+  "transition-colors focus-visible:outline focus-visible:outline-2",
+);
+
+const sectionCls = "border rounded p-3 flex flex-col gap-2.5";
+
 export function FormularioNuevoLugar({
   onAgregar,
   onClose,
@@ -143,20 +120,20 @@ export function FormularioNuevoLugar({
         setExtractOk(true);
         setError("");
       } else {
-        setError("// ERROR: NO SE PUDIERON EXTRAER COORDENADAS DEL LINK");
+        setError("No se pudieron extraer coordenadas del enlace.");
       }
     }, 400);
   };
 
   const handleSubmit = () => {
     if (!form.nombre || !form.lat || !form.lng) {
-      setError("// ERROR: NOMBRE, LAT Y LNG SON OBLIGATORIOS");
+      setError("Nombre, latitud y longitud son obligatorios.");
       return;
     }
     const lat = parseFloat(form.lat);
     const lng = parseFloat(form.lng);
     if (isNaN(lat) || isNaN(lng)) {
-      setError("// ERROR: COORDENADAS INVÁLIDAS");
+      setError("Coordenadas inválidas.");
       return;
     }
     const imageFinal =
@@ -192,532 +169,564 @@ export function FormularioNuevoLugar({
       celular: form.celular || undefined,
       evento: eventoFinal,
     };
-
-    if (esEdicion && onEditar) {
-      onEditar(payload);
-    } else {
-      onAgregar(payload);
-    }
+    if (esEdicion && onEditar) onEditar(payload);
+    else onAgregar(payload);
     onClose();
   };
-  // ─── Render ────────────────────────────────────────────────────────────────
+
+  const accentColor = esEdicion ? "var(--cyber-orange)" : "var(--cyber-cyan)";
 
   return (
     <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 100,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "rgba(0,0,0,0.75)",
-        backdropFilter: "blur(4px)",
-      }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: "oklch(0 0 0 / 0.78)", backdropFilter: "blur(4px)" }}
     >
       <div
+        className="w-full max-w-[460px] max-h-[calc(100dvh-2rem)] flex flex-col rounded border overflow-hidden"
         style={{
-          width: 460,
-          maxHeight: "100vh",
-          overflowY: "overlay",
-          background: G.bgPanel,
-          border: `1px solid ${G.borderBright}`,
-          fontFamily: "'Courier New', monospace",
-          boxShadow: `0 0 40px rgba(0,212,255,0.15)`,
+          background: "var(--cyber-surface-1)",
+          borderColor: "var(--cyber-border)",
+          boxShadow: "var(--cyber-shadow-lg)",
         }}
       >
         {/* Header */}
         <div
-          style={{
-            padding: "12px 16px",
-            borderBottom: `1px solid ${G.border}`,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            position: "sticky",
-            top: 0,
-            background: G.bgPanel,
-            zIndex: 2,
-          }}
+          className="relative flex items-center justify-between px-4 py-3 border-b shrink-0"
+          style={{ borderColor: "var(--cyber-border-subtle)" }}
         >
+          {/* Top accent line */}
           <div
+            className="absolute top-0 left-0 right-0 h-px"
             style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              height: 1,
-              background: `linear-gradient(90deg, transparent, ${G.accent}, transparent)`,
+              background: `linear-gradient(90deg, transparent, ${accentColor}, transparent)`,
             }}
           />
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div className="flex items-center gap-2.5">
             {esEdicion ? (
-              <Edit2 size={13} color={G.warn} />
+              <Edit2
+                size={13}
+                aria-hidden="true"
+                style={{ color: accentColor }}
+              />
             ) : (
-              <Plus size={13} color={G.accentGreen} />
+              <Plus
+                size={13}
+                aria-hidden="true"
+                style={{ color: accentColor }}
+              />
             )}
-            <span
-              style={{
-                fontSize: 11,
-                fontWeight: 700,
-                color: esEdicion ? G.warn : G.accentGreen,
-                letterSpacing: 2,
-              }}
+            <h2
+              className="font-mono text-[11px] font-bold tracking-[0.2em] uppercase"
+              style={{ color: accentColor }}
             >
-              {esEdicion ? "EDITAR INFORMACION" : "REGISTRAR NUEVO INTEGRANTE"}
-            </span>
+              {esEdicion ? "Editar información" : "Registrar nuevo integrante"}
+            </h2>
           </div>
           <button
+            type="button"
             onClick={onClose}
+            aria-label="Cerrar formulario"
+            className="p-1 rounded hover:bg-white/5 focus-visible:outline focus-visible:outline-2"
             style={{
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              color: G.textDim,
+              color: "var(--cyber-text-secondary)",
+              outlineColor: "var(--cyber-cyan)",
             }}
           >
             <X size={14} />
           </button>
         </div>
 
-        <div
-          style={{
-            padding: 16,
-            display: "flex",
-            flexDirection: "column",
-            gap: 14,
-          }}
-        >
-          {/* Nombre + Label */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: 10,
-            }}
-          >
-            <div>
-              <label style={labelStyle}>// NOMBRE </label>
-              <input
-                style={inputStyle}
-                value={form.nombre}
-                onChange={(e) => set("nombre", e.target.value)}
-                placeholder="Ingrese Nombre Completo"
-              />
-            </div>
-            <div>
-              <label style={labelStyle}>// EQUIPO // ENLACE</label>
-              <input
-                style={inputStyle}
-                value={form.label}
-                onChange={(e) => set("label", e.target.value)}
-                placeholder="Equipo: MEXARM-01"
-              />
-            </div>
-          </div>
-
-          {/* Categoría */}
-          <div>
-            <label style={labelStyle}>// SELECCIONA MUNICIPIO</label>
-            <select
-              style={{ ...inputStyle, cursor: "pointer" }}
-              value={form.category}
-              onChange={(e) => set("category", e.target.value)}
-            >
-              {/* Solucion ID UNICO Filtramos duplicados y mapeamos con una key única combinada */}
-              {Array.from(new Set(MUNICIPIOS)).map((c, i) => (
-                <option
-                  key={`${c}-${i}`}
-                  value={c}
-                  style={{ background: G.bgCard }}
-                >
-                  {c}
-                </option>
-              ))}
-            </select>
-          </div>
-          {/* Descripción */}
-          <div>
-            <label style={labelStyle}>// SECCIÓN</label>
-            <input
-              style={inputStyle}
-              value={form.info}
-              onChange={(e) => set("info", e.target.value)}
-              placeholder="INGRESE SECCIÓN"
-            />
-          </div>
-
-          {/* ── CELULAR / WHATSAPP ── */}
-          <div style={{ border: `1px solid ${G.border}`, padding: 10 }}>
-            <div style={sectionTitle}>
-              <Phone size={10} color={G.accent} />
-              // CELULAR / WHATSAPP
-            </div>
-            <label style={labelStyle}>
-              // NÚMERO (con código de país, sin + ni espacios)
-            </label>
-            <input
-              style={inputStyle}
-              value={form.celular}
-              onChange={(e) =>
-                set("celular", e.target.value.replace(/\D/g, ""))
-              }
-              placeholder="Ej: 522212345678"
-              type="tel"
-            />
-            {form.celular && (
-              <div style={{ marginTop: 6, fontSize: 9, color: G.textDim }}>
-                ENLACE:{" "}
-                <a
-                  href={`https://wa.me/${form.celular}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{ color: G.accentGreen }}
-                >
-                  wa.me/{form.celular}
-                </a>
-              </div>
-            )}
-          </div>
-
-          {/* ── UBICACIÓN ── */}
-          <div style={{ border: `1px solid ${G.border}`, padding: 10 }}>
-            <div style={sectionTitle}>// UBICACIÓN</div>
-            <div style={{ marginBottom: 10 }}>
-              <label style={labelStyle}>
-                // PEGAR LINK (Google Maps / Waze / lat,lng)
-              </label>
-              <div style={{ display: "flex", gap: 6 }}>
+        {/* Scrollable body */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="flex flex-col gap-3.5 p-4">
+            {/* Nombre + Label */}
+            <div className="grid grid-cols-2 gap-2.5">
+              <Field label="// Nombre">
                 <input
-                  style={{ ...inputStyle, flex: 1 }}
-                  value={form.ubicLink}
-                  onChange={(e) => {
-                    set("ubicLink", e.target.value);
-                    setExtractOk(false);
-                  }}
-                  placeholder="https://maps.google.com/... o 19.04, -98.20"
+                  className={inputCls}
+                  style={fieldStyle}
+                  value={form.nombre}
+                  onChange={(e) => set("nombre", e.target.value)}
+                  placeholder="Nombre completo"
                 />
-                <button
-                  onClick={handleExtraerCoords}
-                  disabled={extracting || !form.ubicLink.trim()}
-                  style={{
-                    padding: "0 12px",
-                    background: extractOk ? "#003322" : G.accentDim,
-                    border: `1px solid ${extractOk ? G.accentGreen : G.accent}`,
-                    color: extractOk ? G.accentGreen : G.accent,
-                    cursor:
-                      extracting || !form.ubicLink.trim()
-                        ? "not-allowed"
-                        : "pointer",
-                    fontSize: 10,
-                    letterSpacing: 1,
-                    fontFamily: "'Courier New', monospace",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 5,
-                    whiteSpace: "nowrap",
-                    opacity: extracting || !form.ubicLink.trim() ? 0.5 : 1,
-                  }}
-                >
-                  {extracting ? (
-                    <Loader
-                      size={10}
-                      style={{ animation: "spin 1s linear infinite" }}
-                    />
-                  ) : (
-                    <Link size={10} />
-                  )}
-                  {extractOk ? "OK ✓" : "EXTRAER"}
-                </button>
-              </div>
-            </div>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: 10,
-              }}
-            >
-              <div>
-                <label style={labelStyle}>// LATITUD *</label>
+              </Field>
+              <Field label="// Equipo / enlace">
                 <input
-                  style={{
-                    ...inputStyle,
-                    borderColor: extractOk ? G.accentGreen + "88" : G.border,
-                  }}
-                  value={form.lat}
-                  onChange={(e) => set("lat", e.target.value)}
-                  placeholder="Ej: 17.0732"
-                  type="number"
-                  step="any"
+                  className={inputCls}
+                  style={fieldStyle}
+                  value={form.label}
+                  onChange={(e) => set("label", e.target.value)}
+                  placeholder="MEXARM-01"
                 />
-              </div>
-              <div>
-                <label style={labelStyle}>// LONGITUD *</label>
-                <input
-                  style={{
-                    ...inputStyle,
-                    borderColor: extractOk ? G.accentGreen + "88" : G.border,
-                  }}
-                  value={form.lng}
-                  onChange={(e) => set("lng", e.target.value)}
-                  placeholder="Ej: -96.7266"
-                  type="number"
-                  step="any"
-                />
-              </div>
+              </Field>
             </div>
-          </div>
 
-          {/* ── IMAGEN ── */}
-          <div style={{ border: `1px solid ${G.border}`, padding: 10 }}>
-            <div style={sectionTitle}>// IMAGEN</div>
-            <div style={{ display: "flex", marginBottom: 10 }}>
-              {(["url", "file"] as const).map((modo) => (
-                <button
-                  key={modo}
-                  onClick={() => {
-                    setImageModo(modo);
-                    setImagePreview("");
-                    setImageBase64("");
-                    set("imageUrl", "");
-                  }}
-                  style={{
-                    flex: 1,
-                    padding: "5px 0",
-                    background:
-                      imageModo === modo ? G.accentDim : "transparent",
-                    border: `1px solid ${imageModo === modo ? G.accent : G.border}`,
-                    color: imageModo === modo ? G.accent : G.textDim,
-                    cursor: "pointer",
-                    fontSize: 9,
-                    letterSpacing: 1.5,
-                    fontFamily: "'Courier New', monospace",
-                  }}
-                >
-                  {modo === "url" ? "URL EXTERNA" : "SUBIR ARCHIVO"}
-                </button>
-              ))}
-            </div>
-            {imageModo === "url" ? (
-              <div>
-                <label style={labelStyle}>// URL DE IMAGEN</label>
-                <input
-                  style={inputStyle}
-                  value={form.imageUrl}
-                  onChange={(e) => set("imageUrl", e.target.value)}
-                  onBlur={() => {
-                    if (form.imageUrl) setImagePreview(form.imageUrl);
-                  }}
-                  placeholder="https://..."
-                />
-              </div>
-            ) : (
-              <div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  style={{ display: "none" }}
-                  onChange={handleFileChange}
-                />
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  style={{
-                    width: "100%",
-                    padding: "10px",
-                    background: "transparent",
-                    border: `1px dashed ${imageBase64 ? G.accentGreen : G.border}`,
-                    color: imageBase64 ? G.accentGreen : G.textDim,
-                    cursor: "pointer",
-                    fontSize: 10,
-                    letterSpacing: 1.5,
-                    fontFamily: "'Courier New', monospace",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: 6,
-                  }}
-                >
-                  <Upload size={11} />
-                  {imageBase64 ? "IMAGEN CARGADA ✓" : "SELECCIONAR IMAGEN"}
-                </button>
-              </div>
-            )}
-            {imagePreview && (
-              <div style={{ marginTop: 8, position: "relative" }}>
-                <img
-                  src={imagePreview}
-                  alt="preview"
-                  style={{
-                    width: "100%",
-                    height: 80,
-                    objectFit: "cover",
-                    border: `1px solid ${G.border}`,
-                  }}
-                  onError={() => setImagePreview("")}
-                />
-                <button
-                  onClick={() => {
-                    setImagePreview("");
-                    setImageBase64("");
-                    set("imageUrl", "");
-                  }}
-                  style={{
-                    position: "absolute",
-                    top: 4,
-                    right: 4,
-                    background: G.bg + "cc",
-                    border: "none",
-                    cursor: "pointer",
-                    color: G.error,
-                    padding: 2,
-                  }}
-                >
-                  <X size={10} />
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* ── CV ── */}
-          <div style={{ border: `1px solid ${G.border}`, padding: 10 }}>
-            <div style={sectionTitle}>
-              <FileText size={10} color={G.accent} />
-              // CV / CURRÍCULUM
-            </div>
-            <label style={labelStyle}>// URL DEL CV O PORTAFOLIO</label>
-            <input
-              style={inputStyle}
-              value={form.cvUrl}
-              onChange={(e) => set("cvUrl", e.target.value)}
-              placeholder="https://drive.google.com/... o linkedin.com/in/..."
-            />
-            {form.cvUrl && (
-              <div style={{ marginTop: 6, fontSize: 9, color: G.textDim }}>
-                ENLACE:{" "}
-                <a
-                  href={form.cvUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{ color: G.accent }}
-                >
-                  {form.cvUrl.length > 48
-                    ? form.cvUrl.slice(0, 48) + "…"
-                    : form.cvUrl}
-                </a>
-              </div>
-            )}
-          </div>
-
-          {/* Horario + Rating */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: 10,
-            }}
-          >
-            <div>
-              <label style={labelStyle}>// PERFIL ACADEMICO</label>
-              <input
-                style={inputStyle}
-                value={form.hours}
-                onChange={(e) => set("hours", e.target.value)}
-                placeholder="INGENIERÍA"
-              />
-            </div>
-            <div>
-              <label style={labelStyle}>// SELECCIONA UN DISTRITO</label>
+            {/* Municipio */}
+            <Field label="// Municipio">
               <select
-                style={{ ...inputStyle, cursor: "pointer" }}
-                value={form.rating}
-                onChange={(e) => set("rating", e.target.value)}
+                className={inputCls}
+                style={{ ...fieldStyle, cursor: "pointer" }}
+                value={form.category}
+                onChange={(e) => set("category", e.target.value)}
               >
-                {/* Solucion ID UNICO Filtramos duplicados y mapeamos con una key única combinada */}
-                {Array.from(new Set(Dist_Loc)).map((c, i) => (
+                {Array.from(new Set(MUNICIPIOS)).map((c, i) => (
                   <option
                     key={`${c}-${i}`}
                     value={c}
-                    style={{ background: G.bgCard }}
+                    style={{ background: "var(--cyber-surface-2)" }}
                   >
                     {c}
                   </option>
                 ))}
               </select>
-            </div>
-          </div>
+            </Field>
 
-          {/* Error */}
-          {error && (
+            {/* Sección */}
+            <Field label="// Sección">
+              <input
+                className={inputCls}
+                style={fieldStyle}
+                value={form.info}
+                onChange={(e) => set("info", e.target.value)}
+                placeholder="Ingrese sección"
+              />
+            </Field>
+
+            {/* Celular */}
             <div
-              style={{
-                fontSize: 10,
-                color: G.error,
-                letterSpacing: 1,
-                padding: "6px 10px",
-                border: `1px solid ${G.error}44`,
-                background: G.error + "11",
-              }}
+              className={sectionCls}
+              style={{ borderColor: "var(--cyber-border-subtle)" }}
             >
-              {error}
+              <SectionTitle
+                icon={<Phone size={10} aria-hidden="true" />}
+                label="Celular / WhatsApp"
+              />
+              <Field label="// Número (código de país, sin + ni espacios)">
+                <input
+                  className={inputCls}
+                  style={fieldStyle}
+                  value={form.celular}
+                  onChange={(e) =>
+                    set("celular", e.target.value.replace(/\D/g, ""))
+                  }
+                  placeholder="522212345678"
+                  type="tel"
+                />
+              </Field>
+              {form.celular && (
+                <p
+                  className="font-mono text-[9px]"
+                  style={{ color: "var(--cyber-text-secondary)" }}
+                >
+                  Enlace:{" "}
+                  <a
+                    href={`https://wa.me/${form.celular}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="focus-visible:outline focus-visible:outline-2"
+                    style={{
+                      color: "var(--cyber-green)",
+                      outlineColor: "var(--cyber-cyan)",
+                    }}
+                  >
+                    wa.me/{form.celular}
+                  </a>
+                </p>
+              )}
             </div>
-          )}
-          {/* Botones */}
-          <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
-            <button
-              onClick={onClose}
-              style={{
-                flex: 1,
-                padding: "8px",
-                background: "transparent",
-                border: `1px solid ${G.border}`,
-                color: G.textDim,
-                cursor: "pointer",
-                fontSize: 10,
-                letterSpacing: 1.5,
-                fontFamily: "'Courier New', monospace",
-              }}
+
+            {/* Ubicación */}
+            <div
+              className={sectionCls}
+              style={{ borderColor: "var(--cyber-border-subtle)" }}
             >
-              CANCELAR
-            </button>
-            <button
-              onClick={handleSubmit}
-              style={{
-                flex: 2,
-                padding: "8px",
-                background: esEdicion ? "#2a1500" : G.accentDim,
-                border: `1px solid ${esEdicion ? G.warn : G.accent}`,
-                color: esEdicion ? G.warn : G.accent,
-                cursor: "pointer",
-                fontSize: 10,
-                letterSpacing: 1.5,
-                fontFamily: "'Courier New', monospace",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 6,
-              }}
+              <SectionTitle label="// Ubicación" />
+              <Field label="// Pegar enlace (Google Maps / Waze / lat,lng)">
+                <div className="flex gap-1.5">
+                  <input
+                    className={cn(inputCls, "flex-1")}
+                    style={fieldStyle}
+                    value={form.ubicLink}
+                    onChange={(e) => {
+                      set("ubicLink", e.target.value);
+                      setExtractOk(false);
+                    }}
+                    placeholder="https://maps.google.com/…  o  19.04, -98.20"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleExtraerCoords}
+                    disabled={extracting || !form.ubicLink.trim()}
+                    className={cn(
+                      "flex items-center gap-1 px-3 border font-mono text-[10px] tracking-wide rounded",
+                      "transition-colors focus-visible:outline focus-visible:outline-2 disabled:opacity-50",
+                    )}
+                    style={{
+                      background: extractOk
+                        ? "oklch(0.07 0.02 155 / 0.5)"
+                        : "var(--cyber-cyan-dim)",
+                      borderColor: extractOk
+                        ? "var(--cyber-green)"
+                        : "var(--cyber-cyan)",
+                      color: extractOk
+                        ? "var(--cyber-green)"
+                        : "var(--cyber-cyan)",
+                      outlineColor: "var(--cyber-cyan)",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {extracting ? (
+                      <Loader
+                        size={10}
+                        className="animate-spin"
+                        aria-hidden="true"
+                      />
+                    ) : (
+                      <Link size={10} aria-hidden="true" />
+                    )}
+                    {extractOk ? "OK ✓" : "Extraer"}
+                  </button>
+                </div>
+              </Field>
+              <div className="grid grid-cols-2 gap-2">
+                <Field label="// Latitud *">
+                  <input
+                    className={inputCls}
+                    style={{
+                      ...fieldStyle,
+                      borderColor: extractOk
+                        ? "var(--cyber-green)"
+                        : "var(--cyber-border-subtle)",
+                    }}
+                    value={form.lat}
+                    onChange={(e) => set("lat", e.target.value)}
+                    placeholder="19.0427"
+                    type="number"
+                    step="any"
+                  />
+                </Field>
+                <Field label="// Longitud *">
+                  <input
+                    className={inputCls}
+                    style={{
+                      ...fieldStyle,
+                      borderColor: extractOk
+                        ? "var(--cyber-green)"
+                        : "var(--cyber-border-subtle)",
+                    }}
+                    value={form.lng}
+                    onChange={(e) => set("lng", e.target.value)}
+                    placeholder="-98.2035"
+                    type="number"
+                    step="any"
+                  />
+                </Field>
+              </div>
+            </div>
+
+            {/* Imagen */}
+            <div
+              className={sectionCls}
+              style={{ borderColor: "var(--cyber-border-subtle)" }}
             >
-              {esEdicion ? (
-                <>
-                  <Edit2 size={11} /> GUARDAR CAMBIOS
-                </>
+              <SectionTitle label="// Imagen" />
+              <div className="flex gap-0">
+                {(["url", "file"] as const).map((modo) => (
+                  <button
+                    key={modo}
+                    type="button"
+                    onClick={() => {
+                      setImageModo(modo);
+                      setImagePreview("");
+                      setImageBase64("");
+                      set("imageUrl", "");
+                    }}
+                    className={cn(
+                      "flex-1 py-1.5 border font-mono text-[9px] tracking-wide uppercase",
+                      "first:rounded-l last:rounded-r transition-colors focus-visible:outline focus-visible:outline-2",
+                    )}
+                    style={{
+                      background:
+                        imageModo === modo
+                          ? "var(--cyber-cyan-dim)"
+                          : "transparent",
+                      borderColor:
+                        imageModo === modo
+                          ? "var(--cyber-cyan)"
+                          : "var(--cyber-border-subtle)",
+                      color:
+                        imageModo === modo
+                          ? "var(--cyber-cyan)"
+                          : "var(--cyber-text-secondary)",
+                      outlineColor: "var(--cyber-cyan)",
+                    }}
+                  >
+                    {modo === "url" ? "URL externa" : "Subir archivo"}
+                  </button>
+                ))}
+              </div>
+
+              {imageModo === "url" ? (
+                <Field label="// URL de imagen">
+                  <input
+                    className={inputCls}
+                    style={fieldStyle}
+                    value={form.imageUrl}
+                    onChange={(e) => set("imageUrl", e.target.value)}
+                    onBlur={() => {
+                      if (form.imageUrl) setImagePreview(form.imageUrl);
+                    }}
+                    placeholder="https://…"
+                  />
+                </Field>
               ) : (
                 <>
-                  <MapPin size={11} /> REGISTRAR
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="sr-only"
+                    onChange={handleFileChange}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className={cn(
+                      "w-full py-2.5 border border-dashed rounded flex items-center justify-center gap-2",
+                      "font-mono text-[10px] tracking-wide uppercase focus-visible:outline focus-visible:outline-2",
+                    )}
+                    style={{
+                      borderColor: imageBase64
+                        ? "var(--cyber-green)"
+                        : "var(--cyber-border-subtle)",
+                      color: imageBase64
+                        ? "var(--cyber-green)"
+                        : "var(--cyber-text-secondary)",
+                      outlineColor: "var(--cyber-cyan)",
+                    }}
+                  >
+                    <Upload size={11} aria-hidden="true" />
+                    {imageBase64 ? "Imagen cargada ✓" : "Seleccionar imagen"}
+                  </button>
                 </>
               )}
-            </button>
+
+              {imagePreview && (
+                <div className="relative mt-1">
+                  <img
+                    src={imagePreview}
+                    alt="Vista previa"
+                    className="w-full h-20 object-cover rounded border"
+                    style={{ borderColor: "var(--cyber-border-subtle)" }}
+                    onError={() => setImagePreview("")}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setImagePreview("");
+                      setImageBase64("");
+                      set("imageUrl", "");
+                    }}
+                    aria-label="Quitar imagen"
+                    className="absolute top-1 right-1 p-1 rounded focus-visible:outline focus-visible:outline-2"
+                    style={{
+                      background: "oklch(0.07 0.02 220 / 0.85)",
+                      color: "var(--cyber-error)",
+                      outlineColor: "var(--cyber-cyan)",
+                    }}
+                  >
+                    <X size={10} />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* CV */}
+            <div
+              className={sectionCls}
+              style={{ borderColor: "var(--cyber-border-subtle)" }}
+            >
+              <SectionTitle
+                icon={<FileText size={10} aria-hidden="true" />}
+                label="// CV / Currículum"
+              />
+              <Field label="// URL del CV o portafolio">
+                <input
+                  className={inputCls}
+                  style={fieldStyle}
+                  value={form.cvUrl}
+                  onChange={(e) => set("cvUrl", e.target.value)}
+                  placeholder="https://drive.google.com/…"
+                />
+              </Field>
+              {form.cvUrl && (
+                <p
+                  className="font-mono text-[9px]"
+                  style={{ color: "var(--cyber-text-secondary)" }}
+                >
+                  Enlace:{" "}
+                  <a
+                    href={form.cvUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="focus-visible:outline focus-visible:outline-2"
+                    style={{
+                      color: "var(--cyber-cyan)",
+                      outlineColor: "var(--cyber-cyan)",
+                    }}
+                  >
+                    {form.cvUrl.length > 48
+                      ? form.cvUrl.slice(0, 48) + "…"
+                      : form.cvUrl}
+                  </a>
+                </p>
+              )}
+            </div>
+
+            {/* Perfil + Distrito */}
+            <div className="grid grid-cols-2 gap-2.5">
+              <Field label="// Perfil académico">
+                <input
+                  className={inputCls}
+                  style={fieldStyle}
+                  value={form.hours}
+                  onChange={(e) => set("hours", e.target.value)}
+                  placeholder="Ingeniería"
+                />
+              </Field>
+              <Field label="// Distrito">
+                <select
+                  className={inputCls}
+                  style={{ ...fieldStyle, cursor: "pointer" }}
+                  value={form.rating}
+                  onChange={(e) => set("rating", e.target.value)}
+                >
+                  {Array.from(new Set(Dist_Loc)).map((c, i) => (
+                    <option
+                      key={`${c}-${i}`}
+                      value={c}
+                      style={{ background: "var(--cyber-surface-2)" }}
+                    >
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            </div>
+
+            {/* Error */}
+            {error && (
+              <p
+                className="font-mono text-[10px] px-3 py-2 border rounded"
+                role="alert"
+                style={{
+                  color: "var(--cyber-error)",
+                  borderColor: "var(--cyber-error)",
+                  background: "oklch(0.60 0.23 20 / 0.08)",
+                }}
+              >
+                {error}
+              </p>
+            )}
+
+            {/* Footer actions */}
+            <div className="flex gap-2 mt-1">
+              <button
+                type="button"
+                onClick={onClose}
+                className={cn(
+                  "flex-1 py-2 border rounded font-mono text-[10px] tracking-[0.15em] uppercase",
+                  "transition-colors focus-visible:outline focus-visible:outline-2",
+                )}
+                style={{
+                  borderColor: "var(--cyber-border-subtle)",
+                  color: "var(--cyber-text-secondary)",
+                  outlineColor: "var(--cyber-cyan)",
+                  transitionDuration: "var(--cyber-duration-fast)",
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleSubmit}
+                className={cn(
+                  "flex-[2] py-2 border rounded font-mono text-[10px] tracking-[0.15em] uppercase",
+                  "flex items-center justify-center gap-2",
+                  "transition-colors focus-visible:outline focus-visible:outline-2",
+                )}
+                style={{
+                  background: esEdicion
+                    ? "oklch(0.08 0.04 50 / 0.5)"
+                    : "var(--cyber-cyan-dim)",
+                  borderColor: accentColor,
+                  color: accentColor,
+                  outlineColor: "var(--cyber-cyan)",
+                  transitionDuration: "var(--cyber-duration-fast)",
+                }}
+              >
+                {esEdicion ? (
+                  <>
+                    <Edit2 size={11} aria-hidden="true" /> Guardar cambios
+                  </>
+                ) : (
+                  <>
+                    <MapPin size={11} aria-hidden="true" /> Registrar
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </div>
-      <style>{`
-        @keyframes spin  { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-        input[type=number]::-webkit-inner-spin-button { opacity: 0.3; }
-        input[type=datetime-local]::-webkit-calendar-picker-indicator { filter: invert(0.5); }
-      `}</style>
+    </div>
+  );
+}
+
+/* ── Sub-components ──────────────────────────────────────────────────────── */
+
+const fieldStyle: React.CSSProperties = {
+  borderColor: "var(--cyber-border-subtle)",
+  color: "var(--cyber-text)",
+  outlineColor: "var(--cyber-cyan)",
+};
+
+function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-1">
+      <span
+        className="font-mono text-[9px] tracking-[0.15em] uppercase"
+        style={{ color: "var(--cyber-text-secondary)" }}
+      >
+        {label}
+      </span>
+      {children}
+    </div>
+  );
+}
+
+function SectionTitle({
+  icon,
+  label,
+}: {
+  icon?: React.ReactNode;
+  label: string;
+}) {
+  return (
+    <div className="flex items-center gap-1.5">
+      {icon && <span style={{ color: "var(--cyber-cyan)" }}>{icon}</span>}
+      <span
+        className="font-mono text-[9px] tracking-[0.15em] uppercase font-semibold"
+        style={{ color: "var(--cyber-cyan)" }}
+      >
+        {label}
+      </span>
     </div>
   );
 }
