@@ -20,6 +20,7 @@ import { Capa } from "./Capa";
 import { PanelCapas } from "./PanelCapas";
 import type { Lugar, Evento } from "./types";
 import { ESTADO_EVENTO_CONFIG } from "./types";
+import type { Geofence, GeofenceType } from "@/api/geofences";
 
 interface MapaVistaProps {
   lugares: Lugar[];
@@ -88,6 +89,15 @@ interface MapaVistaProps {
   onEditarLugar: (lugar: Lugar) => void;
   onEditarEvento: (evento: Evento) => void;
   onEliminarEvento: (id: number) => void;
+  geofences: Geofence[];
+  geofencesLoading: boolean;
+  geofencesError: string | null;
+  geofenceVisibility: Record<GeofenceType, boolean>;
+  selectedGeofenceId: string | null;
+  onToggleGeofenceType: (type: GeofenceType) => void;
+  onSelectGeofence: (id: string) => void;
+  pointGeofences: Geofence[];
+  pointLookup: { loading: boolean; error: string | null };
 }
 
 export function MapaVista({
@@ -153,7 +163,17 @@ export function MapaVista({
   onEditarLugar,
   onEditarEvento,
   onEliminarEvento,
+  geofences,
+  geofencesLoading,
+  geofencesError,
+  geofenceVisibility,
+  selectedGeofenceId,
+  onToggleGeofenceType,
+  onSelectGeofence,
+  pointGeofences,
+  pointLookup,
 }: MapaVistaProps) {
+  void [visibleDistritoLocal01, visibleDistritoLocal02, visibleDistritoLocal05, visibleDistritoLocal06, visibleDistritoLocal07, visibleDistritoLocal08, visibleDistritoLocal09, visibleDistritoLocal10, visibleDistritoLocal11, visibleDistritoLocal12, visibleDistritoLocal13, visibleDistritoLocal14, visibleDistritoLocal15, visibleDistritoLocal16, visibleDistritoLocal17, visibleDistritoLocal18, visibleDistritoLocal19, visibleDistritoLocal20, visibleDistritoLocal21, visibleDistritoLocal22, visibleDistritoLocal23, visibleDistritoLocal24, visibleDistritoLocal25, visibleDistritoLocal26, visibleOaxaca, visiblePuebla, onToggleOaxaca, onTogglePuebla, onToggleDistritoLocal01, onToggleDistritoLocal02, onToggleDistritoLocal05, onToggleDistritoLocal06, onToggleDistritoLocal07, onToggleDistritoLocal08, onToggleDistritoLocal09, onToggleDistritoLocal10, onToggleDistritoLocal11, onToggleDistritoLocal12, onToggleDistritoLocal13, onToggleDistritoLocal14, onToggleDistritoLocal15, onToggleDistritoLocal16, onToggleDistritoLocal17, onToggleDistritoLocal18, onToggleDistritoLocal19, onToggleDistritoLocal20, onToggleDistritoLocal21, onToggleDistritoLocal22, onToggleDistritoLocal23, onToggleDistritoLocal24, onToggleDistritoLocal25, onToggleDistritoLocal26];
   const activo = lugares.find((l) => l.id === seleccionado);
   const activoEvento = eventos.find((e) => e.id === eventoSeleccionado);
 
@@ -180,32 +200,10 @@ export function MapaVista({
         <MapControls />
 
         <Capa
-          visibleOaxaca={visibleOaxaca}
-          visiblePuebla={visiblePuebla}
-          visibleDistritoLocal01={visibleDistritoLocal01}
-          visibleDistritoLocal02={visibleDistritoLocal02}
-          visibleDistritoLocal05={visibleDistritoLocal05}
-          visibleDistritoLocal06={visibleDistritoLocal06}
-          visibleDistritoLocal07={visibleDistritoLocal07}
-          visibleDistritoLocal08={visibleDistritoLocal08}
-          visibleDistritoLocal09={visibleDistritoLocal09}
-          visibleDistritoLocal10={visibleDistritoLocal10}
-          visibleDistritoLocal11={visibleDistritoLocal11}
-          visibleDistritoLocal12={visibleDistritoLocal12}
-          visibleDistritoLocal13={visibleDistritoLocal13}
-          visibleDistritoLocal14={visibleDistritoLocal14}
-          visibleDistritoLocal15={visibleDistritoLocal15}
-          visibleDistritoLocal16={visibleDistritoLocal16}
-          visibleDistritoLocal17={visibleDistritoLocal17}
-          visibleDistritoLocal18={visibleDistritoLocal18}
-          visibleDistritoLocal19={visibleDistritoLocal19}
-          visibleDistritoLocal20={visibleDistritoLocal20}
-          visibleDistritoLocal21={visibleDistritoLocal21}
-          visibleDistritoLocal22={visibleDistritoLocal22}
-          visibleDistritoLocal23={visibleDistritoLocal23}
-          visibleDistritoLocal24={visibleDistritoLocal24}
-          visibleDistritoLocal25={visibleDistritoLocal25}
-          visibleDistritoLocal26={visibleDistritoLocal26}
+          items={geofences}
+          visible={geofenceVisibility}
+          selectedId={selectedGeofenceId}
+          onSelect={onSelectGeofence}
         />
 
         {/* ── Lugar markers ─────────────────────────────────────────── */}
@@ -654,58 +652,15 @@ export function MapaVista({
         {/* ── Layer panel ───────────────────────────────────────────── */}
         {panelAbierto && (
           <PanelCapas
-            visibleDistritoLocal01={visibleDistritoLocal01}
-            visibleDistritoLocal02={visibleDistritoLocal02}
-            visibleDistritoLocal05={visibleDistritoLocal05}
-            visibleDistritoLocal06={visibleDistritoLocal06}
-            visibleDistritoLocal07={visibleDistritoLocal07}
-            visibleDistritoLocal08={visibleDistritoLocal08}
-            visibleDistritoLocal09={visibleDistritoLocal09}
-            visibleDistritoLocal10={visibleDistritoLocal10}
-            visibleDistritoLocal11={visibleDistritoLocal11}
-            visibleDistritoLocal12={visibleDistritoLocal12}
-            visibleDistritoLocal13={visibleDistritoLocal13}
-            visibleDistritoLocal14={visibleDistritoLocal14}
-            visibleDistritoLocal15={visibleDistritoLocal15}
-            visibleDistritoLocal16={visibleDistritoLocal16}
-            visibleDistritoLocal17={visibleDistritoLocal17}
-            visibleDistritoLocal18={visibleDistritoLocal18}
-            visibleDistritoLocal19={visibleDistritoLocal19}
-            visibleDistritoLocal20={visibleDistritoLocal20}
-            visibleDistritoLocal21={visibleDistritoLocal21}
-            visibleDistritoLocal22={visibleDistritoLocal22}
-            visibleDistritoLocal23={visibleDistritoLocal23}
-            visibleDistritoLocal24={visibleDistritoLocal24}
-            visibleDistritoLocal25={visibleDistritoLocal25}
-            visibleDistritoLocal26={visibleDistritoLocal26}
-            visibleOaxaca={visibleOaxaca}
-            visiblePuebla={visiblePuebla}
-            onToggleDistritoLocal01={onToggleDistritoLocal01}
-            onToggleDistritoLocal02={onToggleDistritoLocal02}
-            onToggleDistritoLocal05={onToggleDistritoLocal05}
-            onToggleDistritoLocal06={onToggleDistritoLocal06}
-            onToggleDistritoLocal07={onToggleDistritoLocal07}
-            onToggleDistritoLocal08={onToggleDistritoLocal08}
-            onToggleDistritoLocal09={onToggleDistritoLocal09}
-            onToggleDistritoLocal10={onToggleDistritoLocal10}
-            onToggleDistritoLocal11={onToggleDistritoLocal11}
-            onToggleDistritoLocal12={onToggleDistritoLocal12}
-            onToggleDistritoLocal13={onToggleDistritoLocal13}
-            onToggleDistritoLocal14={onToggleDistritoLocal14}
-            onToggleDistritoLocal15={onToggleDistritoLocal15}
-            onToggleDistritoLocal16={onToggleDistritoLocal16}
-            onToggleDistritoLocal17={onToggleDistritoLocal17}
-            onToggleDistritoLocal18={onToggleDistritoLocal18}
-            onToggleDistritoLocal19={onToggleDistritoLocal19}
-            onToggleDistritoLocal20={onToggleDistritoLocal20}
-            onToggleDistritoLocal21={onToggleDistritoLocal21}
-            onToggleDistritoLocal22={onToggleDistritoLocal22}
-            onToggleDistritoLocal23={onToggleDistritoLocal23}
-            onToggleDistritoLocal24={onToggleDistritoLocal24}
-            onToggleDistritoLocal25={onToggleDistritoLocal25}
-            onToggleDistritoLocal26={onToggleDistritoLocal26}
-            onToggleOaxaca={onToggleOaxaca}
-            onTogglePuebla={onTogglePuebla}
+            items={geofences}
+            visible={geofenceVisibility}
+            selectedId={selectedGeofenceId}
+            loading={geofencesLoading}
+            error={geofencesError}
+            onToggle={onToggleGeofenceType}
+            onSelect={onSelectGeofence}
+            pointGeofences={pointGeofences}
+            pointLookup={pointLookup}
             onClose={onCerrarPanel}
           />
         )}
