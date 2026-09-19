@@ -73,10 +73,13 @@ export function Capa({
   useEffect(() => {
     if (!map || !isLoaded) return;
 
-    fetch(
-      "https://raw.githubusercontent.com/Arcoexplsoivo1/data_dtlc/refs/heads/main/dtlcpue.geojson",
-    )
-      .then((r) => r.json())
+    fetch("/data/dtlcpue.geojson")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`No se pudo cargar el GeoJSON (${response.status}).`);
+        }
+        return response.json();
+      })
       .then((data) => {
         const filtered = {
           type: "FeatureCollection",
@@ -603,6 +606,9 @@ export function Capa({
         });
 
         setCargado(true);
+      })
+      .catch((error: unknown) => {
+        console.error("No se pudo cargar la capa geográfica local.", error);
       });
   }, [map, isLoaded]);
 
