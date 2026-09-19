@@ -145,11 +145,36 @@ export async function mockFetch(
   }
   if (path === "/public/events" && method === "GET")
     return json(events.filter((item) => item.estatus === "PUBLICADO"));
-  if (path.startsWith("/public/events/") && method === "GET")
-    return json(
-      events.find((item) => item.id === path.split("/").at(-1)) ?? notFound(),
+  if (path.startsWith("/public/events/") && method === "GET") {
+    const publicEvent = events.find(
+      (item) =>
+        item.id === path.split("/").at(-1) && item.estatus === "PUBLICADO",
     );
+    return publicEvent ? json(publicEvent) : notFound();
+  }
   if (path === "/events" && method === "GET") return json(events);
+  const eventId = path.match(
+    /^\/events\/([^/]+)(?:\/(publish|unpublish|start|finish|cancel))?$/,
+  );
+  if (eventId && method === "POST" && eventId[2]) {
+    const target = events.find((item) => item.id === eventId[1]);
+    if (!target) return notFound();
+    const transitions: Record<string, string> = {
+      publish: "PUBLICADO",
+      unpublish: "BORRADOR",
+      start: "EN_CURSO",
+      finish: "FINALIZADO",
+      cancel: "CANCELADO",
+    };
+    target.estatus = transitions[eventId[2]] as typeof target.estatus;
+    return json(target);
+  }
+  if (eventId && method === "DELETE") {
+    const index = events.findIndex((item) => item.id === eventId[1]);
+    if (index < 0) return notFound();
+    events.splice(index, 1);
+    return json(null, 204);
+  }
   if (path === "/politicos" && method === "GET") return json(politicos);
   if (path === "/lideres" && method === "GET") return json(lideres);
   if (path === "/invitados" && method === "GET") return json(invitados);

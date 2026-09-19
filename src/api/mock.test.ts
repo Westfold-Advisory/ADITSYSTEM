@@ -25,3 +25,16 @@ test("demo API exposes fictional public events and domain records", async () => 
   assert.equal((await events.json()).length, 1);
   assert.equal((await politicos.json())[0].nombre, "Andrea");
 });
+
+test("demo API hides an unpublished event from both public endpoints", async () => {
+  const id = "e0000000-0000-4000-8000-000000000001";
+  await mockFetch(`http://demo.local/api/v1/events/${id}/unpublish`, {
+    method: "POST",
+  });
+  const list = await mockFetch("http://demo.local/api/v1/public/events");
+  const detail = await mockFetch(
+    `http://demo.local/api/v1/public/events/${id}`,
+  );
+  assert.equal((await list.json()).length, 0);
+  assert.equal(detail.status, 404);
+});
