@@ -44,6 +44,7 @@ export interface ApiClientOptions {
 
 const defaultBaseUrl =
   import.meta.env?.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
+const useMockApi = import.meta.env?.VITE_USE_MOCK_API === "true";
 
 function toFieldErrors(detail: unknown): Record<string, ApiValidationError[]> {
   if (!Array.isArray(detail)) return {};
@@ -93,7 +94,9 @@ export class ApiClient {
   constructor({
     baseUrl = defaultBaseUrl,
     getAccessToken,
-    fetchFn = (input, init) => globalThis.fetch(input, init),
+    fetchFn = useMockApi
+      ? mockFetch
+      : (input, init) => globalThis.fetch(input, init),
   }: ApiClientOptions = {}) {
     this.baseUrl = baseUrl.replace(/\/$/, "");
     this.getAccessToken = getAccessToken;
@@ -160,3 +163,4 @@ export class ApiClient {
     return payload as T;
   }
 }
+import { mockFetch } from "./mock";
