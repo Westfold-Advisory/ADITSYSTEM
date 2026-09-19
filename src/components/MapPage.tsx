@@ -10,7 +10,11 @@ import { LUGARES_INICIALES } from "@/components/ui/constants";
 import type { Lugar, Evento } from "@/components/ui/types";
 import type { EventInput } from "@/types/events";
 import { cn } from "@/lib/utils";
-import { GeofencesApi, type Geofence, type GeofenceType } from "@/api/geofences";
+import {
+  GeofencesApi,
+  type Geofence,
+  type GeofenceType,
+} from "@/api/geofences";
 
 /* ─── Layer visibility state ─────────────────────────────────────────────── */
 type LayersState = {
@@ -80,16 +84,42 @@ export function MapPage() {
   const [geofences, setGeofences] = useState<Geofence[]>([]);
   const [geofencesLoading, setGeofencesLoading] = useState(true);
   const [geofencesError, setGeofencesError] = useState<string | null>(null);
-  const [geofenceVisibility, setGeofenceVisibility] = useState<Record<GeofenceType, boolean>>({ ESTADO: true, MUNICIPIO: true, DISTRITO: true });
-  const [selectedGeofenceId, setSelectedGeofenceId] = useState<string | null>(null);
+  const [geofenceVisibility, setGeofenceVisibility] = useState<
+    Record<GeofenceType, boolean>
+  >({ ESTADO: true, MUNICIPIO: true, DISTRITO: true });
+  const [selectedGeofenceId, setSelectedGeofenceId] = useState<string | null>(
+    null,
+  );
   const [pointGeofences, setPointGeofences] = useState<Geofence[]>([]);
-  const [pointLookup, setPointLookup] = useState<{ loading: boolean; error: string | null }>({ loading: false, error: null });
+  const [pointLookup, setPointLookup] = useState<{
+    loading: boolean;
+    error: string | null;
+  }>({ loading: false, error: null });
   useEffect(() => {
     let active = true;
-    new GeofencesApi().list().then((items) => { if (active) setGeofences(items); }).catch(() => { if (active) setGeofencesError("No fue posible cargar las geocercas."); }).finally(() => { if (active) setGeofencesLoading(false); });
-    return () => { active = false; };
+    new GeofencesApi()
+      .list()
+      .then((items) => {
+        if (active) setGeofences(items);
+      })
+      .catch(() => {
+        if (active) setGeofencesError("No fue posible cargar las geocercas.");
+      })
+      .finally(() => {
+        if (active) setGeofencesLoading(false);
+      });
+    return () => {
+      active = false;
+    };
   }, []);
-  const toggleGeofenceType = useCallback((type: GeofenceType) => setGeofenceVisibility((current) => ({ ...current, [type]: !current[type] })), []);
+  const toggleGeofenceType = useCallback(
+    (type: GeofenceType) =>
+      setGeofenceVisibility((current) => ({
+        ...current,
+        [type]: !current[type],
+      })),
+    [],
+  );
   /* Lugares */
   const [lugares, setLugares] = useState<Lugar[]>(LUGARES_INICIALES);
   const [seleccionado, setSeleccionado] = useState<number | null>(null);
@@ -181,19 +211,38 @@ export function MapPage() {
   }, []);
 
   const activoLugar = lugares.find((l) => l.id === seleccionado);
-  const selectedPoint = activoLugar?.coords ?? eventos.find((event) => event.id === eventoSeleccionado)?.coords;
+  const selectedPoint =
+    activoLugar?.coords ??
+    eventos.find((event) => event.id === eventoSeleccionado)?.coords;
   const selectedLatitude = selectedPoint?.[1];
   const selectedLongitude = selectedPoint?.[0];
   useEffect(() => {
-    if (selectedLatitude === undefined || selectedLongitude === undefined) return;
+    if (selectedLatitude === undefined || selectedLongitude === undefined)
+      return;
     let active = true;
-    void Promise.resolve().then(() => {
-      if (active) setPointLookup({ loading: true, error: null });
-      return new GeofencesApi().contains(selectedLatitude, selectedLongitude);
-    }).then((items) => {
-      if (!active) return; setPointGeofences(items); if (items[0]) setSelectedGeofenceId(items[0].id);
-    }).catch(() => { if (active) setPointLookup({ loading: false, error: "No fue posible consultar el territorio del punto." }); }).finally(() => { if (active) setPointLookup((state) => ({ ...state, loading: false })); });
-    return () => { active = false; };
+    void Promise.resolve()
+      .then(() => {
+        if (active) setPointLookup({ loading: true, error: null });
+        return new GeofencesApi().contains(selectedLatitude, selectedLongitude);
+      })
+      .then((items) => {
+        if (!active) return;
+        setPointGeofences(items);
+        if (items[0]) setSelectedGeofenceId(items[0].id);
+      })
+      .catch(() => {
+        if (active)
+          setPointLookup({
+            loading: false,
+            error: "No fue posible consultar el territorio del punto.",
+          });
+      })
+      .finally(() => {
+        if (active) setPointLookup((state) => ({ ...state, loading: false }));
+      });
+    return () => {
+      active = false;
+    };
   }, [selectedLatitude, selectedLongitude]);
 
   return (
