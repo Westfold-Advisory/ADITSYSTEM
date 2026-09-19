@@ -169,4 +169,23 @@ export class EventsApi {
       }),
     );
   }
+
+  async transition(
+    id: UUID,
+    action: "publish" | "unpublish" | "start" | "finish" | "cancel",
+  ): Promise<Event> {
+    return mapEventResponse(
+      await this.client.request<EventResponse>(`/events/${id}/${action}`, {
+        access: "admin",
+        method: "POST",
+      }),
+    );
+  }
+
+  async remove(id: UUID): Promise<void> {
+    await this.client.request<void>(`/events/${id}`, {
+      access: "admin",
+      method: "DELETE",
+    });
+  }
 }

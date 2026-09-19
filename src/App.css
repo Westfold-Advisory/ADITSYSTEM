@@ -49,6 +49,11 @@
   box-shadow: var(--md-sys-elevation-1);
 }
 
+.event-card {
+  display: grid;
+  align-content: start;
+}
+
 .event-card h2,
 .event-detail h1 {
   margin: 0.25rem 0 0.75rem;
@@ -184,6 +189,10 @@ a:focus-visible {
   background: transparent;
   color: var(--md-sys-color-primary);
 }
+.form-intro {
+  margin: 0.25rem 0 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
 .admin-page > button + button {
   margin-left: 0.75rem;
   background: transparent;
@@ -270,4 +279,49 @@ a:focus-visible {
 .admin-events article p {
   color: var(--cyber-text-secondary);
   font-size: 0.875rem;
+}
+
+.admin-event-card {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.event-status {
+  width: fit-content;
+  border-radius: var(--md-sys-radius-full);
+  padding: 0.25rem 0.6rem;
+  color: var(--md-sys-color-on-secondary-container);
+  background: var(--md-sys-color-secondary-container);
+  font: var(--md-sys-typescale-label-small);
+}
+.event-status--publicado,
+.event-status--en_curso {
+  background: var(--md-sys-color-success-container);
+  color: #07351a;
+}
+.event-status--cancelado {
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+}
+.event-status--finalizado {
+  background: var(--md-sys-color-surface-container-highest);
+}
+.event-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+@media (max-width: 40rem) {
+  .public-events-page {
+    padding: 2rem 1rem;
+  }
+  .admin-header,
+  .event-form-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .event-card-actions > button {
+    flex: 1 1 8rem;
+  }
 }
