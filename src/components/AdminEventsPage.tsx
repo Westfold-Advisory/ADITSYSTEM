@@ -8,6 +8,8 @@ import { FormularioNuevoEvento } from "./FormularioNuevoEvento";
 import { DomainAdminPage } from "./DomainAdminPage";
 import { Button } from "./ui/button";
 import { Field } from "./ui/Field";
+import { Card } from "./ui/Card";
+import { EmptyState, ErrorState, LoadingState } from "./ui/AsyncState";
 
 const sessionKey = "adit.admin.session";
 
@@ -25,6 +27,45 @@ function errorMessage(error: unknown): string {
   return error instanceof Error
     ? error.message
     : "No fue posible completar la solicitud.";
+}
+
+const statusLabels: Record<Event["status"], string> = {
+  BORRADOR: "Borrador",
+  PUBLICADO: "Publicado",
+  EN_CURSO: "En curso",
+  FINALIZADO: "Finalizado",
+  CANCELADO: "Cancelado",
+};
+
+type EventAction =
+  "publish" | "unpublish" | "start" | "finish" | "cancel" | "delete";
+
+function actionsFor(
+  event: Event,
+): Array<{ action: EventAction; label: string; sensitive?: boolean }> {
+  switch (event.status) {
+    case "BORRADOR":
+      return [
+        { action: "publish", label: "Publicar" },
+        { action: "cancel", label: "Cancelar", sensitive: true },
+        { action: "delete", label: "Eliminar", sensitive: true },
+      ];
+    case "PUBLICADO":
+      return [
+        { action: "unpublish", label: "Despublicar", sensitive: true },
+        { action: "start", label: "Iniciar" },
+        { action: "cancel", label: "Cancelar", sensitive: true },
+      ];
+    case "EN_CURSO":
+      return [
+        { action: "finish", label: "Finalizar" },
+        { action: "cancel", label: "Cancelar", sensitive: true },
+      ];
+    case "CANCELADO":
+      return [{ action: "delete", label: "Eliminar", sensitive: true }];
+    case "FINALIZADO":
+      return [];
+  }
 }
 
 function Login({ onLogin }: { onLogin: (session: LoginResponse) => void }) {
@@ -95,6 +136,8 @@ export function AdminEventsPage() {
   );
   const [events, setEvents] = useState<Event[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [activeAction, setActiveAction] = useState<string | null>(null);
   const [editing, setEditing] = useState<Event | null | "new">(null);
   const [domainView, setDomainView] = useState(false);
   const api = useMemo(
@@ -112,10 +155,15 @@ export function AdminEventsPage() {
 
   useEffect(() => {
     if (!session || !canManage) return;
-    void api
-      .listAdmin()
-      .then(setEvents)
-      .catch((requestError) => setError(errorMessage(requestError)));
+    void Promise.resolve().then(() => {
+      setIsLoading(true);
+      setError(null);
+      return api
+        .listAdmin()
+        .then(setEvents)
+        .catch((requestError) => setError(errorMessage(requestError)))
+        .finally(() => setIsLoading(false));
+    });
   }, [api, canManage, session]);
 
   const login = (nextSession: LoginResponse) => {
@@ -138,6 +186,34 @@ export function AdminEventsPage() {
         : current.map((item) => (item.id === saved.id ? saved : item)),
     );
     setEditing(null);
+  };
+  const runAction = async (event: Event, action: EventAction) => {
+    const confirmation =
+      action === "delete"
+        ? `Eliminar el evento “${event.name}”? Esta es una baja lógica y solo se permite para borradores o cancelados.`
+        : action === "cancel"
+          ? `Cancelar el evento “${event.name}”? Esta acción cambia su estado y deja de estar disponible públicamente.`
+          : action === "unpublish"
+            ? `Despublicar el evento “${event.name}”? Volverá a borrador y dejará de verse públicamente.`
+            : null;
+    if (confirmation && !window.confirm(confirmation)) return;
+    setActiveAction(`${event.id}:${action}`);
+    setError(null);
+    try {
+      if (action === "delete") {
+        await api.remove(event.id);
+        setEvents((current) => current.filter((item) => item.id !== event.id));
+      } else {
+        const saved = await api.transition(event.id, action);
+        setEvents((current) =>
+          current.map((item) => (item.id === saved.id ? saved : item)),
+        );
+      }
+    } catch (requestError) {
+      setError(errorMessage(requestError));
+    } finally {
+      setActiveAction(null);
+    }
   };
 
   if (!session) return <Login onLogin={login} />;
@@ -177,27 +253,60 @@ export function AdminEventsPage() {
         />
       ) : (
         <>
-          <button onClick={() => setEditing("new")}>Crear evento</button>
-          <button onClick={() => setDomainView(true)}>
+          <Button onClick={() => setEditing("new")}>Crear evento</Button>
+          <Button variant="outline" onClick={() => setDomainView(true)}>
             Administrar perfiles
-          </button>
+          </Button>
           {error && (
             <p className="request-message error" role="alert">
               {error}
             </p>
           )}
-          <section className="admin-events">
-            {events.map((event) => (
-              <article key={event.id}>
-                <p>{event.status}</p>
-                <h2>{event.name}</h2>
-                <p>
-                  {event.type} · {event.locationText}
-                </p>
-                <button onClick={() => setEditing(event)}>Editar</button>
-              </article>
-            ))}
-          </section>
+          {isLoading ? (
+            <LoadingState label="Cargando eventos…" />
+          ) : error ? (
+            <ErrorState message={error} />
+          ) : events.length === 0 ? (
+            <EmptyState>
+              No hay eventos administrativos todavía. Crea un borrador para
+              comenzar.
+            </EmptyState>
+          ) : (
+            <section className="admin-events" aria-live="polite">
+              {events.map((event) => (
+                <Card key={event.id} className="admin-event-card">
+                  <div
+                    className={`event-status event-status--${event.status.toLowerCase()}`}
+                  >
+                    {statusLabels[event.status]}
+                  </div>
+                  <h2>{event.name}</h2>
+                  <p>
+                    {event.type} · {event.locationText}
+                  </p>
+                  <div className="event-card-actions">
+                    <Button variant="outline" onClick={() => setEditing(event)}>
+                      Editar
+                    </Button>
+                    {actionsFor(event).map(({ action, label, sensitive }) => {
+                      const busy = activeAction === `${event.id}:${action}`;
+                      return (
+                        <Button
+                          key={action}
+                          variant={sensitive ? "destructive" : "secondary"}
+                          disabled={activeAction !== null}
+                          aria-busy={busy}
+                          onClick={() => void runAction(event, action)}
+                        >
+                          {busy ? "Procesando…" : label}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </Card>
+              ))}
+            </section>
+          )}
         </>
       )}
     </main>

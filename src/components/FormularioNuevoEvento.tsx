@@ -2,6 +2,8 @@ import { useState, type FormEvent } from "react";
 
 import { ApiError } from "@/api/http";
 import type { Event, EventInput } from "@/types/events";
+import { Field } from "./ui/Field";
+import { Button } from "./ui/button";
 
 interface FormularioNuevoEventoProps {
   event?: Event;
@@ -52,11 +54,13 @@ export function FormularioNuevoEvento({
 }: FormularioNuevoEventoProps) {
   const [form, setForm] = useState(() => initialForm(event));
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const set = (field: keyof typeof form, value: string | boolean) => {
     setForm((current) => ({ ...current, [field]: value }));
     setError(null);
+    setFieldErrors((current) => ({ ...current, [field]: "" }));
   };
 
   const submit = async (submitEvent: FormEvent<HTMLFormElement>) => {
@@ -127,57 +131,105 @@ export function FormularioNuevoEvento({
       });
     } catch (submitError) {
       setError(apiMessage(submitError));
+      if (submitError instanceof ApiError) {
+        const backendFields: Record<string, keyof typeof form> = {
+          tipo: "type",
+          nombre: "name",
+          descripcion: "description",
+          ubicacion_texto: "locationText",
+          latitud: "latitude",
+          longitud: "longitude",
+          fecha_inicio: "startsAt",
+          fecha_fin: "endsAt",
+          capacidad_maxima: "maximumCapacity",
+          checkin_radio_metros: "checkinRadiusMeters",
+          url_mapa: "mapUrl",
+        };
+        setFieldErrors(
+          Object.fromEntries(
+            Object.entries(submitError.fields).flatMap(([key, issues]) => {
+              const field = backendFields[key];
+              return field && issues[0] ? [[field, issues[0].message]] : [];
+            }),
+          ),
+        );
+      }
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <form className="event-form" onSubmit={submit} noValidate>
-      <h2>{event ? "Actualizar evento" : "Nuevo evento"}</h2>
-      <label>
-        Tipo *
+    <form
+      className="event-form"
+      onSubmit={submit}
+      noValidate
+      aria-busy={isSubmitting}
+    >
+      <div>
+        <p className="eyebrow">{event ? "Edición" : "Borrador"}</p>
+        <h2>{event ? "Actualizar evento" : "Nuevo evento"}</h2>
+        <p className="form-intro">
+          Los campos con * son obligatorios. El evento se crea como borrador.
+        </p>
+      </div>
+      <Field
+        label="Tipo *"
+        hint="Ejemplo: Asamblea o reunión vecinal."
+        error={fieldErrors.type}
+      >
         <input
           required
           value={form.type}
           onChange={(e) => set("type", e.target.value)}
         />
-      </label>
-      <label>
-        Nombre *
+      </Field>
+      <Field label="Nombre *" error={fieldErrors.name}>
         <input
           required
           value={form.name}
           onChange={(e) => set("name", e.target.value)}
         />
-      </label>
-      <label>
-        Descripción *
+      </Field>
+      <div className="ui-field">
+        <label htmlFor="event-description">Descripción *</label>
         <textarea
+          id="event-description"
           required
+          aria-invalid={Boolean(fieldErrors.description)}
+          aria-describedby={
+            fieldErrors.description ? "event-description-error" : undefined
+          }
+          className="ui-control"
           value={form.description}
           onChange={(e) => set("description", e.target.value)}
         />
-      </label>
-      <label>
-        Ubicación *
+        {fieldErrors.description && (
+          <p id="event-description-error" className="ui-field-error">
+            {fieldErrors.description}
+          </p>
+        )}
+      </div>
+      <Field label="Ubicación *" error={fieldErrors.locationText}>
         <input
           required
           value={form.locationText}
           onChange={(e) => set("locationText", e.target.value)}
         />
-      </label>
-      <label>
-        URL del mapa
+      </Field>
+      <Field
+        label="URL del mapa"
+        hint="Opcional; debe ser una URL completa."
+        error={fieldErrors.mapUrl}
+      >
         <input
           type="url"
           value={form.mapUrl}
           onChange={(e) => set("mapUrl", e.target.value)}
         />
-      </label>
+      </Field>
       <div className="event-form-grid">
-        <label>
-          Latitud *
+        <Field label="Latitud *" error={fieldErrors.latitude}>
           <input
             required
             type="number"
@@ -187,9 +239,8 @@ export function FormularioNuevoEvento({
             value={form.latitude}
             onChange={(e) => set("latitude", e.target.value)}
           />
-        </label>
-        <label>
-          Longitud *
+        </Field>
+        <Field label="Longitud *" error={fieldErrors.longitude}>
           <input
             required
             type="number"
@@ -199,27 +250,28 @@ export function FormularioNuevoEvento({
             value={form.longitude}
             onChange={(e) => set("longitude", e.target.value)}
           />
-        </label>
-        <label>
-          Inicio *
+        </Field>
+        <Field label="Inicio *" error={fieldErrors.startsAt}>
           <input
             required
             type="datetime-local"
             value={form.startsAt}
             onChange={(e) => set("startsAt", e.target.value)}
           />
-        </label>
-        <label>
-          Fin *
+        </Field>
+        <Field label="Fin *" error={fieldErrors.endsAt}>
           <input
             required
             type="datetime-local"
             value={form.endsAt}
             onChange={(e) => set("endsAt", e.target.value)}
           />
-        </label>
-        <label>
-          Capacidad máxima
+        </Field>
+        <Field
+          label="Capacidad máxima"
+          hint="Opcional; entero mayor a cero."
+          error={fieldErrors.maximumCapacity}
+        >
           <input
             type="number"
             min="1"
@@ -227,9 +279,11 @@ export function FormularioNuevoEvento({
             value={form.maximumCapacity}
             onChange={(e) => set("maximumCapacity", e.target.value)}
           />
-        </label>
-        <label>
-          Radio de check-in (m) *
+        </Field>
+        <Field
+          label="Radio de check-in (m) *"
+          error={fieldErrors.checkinRadiusMeters}
+        >
           <input
             required
             type="number"
@@ -238,7 +292,7 @@ export function FormularioNuevoEvento({
             value={form.checkinRadiusMeters}
             onChange={(e) => set("checkinRadiusMeters", e.target.value)}
           />
-        </label>
+        </Field>
       </div>
       <label className="checkbox">
         <input
@@ -254,16 +308,21 @@ export function FormularioNuevoEvento({
         </p>
       )}
       <div className="event-form-actions">
-        <button type="button" disabled={isSubmitting} onClick={onCancel}>
+        <Button
+          variant="outline"
+          type="button"
+          disabled={isSubmitting}
+          onClick={onCancel}
+        >
           Cancelar
-        </button>
-        <button type="submit" disabled={isSubmitting}>
+        </Button>
+        <Button type="submit" disabled={isSubmitting} aria-busy={isSubmitting}>
           {isSubmitting
             ? "Guardando…"
             : event
               ? "Guardar cambios"
               : "Crear evento"}
-        </button>
+        </Button>
       </div>
     </form>
   );

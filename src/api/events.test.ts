@@ -133,4 +133,36 @@ describe("ApiClient", () => {
     await api.listPublic(controller.signal);
     assert.equal(receivedSignal, controller.signal);
   });
+
+  it("uses only the documented transition and logical-delete endpoints", async () => {
+    const requests: Array<{ path: string; method?: string }> = [];
+    const api = new EventsApi(
+      new ApiClient({
+        baseUrl: "https://api.example.test",
+        getAccessToken: () => "token",
+        fetchFn: async (url, init) => {
+          requests.push({ path: String(url), method: init?.method });
+          return new Response(
+            init?.method === "DELETE" ? null : JSON.stringify(response),
+            {
+              status: init?.method === "DELETE" ? 204 : 200,
+              headers: { "content-type": "application/json" },
+            },
+          );
+        },
+      }),
+    );
+    await api.transition(response.id, "publish");
+    await api.remove(response.id);
+    assert.deepEqual(requests, [
+      {
+        path: `https://api.example.test/events/${response.id}/publish`,
+        method: "POST",
+      },
+      {
+        path: `https://api.example.test/events/${response.id}`,
+        method: "DELETE",
+      },
+    ]);
+  });
 });
