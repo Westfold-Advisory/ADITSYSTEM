@@ -1,4 +1,19 @@
 /* ─── Public events page ─────────────────────────────────────────────────── */
+.public-shell {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+.public-shell > .ui-app-bar {
+  flex: 0 0 auto;
+}
+.public-shell > .public-events-page {
+  flex: 1;
+}
+.public-shell > .flex {
+  flex: 1;
+  min-height: 0;
+}
 .public-events-page {
   box-sizing: border-box;
   margin: 0 auto;
@@ -26,7 +41,7 @@
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  font-family: var(--font-mono, "Courier New", monospace);
+  font: var(--md-sys-typescale-label-small);
 }
 
 .event-grid {
@@ -116,7 +131,7 @@
 dt {
   color: var(--cyber-text-secondary);
   font-size: 0.8rem;
-  font-family: var(--font-mono, "Courier New", monospace);
+  font: var(--md-sys-typescale-label-small);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -136,6 +151,22 @@ a:focus-visible {
   outline: 2px solid var(--cyber-cyan);
   outline-offset: 2px;
   border-radius: var(--radius);
+}
+
+.not-found {
+  width: min(42rem, calc(100% - 2rem));
+  margin: 12vh auto;
+  padding: 2rem;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-radius-lg);
+  background: var(--md-sys-color-surface-container-low);
+}
+.not-found h1 {
+  font: var(--md-sys-typescale-headline-small);
+}
+.not-found a {
+  color: var(--md-sys-color-primary);
+  font-weight: 600;
 }
 
 /* ─── Admin page ─────────────────────────────────────────────────────────── */

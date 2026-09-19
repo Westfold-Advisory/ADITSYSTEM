@@ -247,7 +247,7 @@ export function MapPage() {
 
   return (
     <div
-      className="flex flex-col h-dvh overflow-hidden"
+      className="flex flex-col h-full overflow-hidden"
       style={{ background: "var(--cyber-bg)", color: "var(--cyber-text)" }}
     >
       {/* ── Top nav bar ─────────────────────────────────────────────────── */}
@@ -259,7 +259,7 @@ export function MapPage() {
           boxShadow: "var(--cyber-shadow-sm)",
         }}
       >
-        {/* Brand + sidebar toggle */}
+        {/* Contextual map controls; global navigation lives in the AppBar. */}
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -278,13 +278,6 @@ export function MapPage() {
               <PanelLeft size={16} />
             )}
           </button>
-
-          <span
-            className="font-mono text-xs font-bold tracking-[0.2em] uppercase"
-            style={{ color: "var(--cyber-cyan)" }}
-          >
-            ADIT SYSTEM
-          </span>
         </div>
 
         {/* Layer toggle */}
