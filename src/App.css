@@ -39,14 +39,14 @@
 .event-detail,
 .request-message {
   border: 1px solid var(--cyber-border-subtle);
-  border-radius: var(--radius);
-  background: var(--cyber-surface-1);
+  border-radius: var(--md-sys-radius-lg);
+  background: var(--md-sys-color-surface-container-low);
   padding: 1.5rem;
-  transition: border-color var(--cyber-duration-fast) var(--cyber-ease);
+  transition: box-shadow var(--cyber-duration-fast) var(--cyber-ease);
 }
 
 .event-card:hover {
-  border-color: var(--cyber-border);
+  box-shadow: var(--md-sys-elevation-1);
 }
 
 .event-card h2,
@@ -69,10 +69,11 @@
   align-items: center;
   gap: 0.375rem;
   margin: 0.75rem 0.5rem 0 0;
-  border: 1px solid var(--cyber-violet);
-  border-radius: var(--radius);
-  background: oklch(0.6 0.22 290 / 0.12);
-  color: var(--cyber-violet);
+  min-height: 2.5rem;
+  border: 1px solid var(--md-sys-color-primary);
+  border-radius: var(--md-sys-radius-full);
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
   cursor: pointer;
   font: inherit;
   font-size: 0.875rem;
@@ -86,13 +87,14 @@
 .event-card button:hover,
 .event-detail a:hover,
 .request-message button:hover {
-  background: oklch(0.6 0.22 290 / 0.22);
+  box-shadow: var(--md-sys-elevation-1);
+  background: #174681;
 }
 
 .back-link {
   background: transparent !important;
   border-color: transparent !important;
-  color: var(--cyber-cyan) !important;
+  color: var(--md-sys-color-primary) !important;
   padding-left: 0 !important;
 }
 
@@ -151,6 +153,49 @@ a:focus-visible {
   letter-spacing: -0.02em;
 }
 
+.admin-page > button,
+.event-form-actions button,
+.admin-events button,
+.admin-header button,
+.login-form > button {
+  min-height: 2.5rem;
+  border: 1px solid var(--md-sys-color-primary);
+  border-radius: var(--md-sys-radius-full);
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  cursor: pointer;
+  font: var(--md-sys-typescale-label-large);
+  padding: 0.5rem 1.25rem;
+  transition:
+    box-shadow var(--cyber-duration-fast) var(--cyber-ease),
+    background var(--cyber-duration-fast) var(--cyber-ease);
+}
+
+.admin-page > button:hover,
+.event-form-actions button:hover,
+.admin-events button:hover,
+.admin-header button:hover,
+.login-form > button:hover {
+  box-shadow: var(--md-sys-elevation-1);
+  background: #174681;
+}
+
+.event-form-actions button[type="button"] {
+  background: transparent;
+  color: var(--md-sys-color-primary);
+}
+.admin-page > button + button {
+  margin-left: 0.75rem;
+  background: transparent;
+  color: var(--md-sys-color-primary);
+}
+.admin-page button:disabled,
+.event-form-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  box-shadow: none;
+}
+
 .login-form,
 .event-form {
   display: grid;
@@ -178,8 +223,8 @@ a:focus-visible {
   padding: 0.55rem 0.75rem;
   font: inherit;
   border: 1px solid var(--cyber-border-subtle);
-  border-radius: var(--radius);
-  background: var(--cyber-surface-2);
+  border-radius: var(--md-sys-radius-sm);
+  background: var(--md-sys-color-surface-container-low);
   color: var(--cyber-text);
   transition: border-color var(--cyber-duration-fast) var(--cyber-ease);
 }
@@ -207,14 +252,14 @@ a:focus-visible {
 
 .admin-events article {
   border: 1px solid var(--cyber-border-subtle);
-  border-radius: var(--radius);
+  border-radius: var(--md-sys-radius-lg);
   padding: 1rem;
   background: var(--cyber-surface-1);
   transition: border-color var(--cyber-duration-fast) var(--cyber-ease);
 }
 
 .admin-events article:hover {
-  border-color: var(--cyber-border);
+  box-shadow: var(--md-sys-elevation-1);
 }
 
 .admin-events article h2 {

@@ -3,177 +3,81 @@
 @import "./styles/shadcn-tailwind.css";
 @import "./styles/primitives.css";
 @import "@fontsource-variable/geist";
+@import "./styles/shadcn-tailwind.css";
+@import "./styles/tokens.css";
 
 @custom-variant dark (&:is(.dark *));
 
-/* ─── Cyber token system ─────────────────────────────────────────────────────
-   Base: deep navy-black  |  Primary accent: cyan  |  Secondary: violet
-   Text relies on AA contrast — neon glow is decorative only.
-   ─────────────────────────────────────────────────────────────────────────── */
-
 @theme inline {
-  --font-heading: var(--font-sans);
-  --font-mono: "Courier New", ui-monospace, monospace;
-  --font-sans: "Geist Variable", sans-serif;
-
-  /* Shadcn slot aliases — point to cyber tokens */
-  --color-background: var(--cyber-bg);
-  --color-foreground: var(--cyber-text);
-  --color-card: var(--cyber-surface-2);
-  --color-card-foreground: var(--cyber-text);
-  --color-popover: var(--cyber-surface-2);
-  --color-popover-foreground: var(--cyber-text);
-  --color-primary: var(--cyber-cyan);
-  --color-primary-foreground: var(--cyber-bg);
-  --color-secondary: var(--cyber-surface-1);
-  --color-secondary-foreground: var(--cyber-text);
-  --color-muted: var(--cyber-surface-1);
-  --color-muted-foreground: var(--cyber-text-secondary);
-  --color-accent: var(--cyber-violet);
-  --color-accent-foreground: var(--cyber-text-bright);
-  --color-destructive: var(--cyber-error);
-  --color-border: var(--cyber-border-subtle);
-  --color-input: var(--cyber-surface-1);
-  --color-ring: var(--cyber-cyan);
-
-  --color-chart-1: oklch(0.78 0.13 198);
-  --color-chart-2: oklch(0.6 0.22 290);
-  --color-chart-3: oklch(0.72 0.18 155);
-  --color-chart-4: oklch(0.68 0.18 50);
-  --color-chart-5: oklch(0.6 0.23 20);
-
-  --color-sidebar: var(--cyber-surface-1);
-  --color-sidebar-foreground: var(--cyber-text);
-  --color-sidebar-primary: var(--cyber-cyan);
-  --color-sidebar-primary-foreground: var(--cyber-bg);
-  --color-sidebar-accent: var(--cyber-cyan-dim);
-  --color-sidebar-accent-foreground: var(--cyber-cyan);
-  --color-sidebar-border: var(--cyber-border-subtle);
-  --color-sidebar-ring: var(--cyber-cyan);
-
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --font-sans: "Geist Variable", system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --color-background: var(--md-sys-color-background);
+  --color-foreground: var(--md-sys-color-on-background);
+  --color-card: var(--md-sys-color-surface-container-low);
+  --color-card-foreground: var(--md-sys-color-on-surface);
+  --color-popover: var(--md-sys-color-surface-container-high);
+  --color-popover-foreground: var(--md-sys-color-on-surface);
+  --color-primary: var(--md-sys-color-primary);
+  --color-primary-foreground: var(--md-sys-color-on-primary);
+  --color-secondary: var(--md-sys-color-secondary-container);
+  --color-secondary-foreground: var(--md-sys-color-on-secondary-container);
+  --color-muted: var(--md-sys-color-surface-container);
+  --color-muted-foreground: var(--md-sys-color-on-surface-variant);
+  --color-accent: var(--md-sys-color-primary-container);
+  --color-accent-foreground: var(--md-sys-color-on-primary-container);
+  --color-destructive: var(--md-sys-color-error);
+  --color-border: var(--md-sys-color-outline-variant);
+  --color-input: var(--md-sys-color-surface-container-highest);
+  --color-ring: var(--md-sys-color-primary);
+  --radius-sm: var(--md-sys-radius-sm);
+  --radius-md: var(--md-sys-radius-md);
+  --radius-lg: var(--md-sys-radius-lg);
+  --radius-xl: var(--md-sys-radius-xl);
 }
 
-/* ─── Cyber tokens — forced-dark, always applied ────────────────────────────
-   These tokens drive every component.  Spacing / motion / elevation live here.
-   ─────────────────────────────────────────────────────────────────────────── */
-:root {
-  color-scheme: dark;
-
-  /* --- Surface palette --- */
-  --cyber-bg: oklch(0.07 0.02 220); /* #050a0e  */
-  --cyber-surface-1: oklch(0.09 0.025 220); /* #080f14  */
-  --cyber-surface-2: oklch(0.1 0.03 220); /* #0a1520  */
-  --cyber-border-subtle: oklch(0.16 0.05 220); /* #0e2a3a  */
-  --cyber-border: oklch(0.28 0.07 220); /* #1a4a6a  */
-
-  /* --- Accent palette --- */
-  --cyber-cyan: oklch(0.78 0.13 198); /* #00d4ff — primary  */
-  --cyber-cyan-dim: oklch(0.17 0.05 198); /* #004455 — bg tint  */
-  --cyber-violet: oklch(0.6 0.22 290); /* #a855f7 — secondary */
-  --cyber-green: oklch(0.72 0.17 155); /* #00c870 — success   */
-  --cyber-orange: oklch(0.7 0.17 55); /* #ff8c42 — warning   */
-  --cyber-error: oklch(0.6 0.23 20); /* #ff3355 — error     */
-
-  /* --- Typography --- */
-  --cyber-text: oklch(0.87 0.03 218); /* #c8e8f0 — ≥7:1 on bg  */
-  --cyber-text-secondary: oklch(0.65 0.04 218); /* #7aa8be — ≥4.5:1      */
-  --cyber-text-disabled: oklch(0.42 0.03 218); /* #4a6a7a — borders AA  */
-  --cyber-text-bright: oklch(1 0 0); /* #ffffff                */
-
-  /* --- Shadows / elevation --- */
-  --cyber-shadow-sm: 0 0 8px oklch(0.78 0.13 198 / 0.08);
-  --cyber-shadow-md: 0 0 20px oklch(0.78 0.13 198 / 0.12);
-  --cyber-shadow-lg: 0 0 40px oklch(0.78 0.13 198 / 0.18);
-  --cyber-glow-cyan: 0 0 8px oklch(0.78 0.13 198 / 0.7);
-  --cyber-glow-violet: 0 0 8px oklch(0.6 0.22 290 / 0.7);
-  --cyber-glow-green: 0 0 8px oklch(0.72 0.17 155 / 0.8);
-  --cyber-glow-red: 0 0 8px oklch(0.6 0.23 20 / 0.8);
-
-  /* --- Motion --- */
-  --cyber-duration-fast: 150ms;
-  --cyber-duration-normal: 220ms;
-  --cyber-duration-slow: 350ms;
-  --cyber-ease: cubic-bezier(0.4, 0, 0.2, 1);
-
-  /* --- Spacing scale --- */
-  --cyber-space-xs: 0.25rem; /* 4px  */
-  --cyber-space-sm: 0.5rem; /* 8px  */
-  --cyber-space-md: 0.75rem; /* 12px */
-  --cyber-space-lg: 1rem; /* 16px */
-  --cyber-space-xl: 1.5rem; /* 24px */
-  --cyber-space-2xl: 2rem; /* 32px */
-
-  /* --- Border radius --- */
-  --radius: 0.25rem; /* squared cyber look */
-}
-
-/* ─── Reduced-motion: collapse all durations ─────────────────────────────── */
-@media (prefers-reduced-motion: reduce) {
-  :root {
-    --cyber-duration-fast: 0ms;
-    --cyber-duration-normal: 0ms;
-    --cyber-duration-slow: 0ms;
-  }
-}
-
-/* ─── Base layer ─────────────────────────────────────────────────────────── */
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
   html {
-    @apply font-sans;
-    background-color: var(--cyber-bg);
-    color: var(--cyber-text);
+    font-family: var(--font-sans);
+    background: var(--md-sys-color-background);
+    color: var(--md-sys-color-on-background);
   }
   body {
-    background-color: var(--cyber-bg);
-    color: var(--cyber-text);
+    min-width: 320px;
     min-height: 100dvh;
+    margin: 0;
+    background: var(--md-sys-color-background);
+    font: var(--md-sys-typescale-body-large);
   }
-
-  /* Map popups */
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+  button,
+  [role="button"] {
+    min-height: 2.5rem;
+  }
+  :focus-visible {
+    outline: var(--md-sys-focus-ring);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: var(--md-sys-color-primary-container);
+    color: var(--md-sys-color-on-primary-container);
+  }
   .maplibregl-popup-content {
     @apply bg-transparent! shadow-none! p-0! rounded-none!;
   }
   .maplibregl-popup-tip {
     @apply hidden!;
   }
-
-  /* Focus ring — always visible, never neon-only */
-  :focus-visible {
-    outline: 2px solid var(--cyber-cyan);
-    outline-offset: 2px;
-    border-radius: var(--radius);
-  }
-
-  /* Scrollbar — subtle cyber */
-  ::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
-  }
-  ::-webkit-scrollbar-track {
-    background: var(--cyber-surface-1);
-  }
-  ::-webkit-scrollbar-thumb {
-    background: var(--cyber-border);
-    border-radius: 2px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: var(--cyber-cyan-dim);
-  }
 }
 
-/* ─── Cyber utilities ────────────────────────────────────────────────────── */
 @layer utilities {
-  /* Surfaces */
   .cyber-bg {
     background-color: var(--cyber-bg);
   }
@@ -183,8 +87,6 @@
   .cyber-surface-2 {
     background-color: var(--cyber-surface-2);
   }
-
-  /* Borders */
   .cyber-border {
     border-color: var(--cyber-border-subtle);
   }
@@ -197,8 +99,6 @@
   .cyber-border-violet {
     border-color: var(--cyber-violet);
   }
-
-  /* Typography */
   .cyber-text {
     color: var(--cyber-text);
   }
@@ -226,24 +126,18 @@
   .cyber-text-error {
     color: var(--cyber-error);
   }
-
-  /* Mono label style */
-  .cyber-label {
-    font-family: var(--font-mono);
-    font-size: 0.625rem; /* 10px */
-    letter-spacing: 0.15em;
+  .cyber-label,
+  .cyber-label-accent {
+    font: var(--md-sys-typescale-label-small);
+    letter-spacing: 0.08em;
     text-transform: uppercase;
+  }
+  .cyber-label {
     color: var(--cyber-text-secondary);
   }
   .cyber-label-accent {
-    font-family: var(--font-mono);
-    font-size: 0.625rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
     color: var(--cyber-cyan);
   }
-
-  /* Shadows */
   .cyber-shadow {
     box-shadow: var(--cyber-shadow-sm);
   }
@@ -256,53 +150,8 @@
   .cyber-glow-cyan {
     box-shadow: var(--cyber-glow-cyan);
   }
-
-  /* Transition shorthand */
   .cyber-transition {
     transition-duration: var(--cyber-duration-normal);
     transition-timing-function: var(--cyber-ease);
-  }
-
-  /* Corner decoration */
-  .cyber-corners {
-    position: relative;
-    &::before,
-    &::after {
-      content: "";
-      position: absolute;
-      width: 10px;
-      height: 10px;
-      border-color: var(--cyber-cyan);
-      border-style: solid;
-      opacity: 0.7;
-    }
-    &::before {
-      top: 0;
-      left: 0;
-      border-width: 2px 0 0 2px;
-    }
-    &::after {
-      bottom: 0;
-      right: 0;
-      border-width: 0 2px 2px 0;
-    }
-  }
-
-  /* Scanline overlay */
-  .cyber-scanlines {
-    position: relative;
-    &::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: repeating-linear-gradient(
-        0deg,
-        transparent 0px,
-        transparent 2px,
-        oklch(0 0 0 / 0.03) 2px,
-        oklch(0 0 0 / 0.03) 4px
-      );
-      pointer-events: none;
-    }
   }
 }
