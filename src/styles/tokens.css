@@ -47,13 +47,15 @@
   --md-sys-color-inverse-primary: #aec6ff;
   --md-sys-color-scrim: rgb(0 0 0 / 0.32);
 
-  /* Typography: Material roles. Geist is loaded in index.css. */
+  /* Typography: Material roles. Poppins is loaded locally in index.css. */
   --md-sys-typescale-body-large: 400 1rem/1.5 var(--font-sans);
   --md-sys-typescale-body-medium: 400 0.875rem/1.43 var(--font-sans);
   --md-sys-typescale-label-large: 600 0.875rem/1.43 var(--font-sans);
   --md-sys-typescale-label-small: 600 0.75rem/1.33 var(--font-sans);
+  --md-sys-typescale-title-medium: 500 1rem/1.5 var(--font-sans);
   --md-sys-typescale-title-large: 500 1.375rem/1.27 var(--font-sans);
   --md-sys-typescale-headline-small: 500 2rem/1.25 var(--font-sans);
+  --md-sys-typescale-headline-large: 500 3.5rem/1.14 var(--font-sans);
 
   /* Layout, shape, elevation, focus, and motion. */
   --md-sys-spacing-1: 0.25rem;

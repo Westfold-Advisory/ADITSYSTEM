@@ -8,15 +8,18 @@ import { cn } from "@/lib/utils";
 export function AppBar({
   brand,
   actions,
+  children,
   className,
 }: {
   brand: ReactNode;
   actions?: ReactNode;
+  children?: ReactNode;
   className?: string;
 }) {
   return (
     <header className={cn("ui-app-bar", className)}>
       <div className="ui-app-bar-brand">{brand}</div>
+      {children}
       {actions && <div className="ui-app-bar-actions">{actions}</div>}
     </header>
   );

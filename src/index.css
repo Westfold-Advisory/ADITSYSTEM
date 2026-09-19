@@ -2,14 +2,17 @@
 @import "tw-animate-css";
 @import "./styles/shadcn-tailwind.css";
 @import "./styles/primitives.css";
-@import "@fontsource-variable/geist";
+@import "@fontsource/poppins/latin-400.css";
+@import "@fontsource/poppins/latin-500.css";
+@import "@fontsource/poppins/latin-600.css";
+@import "@fontsource/poppins/latin-700.css";
 @import "./styles/shadcn-tailwind.css";
 @import "./styles/tokens.css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: "Geist Variable", system-ui, sans-serif;
+  --font-sans: "Poppins", system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
   --color-background: var(--md-sys-color-background);
   --color-foreground: var(--md-sys-color-on-background);
