@@ -1,6 +1,6 @@
 import { ApiClient } from "./http";
 
-export const ADMIN_EVENT_ROLES = ["POLITICO", "GESTOR", "ADMIN"] as const;
+export const ADMIN_EVENT_ROLES = ["POLITICO", "LIDER", "ADMIN"] as const;
 export type UserRole = (typeof ADMIN_EVENT_ROLES)[number] | "INVITADO";
 
 export interface AuthenticatedUser {
@@ -9,7 +9,7 @@ export interface AuthenticatedUser {
   full_name: string;
   role: UserRole;
   politico_id: string | null;
-  gestor_id: string | null;
+  lider_id: string | null;
   invitado_id: string | null;
 }
 
