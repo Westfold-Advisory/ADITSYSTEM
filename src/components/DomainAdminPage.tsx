@@ -29,9 +29,11 @@ function message(error: unknown) {
 function PersonForm({
   view,
   onSave,
+  parentId: fixedParentId,
 }: {
   view: View;
   onSave: (input: PersonInput, parentId?: string) => Promise<void>;
+  parentId?: string;
 }) {
   const [values, setValues] = useState(empty);
   const [parentId, setParentId] = useState("");
@@ -43,7 +45,10 @@ function PersonForm({
     setSaving(true);
     setError(null);
     try {
-      await onSave(values, view === "politicos" ? undefined : parentId);
+      await onSave(
+        values,
+        view === "politicos" ? undefined : (fixedParentId ?? parentId),
+      );
       setValues(empty);
       setParentId("");
     } catch (reason) {
@@ -55,7 +60,7 @@ function PersonForm({
   return (
     <form className="domain-form" onSubmit={submit}>
       <h2>Registrar {view.slice(0, -1)}</h2>
-      {view !== "politicos" && (
+      {view !== "politicos" && !fixedParentId && (
         <label>
           {label}
           <input
@@ -125,7 +130,11 @@ export function DomainAdminPage({
   session: LoginResponse;
   onBack: () => void;
 }) {
-  const [view, setView] = useState<View>("politicos");
+  const role = session.user.role;
+  const [view, setView] = useState<View>(
+    role === "LIDER" ? "lideres" : "politicos",
+  );
+  const [selectedLiderId, setSelectedLiderId] = useState<string | null>(null);
   const [items, setItems] = useState<Item[]>([]);
   const [error, setError] = useState<string | null>(null);
   const api = useMemo(
@@ -142,13 +151,28 @@ export function DomainAdminPage({
         view === "politicos"
           ? await api.listPoliticos()
           : view === "lideres"
-            ? await api.listLideres()
-            : await api.listInvitados(),
+            ? await api.listLideres(
+                role === "POLITICO"
+                  ? (session.user.politico_id ?? undefined)
+                  : undefined,
+              )
+            : await api.listInvitados(
+                role === "LIDER"
+                  ? (session.user.lider_id ?? undefined)
+                  : (selectedLiderId ?? undefined),
+              ),
       );
     } catch (reason) {
       setError(message(reason));
     }
-  }, [api, view]);
+  }, [
+    api,
+    role,
+    selectedLiderId,
+    session.user.lider_id,
+    session.user.politico_id,
+    view,
+  ]);
   // This effect fetches remote state after a view/token change; state updates occur after the request settles.
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -188,17 +212,47 @@ export function DomainAdminPage({
         <button onClick={onBack}>Volver a eventos</button>
       </header>
       <nav className="domain-tabs" aria-label="Módulos de dominio">
-        {(["politicos", "lideres", "invitados"] as View[]).map((item) => (
+        {(role === "LIDER"
+          ? (["lideres", "invitados"] as View[])
+          : (["politicos", "lideres", "invitados"] as View[])
+        ).map((item) => (
           <button
             className={view === item ? "active" : ""}
             key={item}
             onClick={() => setView(item)}
           >
-            {item}
+            {item === "politicos"
+              ? role === "POLITICO"
+                ? "Mi perfil"
+                : "Políticos"
+              : item === "lideres"
+                ? role === "LIDER"
+                  ? "Mi perfil"
+                  : "Líderes"
+                : "Invitados"}
           </button>
         ))}
       </nav>
-      <PersonForm view={view} onSave={save} />
+      {view === "invitados" && role === "POLITICO" && !selectedLiderId && (
+        <p className="request-message">
+          Selecciona “Ver invitados” en un líder para consultar su red.
+        </p>
+      )}
+      {(role === "ADMIN" ||
+        (role === "POLITICO" && view === "lideres") ||
+        (role === "LIDER" && view === "invitados")) && (
+        <PersonForm
+          view={view}
+          onSave={save}
+          parentId={
+            view === "lideres" && role === "POLITICO"
+              ? (session.user.politico_id ?? undefined)
+              : view === "invitados" && role === "LIDER"
+                ? (session.user.lider_id ?? undefined)
+                : (selectedLiderId ?? undefined)
+          }
+        />
+      )}
       {error && (
         <p className="request-message error" role="alert">
           {error}
@@ -214,7 +268,21 @@ export function DomainAdminPage({
             <p>
               {item.telefono} · {item.municipio ?? "Sin municipio"}
             </p>
-            <button onClick={() => void remove(item.id)}>Dar de baja</button>
+            {view === "lideres" && role === "POLITICO" && (
+              <button
+                onClick={() => {
+                  setSelectedLiderId(item.id);
+                  setView("invitados");
+                }}
+              >
+                Ver invitados
+              </button>
+            )}
+            {(role === "ADMIN" ||
+              (role === "POLITICO" && view === "lideres") ||
+              (role === "LIDER" && view === "invitados")) && (
+              <button onClick={() => void remove(item.id)}>Dar de baja</button>
+            )}
           </article>
         ))}
         {!error && items.length === 0 && (

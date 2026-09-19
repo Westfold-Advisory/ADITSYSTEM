@@ -69,6 +69,29 @@ const invitados = [
   }),
 ];
 const events = [event];
+const demoUsers = {
+  "demo@adit.local": {
+    password: "demo12345",
+    full_name: "Administradora Demo",
+    role: "ADMIN",
+    politico_id: null,
+    lider_id: null,
+  },
+  "politico@adit.local": {
+    password: "demo12345",
+    full_name: "Andrea Ramírez",
+    role: "POLITICO",
+    politico_id: politicos[0].id,
+    lider_id: null,
+  },
+  "lider@adit.local": {
+    password: "demo12345",
+    full_name: "Luis Santos",
+    role: "LIDER",
+    politico_id: null,
+    lider_id: lideres[0].id,
+  },
+} as const;
 
 function json(data: unknown, status = 200) {
   return new Response(status === 204 ? null : JSON.stringify(data), {
@@ -96,7 +119,11 @@ export async function mockFetch(
   const method = (init?.method ?? "GET").toUpperCase();
   if (path === "/auth/login" && method === "POST") {
     const payload = await body(init);
-    if (payload.email !== "demo@adit.local" || payload.password !== "demo12345")
+    const user =
+      typeof payload.email === "string"
+        ? demoUsers[payload.email as keyof typeof demoUsers]
+        : undefined;
+    if (!user || payload.password !== user.password)
       return json(
         { detail: "Usa las credenciales de demostración indicadas." },
         401,
@@ -107,11 +134,11 @@ export async function mockFetch(
       expires_in_seconds: 3600,
       user: {
         id: "a0000000-0000-4000-8000-000000000001",
-        email: "demo@adit.local",
-        full_name: "Administradora Demo",
-        role: "ADMIN",
-        politico_id: null,
-        lider_id: null,
+        email: payload.email,
+        full_name: user.full_name,
+        role: user.role,
+        politico_id: user.politico_id,
+        lider_id: user.lider_id,
         invitado_id: null,
       },
     });

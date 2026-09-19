@@ -121,6 +121,6 @@ export default defineConfig([
 
 ## Modo demo local
 
-Para recorrer la interfaz sin backend, copie `.env.example` a `.env.local` y cambie `VITE_USE_MOCK_API=true`. Inicie con `npm run dev` e ingrese con `demo@adit.local` / `demo12345`.
+Para recorrer la interfaz sin backend, copie `.env.example` a `.env.local` y cambie `VITE_USE_MOCK_API=true`. Inicie con `npm run dev` e ingrese como administrador (`demo@adit.local`), político (`politico@adit.local`) o líder (`lider@adit.local`); todos usan la contraseña `demo12345`.
 
 El modo demo vive solo en memoria del navegador y usa registros ficticios. No debe habilitarse en despliegues.
