@@ -773,6 +773,10 @@ type MapControlsProps = {
   className?: string;
   /** Callback with user coordinates when located */
   onLocate?: (coords: { longitude: number; latitude: number }) => void;
+  /** Return the map to the application's default viewport. */
+  onResetView?: () => void;
+  /** Switch between the available base maps. */
+  onToggleBaseMap?: () => void;
 };
 
 const positionClasses = {
@@ -781,6 +785,12 @@ const positionClasses = {
   "bottom-left": "bottom-2 left-2",
   "bottom-right": "bottom-10 right-2",
 };
+
+function mapAnimationDuration(defaultDuration: number) {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ? 0
+    : defaultDuration;
+}
 
 function ControlGroup({ children }: { children: React.ReactNode }) {
   return (
@@ -825,20 +835,22 @@ function MapControls({
   showFullscreen = true,
   className,
   onLocate,
+  onResetView,
+  onToggleBaseMap,
 }: MapControlsProps) {
   const { map } = useMap();
   const [waitingForLocation, setWaitingForLocation] = useState(false);
 
   const handleZoomIn = useCallback(() => {
-    map?.zoomTo(map.getZoom() + 1, { duration: 300 });
+    map?.zoomTo(map.getZoom() + 1, { duration: mapAnimationDuration(300) });
   }, [map]);
 
   const handleZoomOut = useCallback(() => {
-    map?.zoomTo(map.getZoom() - 1, { duration: 300 });
+    map?.zoomTo(map.getZoom() - 1, { duration: mapAnimationDuration(300) });
   }, [map]);
 
   const handleResetBearing = useCallback(() => {
-    map?.resetNorthPitch({ duration: 300 });
+    map?.resetNorthPitch({ duration: mapAnimationDuration(300) });
   }, [map]);
 
   const handleLocate = useCallback(() => {
@@ -853,7 +865,7 @@ function MapControls({
           map?.flyTo({
             center: [coords.longitude, coords.latitude],
             zoom: 14,
-            duration: 1500,
+            duration: mapAnimationDuration(1500),
           });
           onLocate?.(coords);
           setWaitingForLocation(false);
@@ -921,7 +933,34 @@ function MapControls({
           </ControlButton>
         </ControlGroup>
       )}
+      {(onResetView || onToggleBaseMap) && (
+        <ControlGroup>
+          {onResetView && (
+            <ControlButton
+              onClick={onResetView}
+              label="Restablecer vista del mapa"
+            >
+              <CompassButtonIcon />
+            </ControlButton>
+          )}
+          {onToggleBaseMap && (
+            <ControlButton onClick={onToggleBaseMap} label="Cambiar mapa base">
+              <span aria-hidden="true" className="text-xs font-bold">
+                ▧
+              </span>
+            </ControlButton>
+          )}
+        </ControlGroup>
+      )}
     </div>
+  );
+}
+
+function CompassButtonIcon() {
+  return (
+    <span aria-hidden="true" className="text-base leading-none">
+      ↺
+    </span>
   );
 }
 
