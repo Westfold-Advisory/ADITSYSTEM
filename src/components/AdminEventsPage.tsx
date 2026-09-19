@@ -6,6 +6,8 @@ import { ApiClient, ApiError } from "@/api/http";
 import type { Event, EventInput } from "@/types/events";
 import { FormularioNuevoEvento } from "./FormularioNuevoEvento";
 import { DomainAdminPage } from "./DomainAdminPage";
+import { Button } from "./ui/button";
+import { Field } from "./ui/Field";
 
 const sessionKey = "adit.admin.session";
 
@@ -56,8 +58,7 @@ function Login({ onLogin }: { onLogin: (session: LoginResponse) => void }) {
             <code>lider@adit.local</code>. Contraseña: <code>demo12345</code>
           </p>
         )}
-        <label>
-          Correo
+        <Field label="Correo">
           <input
             required
             type="email"
@@ -65,9 +66,8 @@ function Login({ onLogin }: { onLogin: (session: LoginResponse) => void }) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-        </label>
-        <label>
-          Contraseña
+        </Field>
+        <Field label="Contraseña">
           <input
             required
             type="password"
@@ -75,15 +75,15 @@ function Login({ onLogin }: { onLogin: (session: LoginResponse) => void }) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-        </label>
+        </Field>
         {error && (
           <p className="request-message error" role="alert">
             {error}
           </p>
         )}
-        <button disabled={isSubmitting} type="submit">
+        <Button disabled={isSubmitting} aria-busy={isSubmitting} type="submit">
           {isSubmitting ? "Ingresando…" : "Iniciar sesión"}
-        </button>
+        </Button>
       </form>
     </main>
   );

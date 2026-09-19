@@ -4,6 +4,9 @@ import { EventsApi } from "@/api/events";
 import { ApiClient } from "@/api/http";
 import { isPublishedEvent } from "@/lib/public-events";
 import type { Event, UUID } from "@/types/events";
+import { Card } from "./ui/Card";
+import { Button } from "./ui/button";
+import { EmptyState, ErrorState, LoadingState } from "./ui/AsyncState";
 
 const eventsApi = new EventsApi(new ApiClient());
 
@@ -47,7 +50,7 @@ function formatDate(date: Date): string {
 
 function EventCard({ event, onOpen }: { event: Event; onOpen: () => void }) {
   return (
-    <article className="event-card">
+    <Card className="event-card">
       <p className="event-type">{event.type}</p>
       <h2>{event.name}</h2>
       <p>{event.description}</p>
@@ -61,10 +64,10 @@ function EventCard({ event, onOpen }: { event: Event; onOpen: () => void }) {
           <dd>{event.locationText}</dd>
         </div>
       </dl>
-      <button type="button" onClick={onOpen} aria-label={`Ver ${event.name}`}>
+      <Button type="button" onClick={onOpen} aria-label={`Ver ${event.name}`}>
         Ver detalle
-      </button>
-    </article>
+      </Button>
+    </Card>
   );
 }
 
@@ -181,17 +184,11 @@ export function PublicEventsPage() {
           aria-live="polite"
           aria-busy={detailState.status === "loading"}
         >
-          {detailState.status === "loading" && <p>Cargando evento…</p>}
+          {detailState.status === "loading" && (
+            <LoadingState label="Cargando evento…" />
+          )}
           {detailState.status === "error" && (
-            <div className="request-message error" role="alert">
-              <p>{detailState.message}</p>
-              <button type="button" onClick={reloadDetail}>
-                Reintentar
-              </button>
-              <button type="button" onClick={closeDetail}>
-                Volver al listado
-              </button>
-            </div>
+            <ErrorState message={detailState.message} onRetry={reloadDetail} />
           )}
           {detailState.status === "success" && detailState.value && (
             <EventDetail event={detailState.value} onBack={closeDetail} />
@@ -199,22 +196,16 @@ export function PublicEventsPage() {
         </section>
       ) : (
         <section aria-live="polite" aria-busy={listState.status === "loading"}>
-          {listState.status === "loading" && <p>Cargando eventos…</p>}
+          {listState.status === "loading" && (
+            <LoadingState label="Cargando eventos…" />
+          )}
           {listState.status === "error" && (
-            <div className="request-message error" role="alert">
-              <p>{listState.message}</p>
-              <button type="button" onClick={reloadList}>
-                Reintentar
-              </button>
-            </div>
+            <ErrorState message={listState.message} onRetry={reloadList} />
           )}
           {listState.status === "success" && listState.value.length === 0 && (
-            <div className="request-message">
-              <p>No hay eventos públicos disponibles por el momento.</p>
-              <button type="button" onClick={reloadList}>
-                Actualizar listado
-              </button>
-            </div>
+            <EmptyState actionLabel="Actualizar listado" onAction={reloadList}>
+              No hay eventos públicos disponibles por el momento.
+            </EmptyState>
           )}
           {listState.status === "success" && listState.value.length > 0 && (
             <div className="event-grid">
