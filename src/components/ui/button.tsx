@@ -4,6 +4,8 @@ import { Slot } from "radix-ui";
 
 import { cn } from "@/lib/utils";
 
+type ButtonStatus = "idle" | "loading" | "success" | "error";
+
 const buttonVariants = cva(
   "group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
@@ -47,22 +49,43 @@ function Button({
   variant = "default",
   size = "default",
   asChild = false,
+  status = "idle",
+  disabled: disabledProp,
+  "aria-busy": ariaBusy,
   ...props
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean;
+    /** Communicates the lifecycle of this button's own action. */
+    status?: ButtonStatus;
   }) {
   const Comp = asChild ? Slot.Root : "button";
+  const isLoading = status === "loading";
+  const disabled = disabledProp || isLoading;
 
   return (
     <Comp
       data-slot="button"
       data-variant={variant}
       data-size={size}
-      aria-busy={props.disabled && props["aria-busy"] ? true : undefined}
+      data-status={status}
+      aria-busy={isLoading || (disabledProp && ariaBusy) || undefined}
+      disabled={disabled}
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
-    />
+    >
+      {isLoading && <span className="ui-button-progress" aria-hidden="true" />}
+      {props.children}
+      {status !== "idle" && (
+        <span className="sr-only" aria-live="polite">
+          {status === "loading"
+            ? "Acción en progreso"
+            : status === "success"
+              ? "Acción completada"
+              : "La acción no se pudo completar"}
+        </span>
+      )}
+    </Comp>
   );
 }
 

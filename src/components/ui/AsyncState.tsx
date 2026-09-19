@@ -5,12 +5,23 @@ void React;
 
 import { Alert } from "./Alert";
 import { Button } from "./button";
+import { ResultsPanelSkeleton } from "./Skeleton";
 
-export function LoadingState({ label = "Cargando…" }: { label?: string }) {
+export function LoadingState({
+  label = "Cargando…",
+  children = <ResultsPanelSkeleton />,
+}: {
+  label?: string;
+  children?: ReactNode;
+}) {
   return (
-    <div className="ui-state" role="status">
-      <span className="ui-spinner" aria-hidden="true" />
-      {label}
+    <div
+      className="ui-state ui-state--loading"
+      role="status"
+      aria-live="polite"
+    >
+      <span className="sr-only">{label}</span>
+      {children}
     </div>
   );
 }
@@ -47,7 +58,7 @@ export function ErrorState({
     <Alert tone="error" title="No se pudo completar la solicitud">
       {message}
       {onRetry && (
-        <Button variant="outline" onClick={onRetry}>
+        <Button variant="outline" onClick={onRetry} status="error">
           Reintentar
         </Button>
       )}
