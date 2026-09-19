@@ -4,6 +4,7 @@
 
 import "maplibre-gl/dist/maplibre-gl.css";
 import * as MapLibreGL from "maplibre-gl";
+import mapLibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?url";
 import type { MarkerOptions, PopupOptions } from "maplibre-gl";
 
 import {
@@ -24,6 +25,10 @@ import { createPortal } from "react-dom";
 import { X, Minus, Plus, Locate, Maximize, Loader2 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+
+// Vite does not automatically emit MapLibre's module worker in production.
+// Resolve it as a build asset so deployments include a fingerprinted worker URL.
+MapLibreGL.setWorkerUrl(mapLibreWorkerUrl);
 
 const defaultStyles = {
   dark: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
