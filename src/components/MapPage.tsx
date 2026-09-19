@@ -275,7 +275,7 @@ export function MapPage() {
         </div>
 
         {/* Map — fills remaining space */}
-        <main className="flex-1 relative overflow-hidden cyber-corners">
+        <main className="flex flex-col flex-1 relative overflow-hidden cyber-corners">
           <MapaVista
             lugares={lugares}
             eventos={eventos}
