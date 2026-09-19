@@ -37,9 +37,16 @@ despliegue y 40 s/56 s para ejecuciones de PR/push, respectivamente.
 No se aplicaron filtros por rutas: un cambio de configuración, dependencia,
 workflow o código debe continuar validando el resultado completo.
 
-## Concurrencia y seguimiento
+## Resultado de validación y concurrencia
+
+La [ejecución de esta PR](https://github.com/Westfold-Advisory/ADITSYSTEM/actions/runs/35440768070)
+finalizó correctamente en **34 s**: `Quality gates` tomó 30 s, Semgrep 28 s y
+el escaneo de secretos 7 s, en paralelo. Frente al promedio de PR de la línea
+base (40 s), esto reduce el tiempo de validación en **6 s (15 %)**. El cambio
+del historial profundo no domina la mejora; el ahorro verificable viene de
+sacar el escaneo de secretos del camino crítico.
 
 Las nuevas actualizaciones de una PR cancelan sólo la validación anterior de
 esa PR. Los pushes a `main` se serializan sin cancelar un despliegue que ya es
-válido. Tras merge, registrar aquí la duración del run de `main` resultante y
-compararla contra 56 s (promedio de la línea base).
+válido. Tras merge, comparar la duración de despliegue contra 56 s, el promedio
+de `push` de la línea base.
