@@ -125,7 +125,10 @@ export function PublicEventsPage() {
     (value: number) => value + 1,
     0,
   );
-  const [selectedEventId, setSelectedEventId] = useState<UUID | null>(null);
+  const [selectedEventId, setSelectedEventId] = useState<UUID | null>(
+    () =>
+      new URLSearchParams(window.location.search).get("evento") as UUID | null,
+  );
 
   useEffect(() => {
     const controller = new AbortController();
