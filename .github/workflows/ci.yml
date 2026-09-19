@@ -103,7 +103,7 @@ jobs:
       - semgrep
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     # Must match the GitHub Environment trusted by the Terraform OIDC role.
-    environment: production
+    environment: development
     permissions:
       contents: read
       id-token: write
