@@ -49,6 +49,11 @@ function Login({ onLogin }: { onLogin: (session: LoginResponse) => void }) {
       <form className="login-form" onSubmit={submit}>
         <p className="eyebrow">ADIT SYSTEM</p>
         <h1>Acceso administrativo</h1>
+        {import.meta.env.VITE_USE_MOCK_API === "true" && (
+          <p className="request-message">
+            Demo: <code>demo@adit.local</code> / <code>demo12345</code>
+          </p>
+        )}
         <label>
           Correo
           <input
