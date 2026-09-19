@@ -4,7 +4,7 @@
 
 import "maplibre-gl/dist/maplibre-gl.css";
 import * as MapLibreGL from "maplibre-gl";
-import mapLibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?url";
+import mapLibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import type { MarkerOptions, PopupOptions } from "maplibre-gl";
 
 import {
@@ -26,8 +26,8 @@ import { X, Minus, Plus, Locate, Maximize, Loader2 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-// Vite does not automatically emit MapLibre's module worker in production.
-// Resolve it as a build asset so deployments include a fingerprinted worker URL.
+// Build the complete MapLibre module-worker graph for production. Using `?url`
+// alone emits only the entry file, leaving its shared module as a production 404.
 MapLibreGL.setWorkerUrl(mapLibreWorkerUrl);
 
 const defaultStyles = {
