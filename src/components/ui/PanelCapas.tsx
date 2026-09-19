@@ -45,7 +45,7 @@ export function PanelCapas({
     <section
       role="dialog"
       aria-label="Capas territoriales"
-      className="absolute top-3 right-3 z-20 w-72 max-h-[calc(100%-1.5rem)] flex flex-col rounded border overflow-hidden"
+      className="absolute top-3 right-3 z-20 flex max-h-[calc(100%-1.5rem)] w-72 flex-col overflow-hidden rounded border max-sm:inset-x-0 max-sm:top-auto max-sm:bottom-0 max-sm:w-full max-sm:max-h-[70%] max-sm:rounded-b-none"
       style={{
         background: "var(--cyber-surface-1)",
         borderColor: "var(--cyber-border)",

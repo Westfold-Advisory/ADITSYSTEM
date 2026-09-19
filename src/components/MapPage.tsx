@@ -5,6 +5,10 @@ import { EventsApi } from "@/api/events";
 import { ApiClient } from "@/api/http";
 import { MapaVista } from "@/components/ui/MapaVista";
 import { filterMapEvents } from "@/lib/map-events";
+import {
+  getMobileMapSheetState,
+  initialGeofenceVisibility,
+} from "@/lib/map-explorer";
 import { isPublishedEvent } from "@/lib/public-events";
 import { cn } from "@/lib/utils";
 import type { Event, UUID } from "@/types/events";
@@ -41,7 +45,7 @@ export function MapPage() {
   const [geofencesError, setGeofencesError] = useState<string | null>(null);
   const [geofenceVisibility, setGeofenceVisibility] = useState<
     Record<GeofenceType, boolean>
-  >({ ESTADO: true, MUNICIPIO: true, DISTRITO: true });
+  >(initialGeofenceVisibility);
   const [selectedGeofenceId, setSelectedGeofenceId] = useState<string | null>(
     null,
   );
@@ -94,6 +98,10 @@ export function MapPage() {
     : null;
   const selectedEvent =
     visibleEvents.find((event) => event.id === visibleSelectedEventId) ?? null;
+  const mobileSheetState = getMobileMapSheetState(
+    sidebarVisible,
+    visibleSelectedEventId,
+  );
   const eventTypes = useMemo(
     () => [...new Set(events.map((event) => event.type))].sort(),
     [events],
@@ -194,10 +202,12 @@ export function MapPage() {
       <div className="flex min-h-0 flex-1">
         <aside
           className={cn(
-            "w-full shrink-0 overflow-y-auto border-r sm:w-80",
+            "z-20 w-full shrink-0 overflow-y-auto border-r sm:w-80",
+            "max-sm:absolute max-sm:inset-x-0 max-sm:bottom-0 max-sm:max-h-[62dvh] max-sm:rounded-t-xl",
             sidebarVisible ? "block" : "hidden",
           )}
           aria-label="Explorador de eventos"
+          data-sheet-state={mobileSheetState}
           style={{
             background: "var(--cyber-surface-1)",
             borderColor: "var(--cyber-border-subtle)",
@@ -252,6 +262,12 @@ export function MapPage() {
             className="border-t"
             style={{ borderColor: "var(--cyber-border-subtle)" }}
           >
+            <p
+              className="px-4 pt-3 text-xs"
+              style={{ color: "var(--cyber-text-secondary)" }}
+            >
+              {visibleEvents.length} resultados en el área visible
+            </p>
             {requestState === "loading" && (
               <p className="p-4 text-sm">Cargando eventos públicos…</p>
             )}
@@ -333,7 +349,7 @@ export function MapPage() {
           )}
         </aside>
         <section
-          className="relative min-w-0 flex-1"
+          className="relative min-w-0 flex-1 max-sm:min-h-[calc(100dvh-7rem)]"
           aria-label="Mapa de eventos"
         >
           <MapaVista

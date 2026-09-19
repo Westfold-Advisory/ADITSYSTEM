@@ -1,8 +1,10 @@
+import { useMemo, useState } from "react";
 import { Navigation } from "lucide-react";
 import { Capa } from "./Capa";
 import { PanelCapas } from "./PanelCapas";
 import {
   Map,
+  MapClusterLayer,
   MapControls,
   MapMarker,
   MarkerContent,
@@ -44,85 +46,117 @@ export function MapaVista({
   pointLookup: { loading: boolean; error: string | null };
 }) {
   const selected = events.find((event) => event.id === selectedEventId);
+  const defaultViewport = {
+    center: [-98.5, 19.0] as [number, number],
+    zoom: 7,
+  };
+  const [baseMap, setBaseMap] = useState<"dark" | "light">("dark");
+  const [viewport, setViewport] = useState(defaultViewport);
   const center: [number, number] = selected
     ? [selected.coordinates.longitude, selected.coordinates.latitude]
-    : [-98.5, 19.0];
+    : viewport.center;
+  const eventPoints = useMemo<
+    GeoJSON.FeatureCollection<GeoJSON.Point, { id: UUID }>
+  >(
+    () => ({
+      type: "FeatureCollection",
+      features: events.map((event) => ({
+        type: "Feature",
+        geometry: {
+          type: "Point",
+          coordinates: [
+            event.coordinates.longitude,
+            event.coordinates.latitude,
+          ],
+        },
+        properties: { id: event.id },
+      })),
+    }),
+    [events],
+  );
   return (
     <div
       className="h-full min-h-[480px] overflow-hidden border"
       style={{ borderColor: "var(--cyber-border-subtle)" }}
     >
       <Map
-        viewport={{ center, zoom: selected ? 13 : 7 }}
-        onViewportChange={() => undefined}
+        theme={baseMap}
+        viewport={{ center, zoom: selected ? 13 : viewport.zoom }}
+        onViewportChange={setViewport}
       >
-        <MapControls />
+        <MapControls
+          position="bottom-right"
+          onResetView={() => setViewport(defaultViewport)}
+          onToggleBaseMap={() =>
+            setBaseMap((current) => (current === "dark" ? "light" : "dark"))
+          }
+        />
         <Capa
           items={geofences}
           visible={geofenceVisibility}
           selectedId={selectedGeofenceId}
           onSelect={onSelectGeofence}
         />
-        {events.map((event) => {
-          const isSelected = event.id === selectedEventId;
-          return (
-            <MapMarker
-              key={event.id}
-              longitude={event.coordinates.longitude}
-              latitude={event.coordinates.latitude}
-            >
-              <MarkerContent>
-                <button
-                  type="button"
-                  onClick={() => onSelectEvent(event.id)}
-                  aria-label={`Seleccionar ${event.name}`}
-                  aria-pressed={isSelected}
-                  className="rounded-full border-2"
-                  style={{
-                    width: isSelected ? 18 : 13,
-                    height: isSelected ? 18 : 13,
-                    borderColor: "var(--cyber-cyan)",
-                    background: isSelected
-                      ? "var(--cyber-cyan)"
-                      : "var(--cyber-cyan-dim)",
-                    boxShadow: "0 0 12px var(--cyber-cyan)",
-                  }}
-                />
-                <MarkerLabel position="bottom">
-                  <span
-                    className="font-mono text-[9px]"
-                    style={{ color: "var(--cyber-cyan)" }}
-                  >
-                    {event.name}
-                  </span>
-                </MarkerLabel>
-              </MarkerContent>
-              <MarkerPopup className="p-0">
-                <article
-                  className="w-60 space-y-2 border p-3"
-                  style={{
-                    background: "var(--cyber-surface-2)",
-                    borderColor: "var(--cyber-border)",
-                  }}
+        <MapClusterLayer
+          data={eventPoints}
+          clusterMaxZoom={13}
+          clusterRadius={52}
+          pointColor="var(--cyber-cyan)"
+          clusterColors={["#168d9a", "#7566d9", "#c77515"]}
+          clusterThresholds={[10, 50]}
+          onPointClick={(feature) => onSelectEvent(feature.properties.id)}
+        />
+        {selected && (
+          <MapMarker
+            longitude={selected.coordinates.longitude}
+            latitude={selected.coordinates.latitude}
+          >
+            <MarkerContent>
+              <button
+                type="button"
+                onClick={() => onSelectEvent(selected.id)}
+                aria-label={`Seleccionar ${selected.name}`}
+                className="h-[18px] w-[18px] rounded-full border-2"
+                style={{
+                  borderColor: "var(--cyber-cyan)",
+                  background: "var(--cyber-cyan)",
+                  boxShadow: "0 0 12px var(--cyber-cyan)",
+                }}
+              />
+              <MarkerLabel position="bottom">
+                <span
+                  className="font-mono text-[9px]"
+                  style={{ color: "var(--cyber-cyan)" }}
                 >
-                  <p className="text-xs" style={{ color: "var(--cyber-cyan)" }}>
-                    {event.type}
-                  </p>
-                  <h2 className="font-semibold">{event.name}</h2>
-                  <p className="text-sm">{event.locationText}</p>
-                  <a
-                    href={`https://www.google.com/maps/dir/?api=1&destination=${event.coordinates.latitude},${event.coordinates.longitude}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1 text-sm"
-                  >
-                    <Navigation size={14} /> Cómo llegar
-                  </a>
-                </article>
-              </MarkerPopup>
-            </MapMarker>
-          );
-        })}
+                  {selected.name}
+                </span>
+              </MarkerLabel>
+            </MarkerContent>
+            <MarkerPopup className="p-0">
+              <article
+                className="w-60 space-y-2 border p-3"
+                style={{
+                  background: "var(--cyber-surface-2)",
+                  borderColor: "var(--cyber-border)",
+                }}
+              >
+                <p className="text-xs" style={{ color: "var(--cyber-cyan)" }}>
+                  {selected.type}
+                </p>
+                <h2 className="font-semibold">{selected.name}</h2>
+                <p className="text-sm">{selected.locationText}</p>
+                <a
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${selected.coordinates.latitude},${selected.coordinates.longitude}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 text-sm"
+                >
+                  <Navigation size={14} /> Cómo llegar
+                </a>
+              </article>
+            </MarkerPopup>
+          </MapMarker>
+        )}
         {panelAbierto && (
           <PanelCapas
             items={geofences}
