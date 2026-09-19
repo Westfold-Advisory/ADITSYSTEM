@@ -161,6 +161,20 @@ function DefaultLoader() {
   );
 }
 
+function MapError() {
+  return (
+    <div
+      className="absolute inset-0 z-10 flex items-center justify-center p-6 text-center"
+      role="alert"
+    >
+      <p className="max-w-sm text-sm text-foreground">
+        No fue posible iniciar el mapa. Verifica que WebGL2 esté habilitado en
+        tu navegador o usa un equipo compatible.
+      </p>
+    </div>
+  );
+}
+
 function getViewport(map: MapLibreGL.Map): MapViewport {
   const center = map.getCenter();
   return {
@@ -189,6 +203,7 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
   const [mapInstance, setMapInstance] = useState<MapLibreGL.Map | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isStyleLoaded, setIsStyleLoaded] = useState(false);
+  const [mapError, setMapError] = useState(false);
   const currentStyleRef = useRef<MapStyleOption | null>(null);
   const styleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const internalUpdateRef = useRef(false);
@@ -222,20 +237,27 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
   useEffect(() => {
     if (!containerRef.current) return;
 
+    setMapError(false);
     const initialStyle =
       resolvedTheme === "dark" ? mapStyles.dark : mapStyles.light;
     currentStyleRef.current = initialStyle;
 
-    const map = new MapLibreGL.Map({
-      container: containerRef.current,
-      style: initialStyle,
-      renderWorldCopies: false,
-      attributionControl: {
-        compact: true,
-      },
-      ...props,
-      ...viewport,
-    });
+    let map: MapLibreGL.Map;
+    try {
+      map = new MapLibreGL.Map({
+        container: containerRef.current,
+        style: initialStyle,
+        renderWorldCopies: false,
+        attributionControl: {
+          compact: true,
+        },
+        ...props,
+        ...viewport,
+      });
+    } catch {
+      queueMicrotask(() => setMapError(true));
+      return;
+    }
 
     const styleDataHandler = () => {
       clearStyleTimeout();
@@ -250,6 +272,7 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
       }, 100);
     };
     const loadHandler = () => setIsLoaded(true);
+    const errorHandler = () => setMapError(true);
 
     // Viewport change handler - skip if triggered by internal update
     const handleMove = () => {
@@ -258,6 +281,7 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
     };
 
     map.on("load", loadHandler);
+    map.on("error", errorHandler);
     map.on("styledata", styleDataHandler);
     map.on("move", handleMove);
     setMapInstance(map);
@@ -265,6 +289,7 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
     return () => {
       clearStyleTimeout();
       map.off("load", loadHandler);
+      map.off("error", errorHandler);
       map.off("styledata", styleDataHandler);
       map.off("move", handleMove);
       map.remove();
@@ -333,7 +358,7 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
         ref={containerRef}
         className={cn("relative h-full w-full", className)}
       >
-        {(!isLoaded || loading) && <DefaultLoader />}
+        {mapError ? <MapError /> : (!isLoaded || loading) && <DefaultLoader />}
         {/* SSR-safe: children render only when map is loaded on client */}
         {mapInstance && children}
       </div>
