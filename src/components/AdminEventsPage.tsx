@@ -5,6 +5,7 @@ import { EventsApi } from "@/api/events";
 import { ApiClient, ApiError } from "@/api/http";
 import type { Event, EventInput } from "@/types/events";
 import { FormularioNuevoEvento } from "./FormularioNuevoEvento";
+import { DomainAdminPage } from "./DomainAdminPage";
 
 const sessionKey = "adit.admin.session";
 
@@ -48,6 +49,11 @@ function Login({ onLogin }: { onLogin: (session: LoginResponse) => void }) {
       <form className="login-form" onSubmit={submit}>
         <p className="eyebrow">ADIT SYSTEM</p>
         <h1>Acceso administrativo</h1>
+        {import.meta.env.VITE_USE_MOCK_API === "true" && (
+          <p className="request-message">
+            Demo: <code>demo@adit.local</code> / <code>demo12345</code>
+          </p>
+        )}
         <label>
           Correo
           <input
@@ -88,6 +94,7 @@ export function AdminEventsPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState<Event | null | "new">(null);
+  const [domainView, setDomainView] = useState(false);
   const api = useMemo(
     () =>
       new EventsApi(
@@ -143,6 +150,11 @@ export function AdminEventsPage() {
       </main>
     );
 
+  if (domainView)
+    return (
+      <DomainAdminPage session={session} onBack={() => setDomainView(false)} />
+    );
+
   return (
     <main className="admin-page">
       <header className="admin-header">
@@ -164,6 +176,9 @@ export function AdminEventsPage() {
       ) : (
         <>
           <button onClick={() => setEditing("new")}>Crear evento</button>
+          <button onClick={() => setDomainView(true)}>
+            Administrar perfiles
+          </button>
           {error && (
             <p className="request-message error" role="alert">
               {error}
