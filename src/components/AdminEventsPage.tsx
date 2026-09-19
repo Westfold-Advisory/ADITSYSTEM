@@ -51,7 +51,9 @@ function Login({ onLogin }: { onLogin: (session: LoginResponse) => void }) {
         <h1>Acceso administrativo</h1>
         {import.meta.env.VITE_USE_MOCK_API === "true" && (
           <p className="request-message">
-            Demo: <code>demo@adit.local</code> / <code>demo12345</code>
+            Demo: admin <code>demo@adit.local</code>, político{" "}
+            <code>politico@adit.local</code> o líder{" "}
+            <code>lider@adit.local</code>. Contraseña: <code>demo12345</code>
           </p>
         )}
         <label>
