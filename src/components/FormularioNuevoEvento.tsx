@@ -316,12 +316,8 @@ export function FormularioNuevoEvento({
         >
           Cancelar
         </Button>
-        <Button type="submit" disabled={isSubmitting} aria-busy={isSubmitting}>
-          {isSubmitting
-            ? "Guardando…"
-            : event
-              ? "Guardar cambios"
-              : "Crear evento"}
+        <Button type="submit" status={isSubmitting ? "loading" : "idle"}>
+          {event ? "Guardar cambios" : "Crear evento"}
         </Button>
       </div>
     </form>

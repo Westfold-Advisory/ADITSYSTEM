@@ -7,6 +7,7 @@ import type { Event, UUID } from "@/types/events";
 import { Card } from "./ui/Card";
 import { Button } from "./ui/button";
 import { EmptyState, ErrorState, LoadingState } from "./ui/AsyncState";
+import { EventDetailSkeleton, EventListSkeleton } from "./ui/Skeleton";
 
 const eventsApi = new EventsApi(new ApiClient());
 
@@ -188,7 +189,9 @@ export function PublicEventsPage() {
           aria-busy={detailState.status === "loading"}
         >
           {detailState.status === "loading" && (
-            <LoadingState label="Cargando evento…" />
+            <LoadingState label="Cargando evento…">
+              <EventDetailSkeleton />
+            </LoadingState>
           )}
           {detailState.status === "error" && (
             <ErrorState message={detailState.message} onRetry={reloadDetail} />
@@ -200,7 +203,9 @@ export function PublicEventsPage() {
       ) : (
         <section aria-live="polite" aria-busy={listState.status === "loading"}>
           {listState.status === "loading" && (
-            <LoadingState label="Cargando eventos…" />
+            <LoadingState label="Cargando eventos…">
+              <EventListSkeleton />
+            </LoadingState>
           )}
           {listState.status === "error" && (
             <ErrorState message={listState.message} onRetry={reloadList} />

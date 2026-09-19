@@ -4,6 +4,7 @@ import { Layers, PanelLeft, PanelLeftClose, RotateCw } from "lucide-react";
 import { EventsApi } from "@/api/events";
 import { ApiClient } from "@/api/http";
 import { MapaVista } from "@/components/ui/MapaVista";
+import { ResultsPanelSkeleton } from "@/components/ui/Skeleton";
 import { filterMapEvents } from "@/lib/map-events";
 import {
   getMobileMapSheetState,
@@ -269,7 +270,10 @@ export function MapPage() {
               {visibleEvents.length} resultados en el área visible
             </p>
             {requestState === "loading" && (
-              <p className="p-4 text-sm">Cargando eventos públicos…</p>
+              <div role="status" aria-live="polite">
+                <span className="sr-only">Cargando eventos públicos…</span>
+                <ResultsPanelSkeleton />
+              </div>
             )}
             {requestState === "error" && (
               <div role="alert" className="space-y-3 p-4 text-sm">

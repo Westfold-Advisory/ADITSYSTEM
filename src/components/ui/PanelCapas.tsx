@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Layers, Search, X } from "lucide-react";
 import type { Geofence, GeofenceType } from "@/api/geofences";
+import { MapControlsSkeleton } from "./Skeleton";
 
 const typeLabels: Record<GeofenceType, string> = {
   ESTADO: "Estados",
@@ -121,7 +122,12 @@ export function PanelCapas({
         </div>
       )}
       <div className="overflow-y-auto p-2 space-y-1">
-        {loading && <p className="text-xs">Cargando geocercas…</p>}
+        {loading && (
+          <div role="status" aria-live="polite">
+            <span className="sr-only">Cargando geocercas…</span>
+            <MapControlsSkeleton />
+          </div>
+        )}
         {error && (
           <p
             role="alert"

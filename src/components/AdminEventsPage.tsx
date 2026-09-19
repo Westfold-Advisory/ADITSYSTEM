@@ -122,8 +122,8 @@ function Login({ onLogin }: { onLogin: (session: LoginResponse) => void }) {
             {error}
           </p>
         )}
-        <Button disabled={isSubmitting} aria-busy={isSubmitting} type="submit">
-          {isSubmitting ? "Ingresando…" : "Iniciar sesión"}
+        <Button status={isSubmitting ? "loading" : "idle"} type="submit">
+          Iniciar sesión
         </Button>
       </form>
     </main>
@@ -294,11 +294,10 @@ export function AdminEventsPage() {
                         <Button
                           key={action}
                           variant={sensitive ? "destructive" : "secondary"}
-                          disabled={activeAction !== null}
-                          aria-busy={busy}
+                          status={busy ? "loading" : "idle"}
                           onClick={() => void runAction(event, action)}
                         >
-                          {busy ? "Procesando…" : label}
+                          {label}
                         </Button>
                       );
                     })}
