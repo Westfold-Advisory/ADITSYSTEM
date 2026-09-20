@@ -16,7 +16,6 @@ import {
   buildPublicEventQueryString,
   parsePublicEventFilters,
   publicEventsDetailHref,
-  publicEventsListHref,
   readPublicMapEventIdFromSearch,
   type PublicEventFilters,
 } from "@/lib/public-event-filters";
@@ -239,16 +238,6 @@ export function MapPage() {
         >
           <div className="map-page__explorer-header">
             <h2 className="map-page__explorer-title">Explorador de eventos</h2>
-            <nav aria-label="Vistas de eventos públicos">
-              <ul className="public-events-context-nav">
-                <li>
-                  <a href={publicEventsListHref(filters)}>Listado</a>
-                </li>
-                <li>
-                  <span aria-current="page">Mapa</span>
-                </li>
-              </ul>
-            </nav>
           </div>
           <div className="map-page__filters">
             <PublicEventFiltersForm
