@@ -326,6 +326,16 @@ a:focus-visible {
   padding: 1rem;
   background: var(--cyber-surface-1);
 }
+.tree-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+  margin: 0.75rem 0;
+}
+.tree-filter-bar > *:first-child {
+  flex: 1 1 12rem;
+}
 .hierarchy-tree-panel ul {
   list-style: none;
   margin: 0.5rem 0 0;
