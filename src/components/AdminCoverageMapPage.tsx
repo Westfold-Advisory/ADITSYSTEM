@@ -122,6 +122,8 @@ export function AdminCoverageMapPage() {
     geofences,
     loading: geofencesLoading,
     error: geofencesError,
+    errorsByType,
+    truncatedTypes,
     countsByType,
     ensureTypeLoaded,
     isTypeLoaded,
@@ -435,6 +437,8 @@ export function AdminCoverageMapPage() {
                     selectedId={selectedGeofenceId}
                     loading={geofencesLoading}
                     error={geofencesError}
+                    errorsByType={errorsByType}
+                    truncatedTypes={truncatedTypes}
                     countsByType={countsByType}
                     isTypeLoaded={isTypeLoaded}
                     isTypeLoading={isTypeLoading}

@@ -1,4 +1,5 @@
 import type { Feature, FeatureCollection, Geometry } from "geojson";
+import { catalogLimitsFor } from "@/lib/geofence-catalog-limits";
 import { ApiClient } from "./http";
 
 export const GEOFENCE_TYPES = [
@@ -97,12 +98,12 @@ export class GeofencesApi {
     ).map(mapGeofence);
   }
 
-  /** Paginate until a tipo (or full catalog) is exhausted — list caps at 200/page. */
+  /** Paginate until a tipo is exhausted or catalog limits apply (dense layers). */
   async listAll(options?: {
     tipo?: GeofenceType;
     signal?: AbortSignal;
   }): Promise<Geofence[]> {
-    const pageSize = 200;
+    const { pageSize, maxItems } = catalogLimitsFor(options?.tipo);
     let page = 1;
     const all: Geofence[] = [];
     for (;;) {
@@ -113,6 +114,9 @@ export class GeofencesApi {
         signal: options?.signal,
       });
       all.push(...batch);
+      if (maxItems !== null && all.length >= maxItems) {
+        return all.slice(0, maxItems);
+      }
       if (batch.length < pageSize) break;
       page += 1;
     }
