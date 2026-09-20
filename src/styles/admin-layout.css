@@ -126,6 +126,43 @@
   margin-inline: auto;
 }
 
+.hierarchy-page .request-message {
+  max-width: 60rem;
+  margin-inline: auto;
+  margin-bottom: var(--md-sys-spacing-3, 0.75rem);
+  padding: var(--md-sys-spacing-3, 0.75rem) var(--md-sys-spacing-4, 1rem);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-radius-md, 8px);
+  background: var(--md-sys-color-surface-container-low);
+  color: var(--md-sys-color-on-surface-variant);
+  font: var(--md-sys-typescale-body-small);
+  line-height: 1.45;
+  box-shadow: none;
+}
+
+.person-status-badge {
+  width: fit-content;
+  border-radius: var(--md-sys-radius-full);
+  padding: 0.2rem 0.55rem;
+  font: var(--md-sys-typescale-label-small);
+  letter-spacing: 0.02em;
+}
+
+.person-status-badge--activo {
+  background: var(--md-sys-color-success-container);
+  color: var(--md-sys-color-on-success-container, #07351a);
+}
+
+.person-status-badge--inactivo {
+  background: var(--md-sys-color-surface-container-highest);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.person-status-badge--baja {
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+}
+
 @media (max-width: 40rem) {
   .admin-header {
     margin-bottom: var(--md-sys-spacing-3, 0.75rem);
@@ -190,6 +227,26 @@
   .hierarchy-page.admin-page {
     min-height: 0;
     border-radius: 0;
+  }
+
+  .hierarchy-page .request-message {
+    margin-bottom: var(--md-sys-spacing-2, 0.5rem);
+    padding: var(--md-sys-spacing-2, 0.5rem) var(--md-sys-spacing-3, 0.75rem);
+  }
+
+  .hierarchy-page .hierarchy-master-detail {
+    margin-top: 0;
+    gap: var(--md-sys-spacing-2, 0.5rem);
+  }
+
+  .hierarchy-page .person-detail {
+    gap: var(--md-sys-spacing-3, 0.75rem);
+    padding: var(--md-sys-spacing-3, 0.75rem);
+  }
+
+  .hierarchy-page .hierarchy-tabs {
+    gap: var(--md-sys-spacing-2, 0.5rem);
+    margin-top: 0;
   }
 }
 

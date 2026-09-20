@@ -21,6 +21,7 @@ import { HierarchyBreadcrumbs } from "./HierarchyBreadcrumbs";
 import { PersonDocumentsTab } from "./PersonDocumentsTab";
 import { PersonForm } from "./PersonForm";
 import { nameOf, roleLabel } from "./person-display";
+import { PersonStatusBadge } from "./PersonStatusBadge";
 
 type DetailTab = "resumen" | "persona" | "territorio" | "documentos";
 
@@ -44,7 +45,9 @@ function PersonaTab({ person }: { person: Person }) {
     <dl className="person-profile-dl">
       <div>
         <dt>Estado</dt>
-        <dd>{person.status}</dd>
+        <dd>
+          <PersonStatusBadge status={person.status} />
+        </dd>
       </div>
       <div>
         <dt>Rol</dt>
@@ -163,8 +166,8 @@ function PersonDetailTabs({
   return (
     <>
       <div className="person-detail-heading">
-        <div>
-          <p className="eyebrow">{selected.status}</p>
+        <div className="person-detail-heading__title">
+          <PersonStatusBadge status={selected.status} />
           <h2>{nameOf(selected)}</h2>
         </div>
         {(primaryAction || secondaryActions) && (
@@ -276,8 +279,8 @@ export function PersonDetailPanel({
       {showForm ? (
         <>
           <div className="person-detail-heading">
-            <div>
-              <p className="eyebrow">{selected.status}</p>
+            <div className="person-detail-heading__title">
+              <PersonStatusBadge status={selected.status} />
               <h2>{nameOf(selected)}</h2>
             </div>
           </div>
