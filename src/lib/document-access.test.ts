@@ -5,7 +5,9 @@ import { capabilitiesFor } from "./capabilities";
 import { canRegisterDocuments } from "./document-access";
 import type { Person } from "@/types/domain";
 
-const person = (overrides: Partial<Person> & Pick<Person, "id" | "role">): Person => ({
+const person = (
+  overrides: Partial<Person> & Pick<Person, "id" | "role">,
+): Person => ({
   id: overrides.id,
   role: overrides.role,
   parentId: overrides.parentId ?? null,
@@ -25,10 +27,7 @@ test("canRegisterDocuments allows self and descendants for ENLACE", () => {
     [amigo.id, amigo],
   ]);
   const caps = capabilitiesFor("ENLACE");
-  assert.equal(
-    canRegisterDocuments("ENLACE", caps, self, amigo, known),
-    true,
-  );
+  assert.equal(canRegisterDocuments("ENLACE", caps, self, amigo, known), true);
   assert.equal(canRegisterDocuments("ENLACE", caps, self, self, known), true);
 });
 
@@ -40,10 +39,7 @@ test("canRegisterDocuments denies siblings outside the subtree", () => {
     [other.id, other],
   ]);
   const caps = capabilitiesFor("ENLACE");
-  assert.equal(
-    canRegisterDocuments("ENLACE", caps, self, other, known),
-    false,
-  );
+  assert.equal(canRegisterDocuments("ENLACE", caps, self, other, known), false);
 });
 
 test("canRegisterDocuments allows ADMIN on any target", () => {

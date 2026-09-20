@@ -17,9 +17,7 @@ export function canRegisterDocuments(
   let current: Person | undefined = target;
   while (current) {
     if (current.id === self.id) return true;
-    current = current.parentId
-      ? knownPersons.get(current.parentId)
-      : undefined;
+    current = current.parentId ? knownPersons.get(current.parentId) : undefined;
   }
   return false;
 }

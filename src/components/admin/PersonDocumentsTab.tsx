@@ -16,7 +16,11 @@ import {
   documentTypeLabel,
   formatDocumentDate,
 } from "@/lib/document-display";
-import { DOCUMENT_TYPES, type DocumentType, type Documento } from "@/types/domain";
+import {
+  DOCUMENT_TYPES,
+  type DocumentType,
+  type Documento,
+} from "@/types/domain";
 
 import { apiErrorMessage } from "./person-display";
 
@@ -50,7 +54,8 @@ function PhotoSlot({ photo }: { photo: Documento | undefined }) {
       </div>
       <DocumentRecord doc={photo} />
       <p className="document-meta">
-        Vista previa no disponible: el archivo permanece en almacenamiento privado.
+        Vista previa no disponible: el archivo permanece en almacenamiento
+        privado.
       </p>
     </div>
   );
@@ -169,7 +174,12 @@ function DocumentRegistrationForm({
         </Alert>
       )}
       <div className="event-form-actions">
-        <Button type="button" variant="outline" onClick={onCancel} disabled={saving}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+          disabled={saving}
+        >
           Cancelar
         </Button>
         <Button type="submit" disabled={saving}>
@@ -265,8 +275,9 @@ export function PersonDocumentsTab({
   return (
     <div className="person-documents-tab">
       <p className="form-intro">
-        Fotografía, currículum e identificación versionados. Solo se muestra metadata
-        autorizada; las rutas de almacenamiento privado no aparecen en la interfaz.
+        Fotografía, currículum e identificación versionados. Solo se muestra
+        metadata autorizada; las rutas de almacenamiento privado no aparecen en
+        la interfaz.
       </p>
 
       {successMessage && (
@@ -316,13 +327,14 @@ export function PersonDocumentsTab({
         {currentId ? (
           <DocumentRecord doc={currentId} />
         ) : (
-          <EmptyState>
-            No hay identificación vigente registrada.
-          </EmptyState>
+          <EmptyState>No hay identificación vigente registrada.</EmptyState>
         )}
       </section>
 
-      <section className="document-section" aria-labelledby="doc-history-heading">
+      <section
+        className="document-section"
+        aria-labelledby="doc-history-heading"
+      >
         <h3 id="doc-history-heading">Historial y otros documentos</h3>
         {history.length === 0 ? (
           <EmptyState>
