@@ -1,0 +1,81 @@
+.login-page {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 28rem;
+  margin: 0 auto;
+  padding: var(--md-sys-spacing-6) var(--md-sys-spacing-4)
+    var(--md-sys-spacing-8);
+}
+
+.login-page__card {
+  display: grid;
+  gap: var(--md-sys-spacing-5);
+  border-color: var(--md-sys-color-outline-variant);
+  background: var(--md-sys-color-surface-container-low);
+  box-shadow: var(--md-sys-elevation-1);
+}
+
+.login-page__header {
+  display: grid;
+  gap: var(--md-sys-spacing-2);
+}
+
+.login-page__product {
+  margin: 0;
+  font: var(--md-sys-typescale-label-large);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--md-sys-color-primary);
+}
+
+.login-page__institution {
+  margin: 0;
+  font: var(--md-sys-typescale-body-medium);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.login-page__title {
+  margin: var(--md-sys-spacing-1) 0 0;
+  font: var(--md-sys-typescale-headline-small);
+  color: var(--md-sys-color-on-surface);
+}
+
+.login-page__intro {
+  margin: 0;
+  font: var(--md-sys-typescale-body-medium);
+  color: var(--md-sys-color-on-surface-variant);
+  max-width: 42ch;
+  line-height: 1.55;
+}
+
+.login-page__form {
+  display: grid;
+  gap: var(--md-sys-spacing-4);
+}
+
+.login-page__submit {
+  width: 100%;
+  min-height: 2.75rem;
+}
+
+.login-page__privacy {
+  margin: 0;
+  padding: var(--md-sys-spacing-3) var(--md-sys-spacing-4);
+  border-radius: var(--md-sys-radius-md);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  background: var(--md-sys-color-surface-container-high);
+  font: var(--md-sys-typescale-body-small);
+  color: var(--md-sys-color-on-surface-variant);
+  line-height: 1.55;
+}
+
+.login-page__privacy a {
+  color: var(--md-sys-color-primary);
+  font: var(--md-sys-typescale-label-large);
+}
+
+.login-page__privacy a:focus-visible {
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+  border-radius: var(--md-sys-radius-sm);
+}

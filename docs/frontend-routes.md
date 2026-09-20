@@ -5,12 +5,15 @@ pantalla mostrar leyendo `window.location.pathname` (con un fallback a
 `#/...` por compatibilidad). Sólo existen las rutas listadas abajo — cualquier
 otra devuelve la página 404.
 
-| Ruta             | Componente         | Auth    | Descripción                                                                                                          |
-| ---------------- | ------------------ | ------- | -------------------------------------------------------------------------------------------------------------------- |
-| `/` y `/eventos` | `PublicEventsPage` | Ninguna | Listado público de eventos **publicados**. Un evento en `BORRADOR` no aparece aquí.                                  |
-| `/mapa`          | `MapPage`          | Ninguna | Explorador de mapa de eventos públicos (MapLibre), con capas territoriales y filtros por texto/tipo/fecha.           |
-| `/admin`         | `AdminEventsPage`  | Login   | Login administrativo y, tras autenticar, administración de eventos y de la estructura jerárquica. Ver detalle abajo. |
-| cualquier otra   | `NotFoundPage`     | —       | 404 con link de regreso a `/eventos`.                                                                                |
+| Ruta                       | Componente          | Auth    | Descripción                                                                                                |
+| -------------------------- | ------------------- | ------- | ---------------------------------------------------------------------------------------------------------- |
+| `/` y `/eventos`           | `PublicEventsPage`  | Ninguna | Listado público de eventos **publicados**. Un evento en `BORRADOR` no aparece aquí.                        |
+| `/mapa`                    | `MapPage`           | Ninguna | Explorador de mapa de eventos públicos (MapLibre), con capas territoriales y filtros por texto/tipo/fecha. |
+| `/login`                   | `LoginPage`         | Ninguna | Acceso administrativo institucional. Tras login redirige a `/admin`.                                       |
+| `/admin`                   | `AdminEventsPage`   | Login   | Consola administrativa. Sin sesión muestra el mismo login (compatibilidad; ver TRA-114).                   |
+| `/privacidad`              | `PrivacyNoticePage` | Ninguna | Aviso de privacidad integral.                                                                              |
+| `/privacidad/simplificado` | `PrivacyNoticePage` | Ninguna | Resumen simplificado.                                                                                      |
+| cualquier otra             | `NotFoundPage`      | —       | 404 con link de regreso a `/eventos`.                                                                      |
 
 ### Dentro de `/admin`
 
@@ -18,7 +21,7 @@ otra devuelve la página 404.
 con la URL. Un refresh del navegador siempre vuelve a la pantalla de login o
 al listado de eventos, nunca conserva la vista de estructura.
 
-1. **Sin sesión** → formulario de login (`POST /auth/login`). Sólo aceptan
+1. **Sin sesión** → `LoginPage` (`POST /auth/login`). Enlace preferido: `/login`. Sólo aceptan
    sesión los roles `ADMIN`, `COORDINADOR_GENERAL`, `COORDINADOR` y `ENLACE`;
    `AMIGO` no tiene credenciales (es una persona administrada, no un usuario).
 2. **Con sesión, sin `canManageEvents`** → mensaje "Acceso no autorizado" (no

@@ -8,6 +8,7 @@ import {
 } from "./public-routes";
 
 test("public paths include privacy routes without auth", () => {
+  assert.ok(PUBLIC_PATHS.includes("/login"));
   assert.ok(PUBLIC_PATHS.includes("/privacidad"));
   assert.ok(PUBLIC_PATHS.includes("/privacidad/simplificado"));
   assert.equal(isPublicPath("/privacidad/"), true);

@@ -5,6 +5,7 @@ export const PUBLIC_PATHS = [
   "/",
   "/eventos",
   "/mapa",
+  "/login",
   "/privacidad",
   "/privacidad/simplificado",
 ] as const;

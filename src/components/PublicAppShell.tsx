@@ -41,7 +41,7 @@ export function PublicAppShell({
           </a>
         }
         actions={
-          <a className="public-app-shell__auth-action" href="/admin">
+          <a className="public-app-shell__auth-action" href="/login">
             Iniciar sesión
           </a>
         }
