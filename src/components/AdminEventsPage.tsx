@@ -180,7 +180,7 @@ export function AdminEventsPage() {
 
   if (!session) {
     return (
-      <PublicAppShell brandLabel={institution.productName}>
+      <PublicAppShell>
         <LoginPage initialNotice={loginNotice} onLogin={login} />
       </PublicAppShell>
     );
@@ -199,7 +199,7 @@ export function AdminEventsPage() {
     <main className="admin-page">
       <header className="admin-header">
         <div>
-          <p className="eyebrow">ADIT SYSTEM</p>
+          <p className="eyebrow">{institution.productName}</p>
           <h1>Administración de eventos</h1>
           <p>
             {session.user.email} · {session.user.rol}

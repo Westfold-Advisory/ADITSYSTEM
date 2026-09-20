@@ -3,6 +3,7 @@ import { useCallback, useMemo, useState } from "react";
 import { DomainApi } from "@/api/domain";
 import { ApiClient } from "@/api/http";
 import type { LoginResponse } from "@/api/auth";
+import { getInstitutionConfig } from "@/config/institution";
 import { HierarchyMasterDetail } from "@/components/admin/HierarchyMasterDetail";
 import { HierarchyTreePanel } from "@/components/admin/HierarchyTree";
 import { PersonDetailPanel } from "@/components/admin/PersonDetailPanel";
@@ -27,6 +28,7 @@ export function DomainAdminPage({
   session: LoginResponse;
   onBack: () => void;
 }) {
+  const institution = getInstitutionConfig();
   const capabilities = capabilitiesFor(session.user.rol);
   const api = useMemo(
     () =>
@@ -181,7 +183,7 @@ export function DomainAdminPage({
     <main className="admin-page hierarchy-page">
       <header className="admin-header">
         <div>
-          <p className="eyebrow">ADIT SYSTEM</p>
+          <p className="eyebrow">{institution.productName}</p>
           <h1>Estructura de personas</h1>
           <p>
             {session.user.email} · alcance {roleLabel(session.user.rol)}

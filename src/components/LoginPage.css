@@ -20,6 +20,20 @@
   gap: var(--md-sys-spacing-2);
 }
 
+.login-page__brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--md-sys-spacing-2);
+}
+
+.login-page__logo {
+  display: block;
+  max-height: 3rem;
+  width: auto;
+  object-fit: contain;
+}
+
 .login-page__product {
   margin: 0;
   font: var(--md-sys-typescale-label-large);
