@@ -1,10 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type { DomainApi } from "@/api/domain";
 import { buildChildMap, mergePersonScope } from "@/lib/hierarchy";
@@ -142,9 +136,7 @@ export function useHierarchyScope(api: DomainApi, rootPersonId: string) {
   );
 
   const applyPersonUpdate = useCallback((updated: Person) => {
-    setSelected((current) =>
-      current?.id === updated.id ? updated : current,
-    );
+    setSelected((current) => (current?.id === updated.id ? updated : current));
     setChildrenById((current) =>
       Object.fromEntries(
         Object.entries(current).map(([id, items]) => [
@@ -159,17 +151,20 @@ export function useHierarchyScope(api: DomainApi, rootPersonId: string) {
     }
   }, []);
 
-  const removePersonFromTree = useCallback((personId: string) => {
-    setChildrenById((current) =>
-      Object.fromEntries(
-        Object.entries(current).map(([id, items]) => [
-          id,
-          items.filter((item) => item.id !== personId),
-        ]),
-      ),
-    );
-    descendantsCache.invalidate();
-  }, [descendantsCache]);
+  const removePersonFromTree = useCallback(
+    (personId: string) => {
+      setChildrenById((current) =>
+        Object.fromEntries(
+          Object.entries(current).map(([id, items]) => [
+            id,
+            items.filter((item) => item.id !== personId),
+          ]),
+        ),
+      );
+      descendantsCache.invalidate();
+    },
+    [descendantsCache],
+  );
 
   const resetSelectionToRoot = useCallback(() => {
     if (anchorRef.current) setSelected(anchorRef.current);

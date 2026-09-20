@@ -11,7 +11,8 @@ function cacheKey(id: string): string {
 }
 
 export function isAbortError(reason: unknown): boolean {
-  if (reason instanceof DOMException && reason.name === "AbortError") return true;
+  if (reason instanceof DOMException && reason.name === "AbortError")
+    return true;
   if (
     typeof reason === "object" &&
     reason !== null &&
