@@ -23,11 +23,13 @@ export function EventCardSkeleton() {
 
 export function EventListSkeleton({ count = 3 }: { count?: number }) {
   return (
-    <div className="event-grid" aria-hidden="true">
+    <ul className="public-event-list" aria-hidden="true">
       {Array.from({ length: count }, (_, index) => (
-        <EventCardSkeleton key={index} />
+        <li key={index}>
+          <EventCardSkeleton />
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }
 
@@ -44,7 +46,10 @@ export function ResultsPanelSkeleton() {
 
 export function EventDetailSkeleton() {
   return (
-    <article className="event-detail ui-skeleton-detail" aria-hidden="true">
+    <article
+      className="public-event-detail ui-skeleton-detail"
+      aria-hidden="true"
+    >
       <SkeletonBlock className="ui-skeleton-link" />
       <SkeletonBlock className="ui-skeleton-label" />
       <SkeletonBlock className="ui-skeleton-title" />
