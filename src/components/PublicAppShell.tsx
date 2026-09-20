@@ -78,33 +78,30 @@ export function PublicAppShell({
               Eventos públicos
             </a>
           ) : (
-            <div className="public-app-shell__secondary-actions">
-              <a
-                className="public-app-shell__map-link"
-                href="/mapa"
-                aria-current={currentPath === "/mapa" ? "page" : undefined}
-              >
-                <MapPin aria-hidden="true" className="public-app-shell__icon" />
-                Ver mapa
-              </a>
-              <a className="public-app-shell__auth-action" href="/login">
-                <ShieldCheck
-                  aria-hidden="true"
-                  className="public-app-shell__icon"
-                />
-                Personal autorizado
-              </a>
-            </div>
+            <a className="public-app-shell__auth-action" href="/login">
+              <ShieldCheck
+                aria-hidden="true"
+                className="public-app-shell__icon"
+              />
+              Personal autorizado
+            </a>
           )
         }
       >
         {!isAuthShell && (
-          <Navigation>
+          <Navigation className="public-app-shell__nav">
             <a
               href="/eventos"
               aria-current={currentPath === "/eventos" ? "page" : undefined}
             >
               Eventos
+            </a>
+            <a
+              href="/mapa"
+              aria-current={currentPath === "/mapa" ? "page" : undefined}
+            >
+              <MapPin aria-hidden="true" className="public-app-shell__icon" />
+              Mapa
             </a>
           </Navigation>
         )}

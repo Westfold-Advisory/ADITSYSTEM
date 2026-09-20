@@ -26,7 +26,7 @@ test("PublicAppShell exposes skip link, main landmark, nav and legal footer", ()
   assert.doesNotMatch(markup, /--cyber-/);
 });
 
-test("Eventos is the only primary nav destination; Mapa and login are secondary/tertiary", () => {
+test("Public shell groups Eventos and Mapa in nav; login stays in actions", () => {
   const markup = renderToStaticMarkup(
     createElement(
       PublicAppShell,
@@ -35,16 +35,18 @@ test("Eventos is the only primary nav destination; Mapa and login are secondary/
     ),
   );
 
-  const navMatch = markup.match(/<nav class="ui-navigation"[^>]*>(.*?)<\/nav>/);
+  const navMatch = markup.match(
+    /<nav class="ui-navigation public-app-shell__nav"[^>]*>(.*?)<\/nav>/,
+  );
   assert.ok(navMatch, "expected a primary navigation landmark");
   const primaryNav = navMatch[1];
   assert.match(primaryNav, /href="\/eventos"/);
-  assert.doesNotMatch(primaryNav, /href="\/mapa"/);
+  assert.match(primaryNav, /href="\/mapa"/);
+  assert.match(primaryNav, /Mapa/);
 
-  assert.match(markup, /class="public-app-shell__map-link"/);
   assert.match(markup, /class="public-app-shell__auth-action"/);
-  assert.match(markup, /Ver mapa/);
   assert.match(markup, /Personal autorizado/);
+  assert.doesNotMatch(markup, /class="public-app-shell__map-link"/);
 });
 
 test("PublicAppShell auth variant omits public nav and offers return to eventos", () => {
@@ -60,8 +62,8 @@ test("PublicAppShell auth variant omits public nav and offers return to eventos"
   assert.match(markup, /Eventos públicos/);
   assert.match(markup, /href="\/eventos"/);
   assert.doesNotMatch(markup, /Personal autorizado/);
-  assert.doesNotMatch(markup, /Ver mapa/);
-  assert.doesNotMatch(markup, /<nav class="ui-navigation"/);
+  assert.doesNotMatch(markup, /Mapa/);
+  assert.doesNotMatch(markup, /public-app-shell__nav/);
   assert.match(markup, /Saltar al contenido principal/);
   assert.match(markup, /<main id="public-main-content"/);
 });
