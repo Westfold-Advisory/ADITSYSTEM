@@ -406,6 +406,27 @@ a:focus-visible {
   gap: 1rem;
   margin-top: 1rem;
 }
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.role-chip {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--md-sys-radius-full);
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-transform: capitalize;
+}
+.role-chip[data-role="AMIGO"] {
+  background: var(--md-sys-color-tertiary-container);
+  color: var(--md-sys-color-on-tertiary-container);
+}
 @media (max-width: 48rem) {
   .hierarchy-layout {
     grid-template-columns: 1fr;

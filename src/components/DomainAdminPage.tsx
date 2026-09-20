@@ -89,6 +89,13 @@ function PersonForm({
           identificador.
         </p>
       </div>
+      <div className="form-section">
+        <p className="eyebrow">Tipo de registro</p>
+        <span className="role-chip" data-role={role}>
+          {roleLabel(role)}
+        </span>
+      </div>
+      <p className="eyebrow">Datos personales</p>
       <div className="event-form-grid">
         <Field label="Nombre">
           <input
