@@ -1,4 +1,9 @@
 import type { UUID } from "@/types/events";
+import {
+  buildPublicEventQueryString,
+  emptyPublicEventFilters,
+  parsePublicEventFilters,
+} from "@/lib/public-event-filters";
 
 const EVENT_QUERY_KEY = "evento";
 
@@ -8,14 +13,12 @@ export function readEventIdFromSearch(search: string): UUID | null {
 }
 
 export function writeEventIdToSearch(search: string, id: UUID | null): string {
-  const params = new URLSearchParams(search);
-  if (id) {
-    params.set(EVENT_QUERY_KEY, id);
-  } else {
-    params.delete(EVENT_QUERY_KEY);
-  }
-  const serialized = params.toString();
-  return serialized ? `?${serialized}` : "";
+  const filters = parsePublicEventFilters(search);
+  return buildPublicEventQueryString({
+    filters,
+    eventId: id,
+    baseSearch: search,
+  });
 }
 
 export function readPublicEventIdFromUrl(): UUID | null {
@@ -23,7 +26,12 @@ export function readPublicEventIdFromUrl(): UUID | null {
 }
 
 export function pushPublicEventDetailUrl(id: UUID): void {
-  const nextSearch = writeEventIdToSearch(window.location.search, id);
+  const filters = parsePublicEventFilters(window.location.search);
+  const nextSearch = buildPublicEventQueryString({
+    filters,
+    eventId: id,
+    baseSearch: window.location.search,
+  });
   window.history.pushState(
     null,
     "",
@@ -32,10 +40,17 @@ export function pushPublicEventDetailUrl(id: UUID): void {
 }
 
 export function clearPublicEventDetailUrl(): void {
-  const nextSearch = writeEventIdToSearch(window.location.search, null);
+  const filters = parsePublicEventFilters(window.location.search);
+  const nextSearch = buildPublicEventQueryString({
+    filters,
+    eventId: null,
+    baseSearch: window.location.search,
+  });
   window.history.pushState(
     null,
     "",
     `${window.location.pathname}${nextSearch}`,
   );
 }
+
+export { emptyPublicEventFilters, parsePublicEventFilters };
