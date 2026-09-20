@@ -23,7 +23,7 @@ export const coverageRoleFilterLabel: Record<CoverageRoleFilter, string> = {
 export const initialCoverageGeofenceVisibility: Record<GeofenceType, boolean> =
   {
     ESTADO: false,
-    MUNICIPIO: false,
+    MUNICIPIO: true,
     DISTRITO: false,
     SECCION: false,
     DISTRITO_LOCAL: false,

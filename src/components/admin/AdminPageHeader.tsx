@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 import { AdminNav } from "@/components/admin/AdminNav";
+import { Button } from "@/components/ui/button";
 
 export function AdminPageHeader({
   eyebrow,
@@ -26,9 +27,9 @@ export function AdminPageHeader({
         <div className="admin-header__tools">
           <AdminNav />
           {actions}
-          <button type="button" onClick={onSignOut}>
+          <Button type="button" variant="outline" size="sm" onClick={onSignOut}>
             Cerrar sesión
-          </button>
+          </Button>
         </div>
       </div>
     </header>

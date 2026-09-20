@@ -50,6 +50,7 @@ import {
   pinColorForRole,
   type CoverageRoleFilter,
 } from "@/lib/coverage-map";
+import { useGeofenceLayerCatalog } from "@/hooks/useGeofenceLayerCatalog";
 import type { CommunityNeed, CoverageMapPin, Person } from "@/types/domain";
 import type { UUID } from "@/types/events";
 
@@ -117,9 +118,12 @@ export function AdminCoverageMapPage() {
   const [showHeatmap, setShowHeatmap] = useState(true);
   const [reloadToken, setReloadToken] = useState(0);
 
-  const [geofences, setGeofences] = useState<Geofence[]>([]);
-  const [geofencesLoading, setGeofencesLoading] = useState(true);
-  const [geofencesError, setGeofencesError] = useState<string | null>(null);
+  const {
+    geofences,
+    loading: geofencesLoading,
+    error: geofencesError,
+    ensureTypeLoaded,
+  } = useGeofenceLayerCatalog(geofencesApi);
   const [geofenceVisibility, setGeofenceVisibility] = useState(
     initialCoverageGeofenceVisibility,
   );
@@ -202,26 +206,15 @@ export function AdminCoverageMapPage() {
   useEffect(() => {
     if (!session) return;
     const controller = new AbortController();
-    void Promise.resolve().then(() => {
-      setGeofencesLoading(true);
-      return geofencesApi
-        .list()
-        .then(setGeofences)
-        .catch((error: unknown) => {
-          if (!controller.signal.aborted) {
-            setGeofencesError(
-              error instanceof Error
-                ? error.message
-                : "No fue posible cargar las capas territoriales.",
-            );
-          }
-        })
-        .finally(() => {
-          if (!controller.signal.aborted) setGeofencesLoading(false);
-        });
-    });
+    for (const type of Object.keys(
+      initialCoverageGeofenceVisibility,
+    ) as GeofenceType[]) {
+      if (initialCoverageGeofenceVisibility[type]) {
+        void ensureTypeLoaded(type, controller.signal);
+      }
+    }
     return () => controller.abort();
-  }, [geofencesApi, session]);
+  }, [ensureTypeLoaded, session]);
 
   useEffect(() => {
     if (!selectedPinId || !session) return;
@@ -418,12 +411,13 @@ export function AdminCoverageMapPage() {
                     error={geofencesError}
                     pointGeofences={pointGeofences}
                     pointLookup={pointLookup}
-                    onToggle={(type: GeofenceType) =>
-                      setGeofenceVisibility((current) => ({
-                        ...current,
-                        [type]: !current[type],
-                      }))
-                    }
+                    onToggle={(type: GeofenceType) => {
+                      setGeofenceVisibility((current) => {
+                        const nextVisible = !current[type];
+                        if (nextVisible) void ensureTypeLoaded(type);
+                        return { ...current, [type]: nextVisible };
+                      });
+                    }}
                     onSelect={setSelectedGeofenceId}
                     onClose={() => setPanelCapasAbierto(false)}
                     returnFocusRef={capasTriggerRef}
