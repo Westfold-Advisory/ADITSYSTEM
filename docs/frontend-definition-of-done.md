@@ -22,13 +22,13 @@ npm run build
 
 ## Comandos
 
-| Comando                | Qué valida                                                                                    |
-| ---------------------- | --------------------------------------------------------------------------------------------- |
-| `npm run format`       | Aplica Prettier — **obligatorio antes de cada commit**                                       |
-| `npm run format:check` | CI: falla si algún archivo no cumple Prettier                                                 |
-| `npm run lint`         | ESLint (incl. reglas React Compiler / `react-hooks/*`)                                        |
-| `npm test`             | Tests unitarios (`tsx --test`)                                                                |
-| `npm run build`        | TypeScript + build Vite de producción                                                         |
+| Comando                | Qué valida                                             |
+| ---------------------- | ------------------------------------------------------ |
+| `npm run format`       | Aplica Prettier — **obligatorio antes de cada commit** |
+| `npm run format:check` | CI: falla si algún archivo no cumple Prettier          |
+| `npm run lint`         | ESLint (incl. reglas React Compiler / `react-hooks/*`) |
+| `npm test`             | Tests unitarios (`tsx --test`)                         |
+| `npm run build`        | TypeScript + build Vite de producción                  |
 
 ## Checklist DoD (copiar en issues Multica frontend)
 
