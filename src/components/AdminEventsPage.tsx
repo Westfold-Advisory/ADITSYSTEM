@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 
-import { ADMIN_EVENT_ROLES, AuthApi, type LoginResponse } from "@/api/auth";
+import { AuthApi, type LoginResponse } from "@/api/auth";
 import { EventsApi } from "@/api/events";
 import { ApiClient, ApiError } from "@/api/http";
 import type { Event, EventInput } from "@/types/events";
@@ -10,6 +10,7 @@ import { Button } from "./ui/button";
 import { Field } from "./ui/Field";
 import { Card } from "./ui/Card";
 import { EmptyState, ErrorState, LoadingState } from "./ui/AsyncState";
+import { capabilitiesFor } from "@/lib/capabilities";
 
 const sessionKey = "adit.admin.session";
 
@@ -92,13 +93,9 @@ function Login({ onLogin }: { onLogin: (session: LoginResponse) => void }) {
       <form className="login-form" onSubmit={submit}>
         <p className="eyebrow">ADIT SYSTEM</p>
         <h1>Acceso administrativo</h1>
-        {import.meta.env.VITE_USE_MOCK_API === "true" && (
-          <p className="request-message">
-            Demo: admin <code>demo@adit.local</code>, político{" "}
-            <code>politico@adit.local</code> o líder{" "}
-            <code>lider@adit.local</code>. Contraseña: <code>demo12345</code>
-          </p>
-        )}
+        <p className="request-message">
+          Esta aplicación requiere una cuenta autorizada por el backend.
+        </p>
         <Field label="Correo">
           <input
             required
@@ -148,9 +145,7 @@ export function AdminEventsPage() {
     [session?.access_token],
   );
   const canManage = session
-    ? ADMIN_EVENT_ROLES.includes(
-        session.user.role as (typeof ADMIN_EVENT_ROLES)[number],
-      )
+    ? capabilitiesFor(session.user.rol).canManageEvents
     : false;
 
   useEffect(() => {
@@ -240,7 +235,7 @@ export function AdminEventsPage() {
           <p className="eyebrow">ADIT SYSTEM</p>
           <h1>Administración de eventos</h1>
           <p>
-            {session.user.full_name} · {session.user.role}
+            {session.user.email} · {session.user.rol}
           </p>
         </div>
         <button onClick={logout}>Cerrar sesión</button>

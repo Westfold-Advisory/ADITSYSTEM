@@ -25,7 +25,8 @@ export class ApiError extends Error {
   }
 }
 
-export type RequestAccess = "public" | "admin";
+/** `admin` is retained for event endpoints; it means a Bearer-authenticated request. */
+export type RequestAccess = "public" | "authenticated" | "admin";
 
 export interface ApiRequestOptions extends Omit<
   RequestInit,
@@ -44,7 +45,6 @@ export interface ApiClientOptions {
 
 const defaultBaseUrl =
   import.meta.env?.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
-const useMockApi = import.meta.env?.VITE_USE_MOCK_API === "true";
 
 function toFieldErrors(detail: unknown): Record<string, ApiValidationError[]> {
   if (!Array.isArray(detail)) return {};
@@ -94,9 +94,7 @@ export class ApiClient {
   constructor({
     baseUrl = defaultBaseUrl,
     getAccessToken,
-    fetchFn = useMockApi
-      ? mockFetch
-      : (input, init) => globalThis.fetch(input, init),
+    fetchFn = (input, init) => globalThis.fetch(input, init),
   }: ApiClientOptions = {}) {
     this.baseUrl = baseUrl.replace(/\/$/, "");
     this.getAccessToken = getAccessToken;
@@ -116,7 +114,7 @@ export class ApiClient {
     const mutationKey = `${normalizedMethod}:${path}`;
     const isMutation = !["GET", "HEAD", "OPTIONS"].includes(normalizedMethod);
 
-    if (access === "admin") {
+    if (access === "authenticated" || access === "admin") {
       const token = this.getAccessToken?.();
       if (!token) throw new ApiError(401, "La sesión ha expirado.");
       requestHeaders.set("Authorization", `Bearer ${token}`);
@@ -163,4 +161,3 @@ export class ApiClient {
     return payload as T;
   }
 }
-import { mockFetch } from "./mock";

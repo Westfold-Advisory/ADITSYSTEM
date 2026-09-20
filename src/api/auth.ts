@@ -1,16 +1,22 @@
 import { ApiClient } from "./http";
+import type { AuthenticatedRole } from "@/types/domain";
+import type { UUID } from "@/types/events";
 
-export const ADMIN_EVENT_ROLES = ["POLITICO", "LIDER", "ADMIN"] as const;
-export type UserRole = (typeof ADMIN_EVENT_ROLES)[number] | "INVITADO";
+export const AUTHENTICATED_ROLES = [
+  "ADMIN",
+  "COORDINADOR_GENERAL",
+  "COORDINADOR",
+  "ENLACE",
+] as const satisfies readonly AuthenticatedRole[];
 
 export interface AuthenticatedUser {
-  id: string;
+  id: UUID;
   email: string;
-  full_name: string;
-  role: UserRole;
-  politico_id: string | null;
-  lider_id: string | null;
-  invitado_id: string | null;
+  persona_id: UUID;
+  rol: AuthenticatedRole;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface LoginResponse {
@@ -31,6 +37,12 @@ export class AuthApi {
     return this.client.request<LoginResponse>("/auth/login", {
       method: "POST",
       body: { email, password },
+    });
+  }
+
+  me(): Promise<AuthenticatedUser> {
+    return this.client.request<AuthenticatedUser>("/auth/me", {
+      access: "authenticated",
     });
   }
 }
