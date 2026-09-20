@@ -8,6 +8,7 @@ import { PublicAppShell } from "./components/PublicAppShell";
 import { privacyNoticeKindFromPath } from "./lib/public-routes";
 import { normalizePathname } from "./lib/routing";
 import "./App.css";
+import "./components/MapPage.css";
 import "./components/PublicAppShell.css";
 
 function pathname(): string {
