@@ -4,7 +4,11 @@ import { useState, type FormEvent } from "react";
 void React;
 
 import { AuthApi, type LoginResponse } from "@/api/auth";
-import { ApiClient, ApiError } from "@/api/http";
+import { ApiClient } from "@/api/http";
+import {
+  loginFailureMessage,
+  SESSION_EXPIRED_MESSAGE,
+} from "@/lib/auth-messages";
 import { getInstitutionConfig } from "@/config/institution";
 import { privacyNoticeSimplificado } from "@/content/legal/privacy-notice-simplificado";
 import { Alert } from "./ui/Alert";
@@ -12,22 +16,17 @@ import { Button } from "./ui/button";
 import { Card } from "./ui/Card";
 import { Field } from "./ui/Field";
 
-function loginErrorMessage(error: unknown): string {
-  if (error instanceof ApiError) return error.message;
-  return error instanceof Error
-    ? error.message
-    : "No fue posible iniciar sesión. Verifica tus datos e inténtalo de nuevo.";
-}
-
 export type LoginPageProps = {
   onLogin: (session: LoginResponse) => void;
+  /** Mensaje inicial (p. ej. sesión expirada al volver del admin). */
+  initialNotice?: string | null;
 };
 
-export function LoginPage({ onLogin }: LoginPageProps) {
+export function LoginPage({ onLogin, initialNotice = null }: LoginPageProps) {
   const institution = getInstitutionConfig();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(initialNotice);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
@@ -37,7 +36,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
     try {
       onLogin(await new AuthApi(new ApiClient()).login(email, password));
     } catch (loginError) {
-      setError(loginErrorMessage(loginError));
+      setError(loginFailureMessage(loginError));
     } finally {
       setIsSubmitting(false);
     }
@@ -78,7 +77,14 @@ export function LoginPage({ onLogin }: LoginPageProps) {
             />
           </Field>
           {error && (
-            <Alert tone="error" title="No pudimos iniciar sesión">
+            <Alert
+              tone={error === SESSION_EXPIRED_MESSAGE ? "warning" : "error"}
+              title={
+                error === SESSION_EXPIRED_MESSAGE
+                  ? "Sesión finalizada"
+                  : "No pudimos iniciar sesión"
+              }
+            >
               {error}
             </Alert>
           )}

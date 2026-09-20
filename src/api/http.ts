@@ -1,3 +1,8 @@
+import {
+  safeHttpErrorMessage,
+  SESSION_EXPIRED_MESSAGE,
+} from "@/lib/auth-messages";
+
 export interface FastApiValidationIssue {
   loc: Array<string | number>;
   msg: string;
@@ -37,10 +42,14 @@ export interface ApiRequestOptions extends Omit<
   headers?: HeadersInit;
 }
 
+export type UnauthorizedReason = "missing_token" | "rejected";
+
 export interface ApiClientOptions {
   baseUrl?: string;
   getAccessToken?: () => string | null | undefined;
   fetchFn?: typeof fetch;
+  /** Se invoca cuando una petición autenticada queda sin sesión válida (401). */
+  onUnauthorized?: (reason: UnauthorizedReason) => void;
 }
 
 const defaultBaseUrl =
@@ -85,20 +94,33 @@ function errorMessage(detail: unknown): string {
   return "La solicitud no pudo completarse.";
 }
 
+function shouldUseSafeAuthMessage(
+  status: number,
+  access: RequestAccess,
+): boolean {
+  return (
+    (status === 401 || status === 403) &&
+    (access === "authenticated" || access === "admin")
+  );
+}
+
 export class ApiClient {
   private readonly baseUrl: string;
   private readonly getAccessToken?: () => string | null | undefined;
   private readonly fetchFn: typeof fetch;
+  private readonly onUnauthorized?: (reason: UnauthorizedReason) => void;
   private readonly inFlightMutations = new Set<string>();
 
   constructor({
     baseUrl = defaultBaseUrl,
     getAccessToken,
     fetchFn = (input, init) => globalThis.fetch(input, init),
+    onUnauthorized,
   }: ApiClientOptions = {}) {
     this.baseUrl = baseUrl.replace(/\/$/, "");
     this.getAccessToken = getAccessToken;
     this.fetchFn = fetchFn;
+    this.onUnauthorized = onUnauthorized;
   }
 
   async request<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
@@ -116,7 +138,10 @@ export class ApiClient {
 
     if (access === "authenticated" || access === "admin") {
       const token = this.getAccessToken?.();
-      if (!token) throw new ApiError(401, "La sesión ha expirado.");
+      if (!token) {
+        this.onUnauthorized?.("missing_token");
+        throw new ApiError(401, SESSION_EXPIRED_MESSAGE);
+      }
       requestHeaders.set("Authorization", `Bearer ${token}`);
     }
 
@@ -134,13 +159,16 @@ export class ApiClient {
         headers: requestHeaders,
         body: body === undefined ? undefined : JSON.stringify(body),
       });
-      return await this.parseResponse<T>(response);
+      return await this.parseResponse<T>(response, access);
     } finally {
       if (isMutation) this.inFlightMutations.delete(mutationKey);
     }
   }
 
-  private async parseResponse<T>(response: Response): Promise<T> {
+  private async parseResponse<T>(
+    response: Response,
+    access: RequestAccess,
+  ): Promise<T> {
     if (response.status === 204) return undefined as T;
     const contentType = response.headers.get("content-type") ?? "";
     const payload: unknown = contentType.includes("application/json")
@@ -152,11 +180,13 @@ export class ApiClient {
         typeof payload === "object" && payload !== null && "detail" in payload
           ? payload.detail
           : undefined;
-      throw new ApiError(
-        response.status,
-        errorMessage(detail),
-        toFieldErrors(detail),
-      );
+      if (response.status === 401 && access !== "public") {
+        this.onUnauthorized?.("rejected");
+      }
+      const message = shouldUseSafeAuthMessage(response.status, access)
+        ? safeHttpErrorMessage(response.status, access)
+        : errorMessage(detail);
+      throw new ApiError(response.status, message, toFieldErrors(detail));
     }
     return payload as T;
   }

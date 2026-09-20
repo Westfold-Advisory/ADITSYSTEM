@@ -1,15 +1,22 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import type { LoginResponse } from "@/api/auth";
 import { EventsApi } from "@/api/events";
-import { ApiClient, ApiError } from "@/api/http";
+import { ApiClient } from "@/api/http";
 import type { Event, EventInput } from "@/types/events";
 import { getInstitutionConfig } from "@/config/institution";
 import {
   clearAdminSession,
+  isAdminSessionExpired,
   persistAdminSession,
   readAdminSession,
+  type AdminSession,
 } from "@/lib/admin-session";
+import {
+  requestFailureMessage,
+  SESSION_EXPIRED_MESSAGE,
+} from "@/lib/auth-messages";
+import { UnauthorizedRoleScreen } from "./UnauthorizedRoleScreen";
 import { capabilitiesFor } from "@/lib/capabilities";
 import { FormularioNuevoEvento } from "./FormularioNuevoEvento";
 import { DomainAdminPage } from "./DomainAdminPage";
@@ -19,11 +26,17 @@ import { Button } from "./ui/button";
 import { Card } from "./ui/Card";
 import { EmptyState, ErrorState, LoadingState } from "./ui/AsyncState";
 
-function errorMessage(error: unknown): string {
-  if (error instanceof ApiError) return error.message;
-  return error instanceof Error
-    ? error.message
-    : "No fue posible completar la solicitud.";
+function loadAdminSession(): {
+  session: AdminSession | null;
+  expiredNotice: string | null;
+} {
+  const stored = readAdminSession();
+  if (!stored) return { session: null, expiredNotice: null };
+  if (isAdminSessionExpired(stored)) {
+    clearAdminSession();
+    return { session: null, expiredNotice: SESSION_EXPIRED_MESSAGE };
+  }
+  return { session: stored, expiredNotice: null };
 }
 
 const statusLabels: Record<Event["status"], string> = {
@@ -67,21 +80,34 @@ function actionsFor(
 
 export function AdminEventsPage() {
   const institution = getInstitutionConfig();
-  const [session, setSession] = useState<LoginResponse | null>(() =>
-    readAdminSession(),
-  );
+  const [loginNotice, setLoginNotice] = useState<string | null>(() => {
+    const loaded = loadAdminSession();
+    return loaded.expiredNotice;
+  });
+  const [session, setSession] = useState<LoginResponse | null>(() => {
+    return loadAdminSession().session;
+  });
   const [events, setEvents] = useState<Event[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [activeAction, setActiveAction] = useState<string | null>(null);
   const [editing, setEditing] = useState<Event | null | "new">(null);
   const [domainView, setDomainView] = useState(false);
+  const handleUnauthorized = useCallback(() => {
+    clearAdminSession();
+    setSession(null);
+    setLoginNotice(SESSION_EXPIRED_MESSAGE);
+    setEvents([]);
+  }, []);
   const api = useMemo(
     () =>
       new EventsApi(
-        new ApiClient({ getAccessToken: () => session?.access_token }),
+        new ApiClient({
+          getAccessToken: () => session?.access_token,
+          onUnauthorized: handleUnauthorized,
+        }),
       ),
-    [session?.access_token],
+    [handleUnauthorized, session?.access_token],
   );
   const canManage = session
     ? capabilitiesFor(session.user.rol).canManageEvents
@@ -95,18 +121,20 @@ export function AdminEventsPage() {
       return api
         .listAdmin()
         .then(setEvents)
-        .catch((requestError) => setError(errorMessage(requestError)))
+        .catch((requestError) => setError(requestFailureMessage(requestError)))
         .finally(() => setIsLoading(false));
     });
   }, [api, canManage, session]);
 
   const login = (nextSession: LoginResponse) => {
     persistAdminSession(nextSession);
+    setLoginNotice(null);
     setSession(nextSession);
   };
   const logout = () => {
     clearAdminSession();
     setSession(null);
+    setLoginNotice(null);
     setEvents([]);
   };
   const save = async (input: EventInput) => {
@@ -144,7 +172,7 @@ export function AdminEventsPage() {
         );
       }
     } catch (requestError) {
-      setError(errorMessage(requestError));
+      setError(requestFailureMessage(requestError));
     } finally {
       setActiveAction(null);
     }
@@ -153,19 +181,13 @@ export function AdminEventsPage() {
   if (!session) {
     return (
       <PublicAppShell brandLabel={institution.productName}>
-        <LoginPage onLogin={login} />
+        <LoginPage initialNotice={loginNotice} onLogin={login} />
       </PublicAppShell>
     );
   }
   if (!canManage)
     return (
-      <main className="admin-page">
-        <section className="request-message error">
-          <h1>Acceso no autorizado</h1>
-          <p>Tu rol no tiene permiso para administrar eventos.</p>
-          <button onClick={logout}>Cerrar sesión</button>
-        </section>
-      </main>
+      <UnauthorizedRoleScreen roleLabel={session.user.rol} onSignOut={logout} />
     );
 
   if (domainView)
