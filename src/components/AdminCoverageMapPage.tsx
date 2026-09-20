@@ -122,7 +122,10 @@ export function AdminCoverageMapPage() {
     geofences,
     loading: geofencesLoading,
     error: geofencesError,
+    countsByType,
     ensureTypeLoaded,
+    isTypeLoaded,
+    isTypeLoading,
   } = useGeofenceLayerCatalog(geofencesApi);
   const [geofenceVisibility, setGeofenceVisibility] = useState(
     initialCoverageGeofenceVisibility,
@@ -147,6 +150,29 @@ export function AdminCoverageMapPage() {
   const filteredPins = useMemo(
     () => filterCoveragePins(pins, roleFilter, search),
     [pins, roleFilter, search],
+  );
+
+  const handleGeofenceLayerToggle = useCallback(
+    (type: GeofenceType, nextVisible?: boolean) => {
+      setGeofenceVisibility((current) => {
+        const show = nextVisible ?? !current[type];
+        if (show === current[type]) return current;
+        if (show) void ensureTypeLoaded(type);
+        return { ...current, [type]: show };
+      });
+    },
+    [ensureTypeLoaded],
+  );
+
+  const handleSelectGeofence = useCallback(
+    (id: string) => {
+      const item = geofences.find((entry) => entry.id === id);
+      if (item) {
+        handleGeofenceLayerToggle(item.type, true);
+      }
+      setSelectedGeofenceId(id);
+    },
+    [geofences, handleGeofenceLayerToggle],
   );
 
   const pinFeatures = useMemo<
@@ -385,7 +411,7 @@ export function AdminCoverageMapPage() {
                   items={geofences}
                   visible={geofenceVisibility}
                   selectedId={selectedGeofenceId}
-                  onSelect={setSelectedGeofenceId}
+                  onSelect={handleSelectGeofence}
                 />
                 {showHeatmap && heatmap.features.length > 0 && (
                   <MapHeatmapLayer data={heatmap} visible={showHeatmap} />
@@ -409,16 +435,14 @@ export function AdminCoverageMapPage() {
                     selectedId={selectedGeofenceId}
                     loading={geofencesLoading}
                     error={geofencesError}
+                    countsByType={countsByType}
+                    isTypeLoaded={isTypeLoaded}
+                    isTypeLoading={isTypeLoading}
                     pointGeofences={pointGeofences}
                     pointLookup={pointLookup}
-                    onToggle={(type: GeofenceType) => {
-                      setGeofenceVisibility((current) => {
-                        const nextVisible = !current[type];
-                        if (nextVisible) void ensureTypeLoaded(type);
-                        return { ...current, [type]: nextVisible };
-                      });
-                    }}
-                    onSelect={setSelectedGeofenceId}
+                    onToggle={handleGeofenceLayerToggle}
+                    onSelect={handleSelectGeofence}
+                    onEnsureTypeLoaded={(type) => void ensureTypeLoaded(type)}
                     onClose={() => setPanelCapasAbierto(false)}
                     returnFocusRef={capasTriggerRef}
                   />

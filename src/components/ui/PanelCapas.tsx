@@ -1,11 +1,19 @@
-import { useMemo, useRef, useState, type RefObject } from "react";
+import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { Layers, Search, X } from "lucide-react";
-import type { Geofence, GeofenceType } from "@/api/geofences";
+import {
+  GEOFENCE_TYPES,
+  type Geofence,
+  type GeofenceType,
+} from "@/api/geofences";
 import { useModalFocus } from "@/hooks/useModalFocus";
+import {
+  filterGeofencesForPanelList,
+  type GeofenceListScope,
+} from "@/lib/geofence-panel";
 import { MapControlsSkeleton } from "./Skeleton";
 
 const typeLabels: Record<GeofenceType, string> = {
-  ESTADO: "Estados",
+  ESTADO: "Estado",
   MUNICIPIO: "Municipios",
   DISTRITO: "Distritos (legado)",
   SECCION: "Secciones",
@@ -19,10 +27,14 @@ export function PanelCapas({
   selectedId,
   loading,
   error,
+  countsByType,
+  isTypeLoading,
+  isTypeLoaded,
   pointGeofences,
   pointLookup,
   onToggle,
   onSelect,
+  onEnsureTypeLoaded,
   onClose,
   returnFocusRef,
 }: {
@@ -31,14 +43,19 @@ export function PanelCapas({
   selectedId: string | null;
   loading: boolean;
   error: string | null;
-  onToggle: (type: GeofenceType) => void;
+  countsByType?: Record<GeofenceType, number>;
+  isTypeLoading?: (type: GeofenceType) => boolean;
+  isTypeLoaded?: (type: GeofenceType) => boolean;
+  onToggle: (type: GeofenceType, visible?: boolean) => void;
   pointGeofences: Geofence[];
   pointLookup: { loading: boolean; error: string | null };
   onSelect: (id: string) => void;
+  onEnsureTypeLoaded?: (type: GeofenceType) => void;
   onClose: () => void;
   returnFocusRef?: RefObject<HTMLElement | null>;
 }) {
   const [search, setSearch] = useState("");
+  const [listScope, setListScope] = useState<GeofenceListScope>("ALL");
   const dialogRef = useRef<HTMLElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -49,22 +66,47 @@ export function PanelCapas({
     initialFocusRef: closeButtonRef,
   });
 
-  const filtered = useMemo(() => {
-    const term = search.trim().toLocaleLowerCase();
-    return term
-      ? items.filter((item) =>
-          `${item.name} ${item.code ?? ""}`.toLocaleLowerCase().includes(term),
-        )
-      : items;
-  }, [items, search]);
+  useEffect(() => {
+    if (listScope !== "ALL") onEnsureTypeLoaded?.(listScope);
+  }, [listScope, onEnsureTypeLoaded]);
+
+  useEffect(() => {
+    const term = search.trim();
+    if (term.length < 2 || !onEnsureTypeLoaded) return;
+    for (const type of GEOFENCE_TYPES) {
+      if (visible[type] && !(isTypeLoaded?.(type) ?? true)) {
+        onEnsureTypeLoaded(type);
+      }
+    }
+  }, [isTypeLoaded, onEnsureTypeLoaded, search, visible]);
+
+  const listResult = useMemo(
+    () =>
+      filterGeofencesForPanelList({
+        items,
+        visible,
+        listScope,
+        search,
+      }),
+    [items, listScope, search, visible],
+  );
+
   const selected = items.find((item) => item.id === selectedId);
+  const anyLayerVisible = GEOFENCE_TYPES.some((type) => visible[type]);
+
+  const setAllLayers = (next: boolean) => {
+    for (const type of GEOFENCE_TYPES) {
+      if (visible[type] !== next) onToggle(type, next);
+    }
+  };
+
   return (
     <section
       ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-label="Capas territoriales"
-      className="absolute top-3 right-3 z-20 flex max-h-[calc(100%-1.5rem)] w-72 flex-col overflow-hidden rounded border max-sm:inset-x-0 max-sm:top-auto max-sm:bottom-0 max-sm:w-full max-sm:max-h-[70%] max-sm:rounded-b-none"
+      className="absolute top-3 right-3 z-20 flex max-h-[calc(100%-1.5rem)] w-80 flex-col overflow-hidden rounded border max-sm:inset-x-0 max-sm:top-auto max-sm:bottom-0 max-sm:w-full max-sm:max-h-[78%] max-sm:rounded-b-none"
       style={{
         background: "var(--cyber-surface-1)",
         borderColor: "var(--cyber-border)",
@@ -76,10 +118,10 @@ export function PanelCapas({
         style={{ borderColor: "var(--cyber-border-subtle)" }}
       >
         <span
-          className="flex gap-2 items-center font-mono text-[10px] font-bold uppercase tracking-widest"
-          style={{ color: "var(--cyber-cyan)" }}
+          className="flex gap-2 items-center text-xs font-semibold"
+          style={{ color: "var(--md-sys-color-on-surface)" }}
         >
-          <Layers size={13} />
+          <Layers size={14} aria-hidden />
           Capas territoriales
         </span>
         <button
@@ -93,51 +135,110 @@ export function PanelCapas({
           <X size={14} aria-hidden="true" />
         </button>
       </header>
+
       <div
-        className="p-2 border-b"
+        className="p-2 border-b space-y-2"
         style={{ borderColor: "var(--cyber-border-subtle)" }}
       >
-        <label className="sr-only" htmlFor="geofence-search">
-          Buscar geocerca
+        <p className="text-[11px] leading-snug text-muted-foreground">
+          Activa las capas que quieres ver en el mapa. Usa el listado para
+          buscar y centrar un territorio.
+        </p>
+        <div className="flex flex-wrap gap-1">
+          <button
+            type="button"
+            className="rounded border px-2 py-1 text-[11px]"
+            onClick={() => setAllLayers(true)}
+          >
+            Mostrar todas
+          </button>
+          <button
+            type="button"
+            className="rounded border px-2 py-1 text-[11px]"
+            onClick={() => setAllLayers(false)}
+          >
+            Ocultar todas
+          </button>
+        </div>
+        <ul className="max-h-36 space-y-1 overflow-y-auto">
+          {GEOFENCE_TYPES.map((type) => {
+            const count = countsByType?.[type];
+            const loaded = isTypeLoaded?.(type) ?? true;
+            const typeLoading = isTypeLoading?.(type) ?? false;
+            return (
+              <li key={type}>
+                <label className="flex cursor-pointer items-center gap-2 rounded border px-2 py-1.5 text-xs">
+                  <input
+                    type="checkbox"
+                    checked={visible[type]}
+                    onChange={(event) => onToggle(type, event.target.checked)}
+                    className="size-3.5 shrink-0"
+                  />
+                  <span className="min-w-0 flex-1">{typeLabels[type]}</span>
+                  <span className="text-[10px] text-muted-foreground tabular-nums">
+                    {typeLoading
+                      ? "…"
+                      : loaded && count !== undefined
+                        ? count
+                        : visible[type]
+                          ? "—"
+                          : ""}
+                  </span>
+                </label>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+
+      <div
+        className="space-y-2 border-b p-2"
+        style={{ borderColor: "var(--cyber-border-subtle)" }}
+      >
+        <label
+          className="block text-[11px] font-medium"
+          htmlFor="geofence-list-scope"
+        >
+          Listado
         </label>
-        <div className="flex items-center gap-2 px-2 py-1 border">
-          <Search size={12} />
+        <select
+          id="geofence-list-scope"
+          value={listScope}
+          onChange={(event) =>
+            setListScope(event.target.value as GeofenceListScope)
+          }
+          className="min-h-9 w-full rounded border bg-transparent px-2 text-xs"
+        >
+          <option value="ALL">Todas las capas activas</option>
+          {GEOFENCE_TYPES.map((type) => (
+            <option key={type} value={type}>
+              {typeLabels[type]}
+              {countsByType?.[type] !== undefined
+                ? ` (${countsByType[type]})`
+                : ""}
+            </option>
+          ))}
+        </select>
+        <label className="sr-only" htmlFor="geofence-search">
+          Buscar territorio
+        </label>
+        <div className="flex items-center gap-2 rounded border px-2 py-1.5">
+          <Search size={12} aria-hidden />
           <input
             id="geofence-search"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Buscar nombre o código"
+            placeholder="Nombre o código (ej. Puebla, 140)"
             className="w-full bg-transparent text-xs outline-none"
           />
         </div>
       </div>
-      <div
-        className="p-2 flex gap-1 border-b"
-        style={{ borderColor: "var(--cyber-border-subtle)" }}
-      >
-        {(Object.keys(typeLabels) as GeofenceType[]).map((type) => (
-          <button
-            key={type}
-            type="button"
-            role="switch"
-            aria-checked={visible[type]}
-            onClick={() => onToggle(type)}
-            className="px-2 py-1 text-[9px] font-mono border"
-            style={{
-              color: visible[type]
-                ? "var(--cyber-cyan)"
-                : "var(--cyber-text-secondary)",
-            }}
-          >
-            {typeLabels[type]}
-          </button>
-        ))}
-      </div>
+
       {(pointLookup.loading ||
         pointLookup.error ||
         pointGeofences.length > 0) && (
         <div
-          className="px-3 py-2 border-b text-[10px]"
+          className="border-b px-3 py-2 text-[10px]"
           style={{ borderColor: "var(--cyber-border-subtle)" }}
         >
           {pointLookup.loading
@@ -146,7 +247,8 @@ export function PanelCapas({
               `Punto en: ${pointGeofences.map((item) => item.name).join(", ")}`)}
         </div>
       )}
-      <div className="overflow-y-auto p-2 space-y-1">
+
+      <div className="min-h-0 flex-1 overflow-y-auto p-2 space-y-1">
         {loading && (
           <div role="status" aria-live="polite">
             <span className="sr-only">Cargando geocercas…</span>
@@ -162,16 +264,36 @@ export function PanelCapas({
             {error}
           </p>
         )}
-        {!loading && !error && filtered.length === 0 && (
-          <p className="text-xs">No hay geocercas que coincidan.</p>
+        {!loading && !error && !anyLayerVisible && (
+          <p className="text-xs text-muted-foreground">
+            Activa al menos una capa arriba para ver polígonos en el mapa.
+          </p>
         )}
-        {filtered.map((item) => (
+        {!loading &&
+          !error &&
+          anyLayerVisible &&
+          listResult.items.length === 0 && (
+            <p className="text-xs text-muted-foreground">
+              {search.trim()
+                ? "Ningún territorio coincide. Prueba otro nombre, activa la capa correspondiente o espera a que termine la carga."
+                : listScope === "ALL"
+                  ? "No hay datos cargados para las capas activas. Marca una capa y espera el conteo numérico."
+                  : `No hay ${typeLabels[listScope as GeofenceType].toLocaleLowerCase("es-MX")} cargados. Activa la capa y espera la carga.`}
+            </p>
+          )}
+        {listResult.truncated && (
+          <p className="text-[10px] text-muted-foreground" role="status">
+            Mostrando {listResult.items.length} de {listResult.totalMatches}.
+            Escribe en buscar para acotar.
+          </p>
+        )}
+        {listResult.items.map((item) => (
           <button
             key={item.id}
             type="button"
             onClick={() => onSelect(item.id)}
             aria-pressed={item.id === selectedId}
-            className="w-full text-left p-2 border text-xs focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1"
+            className="w-full text-left rounded border p-2 text-xs focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1"
             style={{
               outlineColor: "var(--md-sys-color-primary)",
               borderColor:
@@ -181,32 +303,26 @@ export function PanelCapas({
             }}
           >
             <strong>{item.name}</strong>
-            <span className="block text-[10px]">
+            <span className="block text-[10px] text-muted-foreground">
               {typeLabels[item.type]}
-              {item.code ? ` · ${item.code}` : ""} · v{item.version}
+              {item.code ? ` · ${item.code}` : ""}
             </span>
-            {!item.geometry && (
-              <span
-                className="block text-[10px]"
-                style={{ color: "var(--cyber-warning)" }}
-              >
-                Geometría no disponible
-              </span>
-            )}
           </button>
         ))}
       </div>
+
       {selected && (
         <footer
-          className="p-3 border-t text-xs"
+          className="border-t p-3 text-xs"
           style={{ borderColor: "var(--cyber-border-subtle)" }}
         >
           <strong>{selected.name}</strong>
-          <p>
-            {selected.code ?? "Sin código"} · versión {selected.version}
+          <p className="text-muted-foreground">
+            {typeLabels[selected.type]}
+            {selected.code ? ` · ${selected.code}` : ""} · v{selected.version}
           </p>
-          <p>
-            {selected.active ? "Vigente" : "No vigente"} · {selected.source}
+          <p className="text-[10px] text-muted-foreground">
+            El mapa centra y resalta este territorio al seleccionarlo.
           </p>
         </footer>
       )}
