@@ -1,0 +1,190 @@
+.map-page {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--md-sys-color-background);
+  color: var(--md-sys-color-on-background);
+}
+
+.map-page__layout {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.map-page__explorer {
+  z-index: 20;
+  display: flex;
+  width: 100%;
+  max-width: 20rem;
+  flex-shrink: 0;
+  flex-direction: column;
+  overflow-y: auto;
+  border-right: 1px solid var(--md-sys-color-outline-variant);
+  background: var(--md-sys-color-surface);
+}
+
+.map-page__explorer--hidden {
+  display: none;
+}
+
+.map-page__explorer-header {
+  display: flex;
+  align-items: center;
+  gap: var(--md-sys-spacing-2);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  padding: var(--md-sys-spacing-2) var(--md-sys-spacing-3);
+}
+
+.map-page__explorer-title {
+  flex: 1 1 auto;
+  margin: 0;
+  font: var(--md-sys-typescale-title-small);
+  color: var(--md-sys-color-on-surface);
+}
+
+.map-page__filters {
+  display: grid;
+  gap: var(--md-sys-spacing-3);
+  padding: var(--md-sys-spacing-3);
+}
+
+.map-page__filter-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--md-sys-spacing-2);
+}
+
+.map-page__results {
+  border-top: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.map-page__results-summary {
+  margin: 0;
+  padding: var(--md-sys-spacing-3) var(--md-sys-spacing-4) 0;
+  font: var(--md-sys-typescale-body-small);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.map-page__event-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.map-page__event-item {
+  display: block;
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  border-left: 3px solid transparent;
+  background: transparent;
+  padding: var(--md-sys-spacing-4);
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+}
+
+.map-page__event-item:hover {
+  background: var(--md-sys-color-surface-container-low);
+}
+
+.map-page__event-item:focus-visible {
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: -2px;
+}
+
+.map-page__event-item[aria-pressed="true"] {
+  border-left-color: var(--md-sys-color-primary);
+  background: var(--md-sys-color-primary-container);
+}
+
+.map-page__event-type {
+  display: block;
+  font: var(--md-sys-typescale-label-small);
+  color: var(--md-sys-color-primary);
+}
+
+.map-page__event-name {
+  display: block;
+  margin-top: var(--md-sys-spacing-1);
+  font: var(--md-sys-typescale-title-small);
+  color: var(--md-sys-color-on-surface);
+}
+
+.map-page__event-meta {
+  display: block;
+  margin-top: var(--md-sys-spacing-1);
+  font: var(--md-sys-typescale-body-small);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.map-page__event-selected-badge {
+  display: inline-block;
+  margin-bottom: var(--md-sys-spacing-1);
+  border-radius: var(--md-sys-radius-sm);
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  font: var(--md-sys-typescale-label-small);
+  padding: 0.125rem var(--md-sys-spacing-2);
+}
+
+.map-page__detail {
+  display: grid;
+  gap: var(--md-sys-spacing-2);
+  border-top: 1px solid var(--md-sys-color-outline-variant);
+  padding: var(--md-sys-spacing-4);
+}
+
+.map-page__detail h2 {
+  margin: 0;
+  font: var(--md-sys-typescale-title-medium);
+}
+
+.map-page__detail p {
+  margin: 0;
+  font: var(--md-sys-typescale-body-medium);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.map-page__detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-sys-spacing-2);
+}
+
+.map-page__map {
+  position: relative;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.map-page__map-toolbar {
+  position: absolute;
+  top: var(--md-sys-spacing-3);
+  right: var(--md-sys-spacing-3);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: var(--md-sys-spacing-2);
+}
+
+@media (max-width: 640px) {
+  .map-page__explorer {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    max-width: none;
+    max-height: 62dvh;
+    border-right: 0;
+    border-top: 1px solid var(--md-sys-color-outline-variant);
+    border-radius: var(--md-sys-radius-xl) var(--md-sys-radius-xl) 0 0;
+    box-shadow: var(--md-sys-elevation-2);
+  }
+
+  .map-page__map {
+    min-height: calc(100dvh - 7rem);
+  }
+}

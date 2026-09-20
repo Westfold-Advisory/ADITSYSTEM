@@ -87,11 +87,13 @@
 .public-app-shell__main > .flex,
 .public-app-shell__main > .privacy-notice-page,
 .public-app-shell__main > .public-events-page,
+.public-app-shell__main > .map-page,
 .public-app-shell__main > .not-found {
   flex: 1 1 auto;
 }
 
-.public-app-shell__main > .flex {
+.public-app-shell__main > .flex,
+.public-app-shell__main > .map-page {
   min-height: 0;
 }
 

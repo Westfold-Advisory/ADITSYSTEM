@@ -1,10 +1,16 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Layers, PanelLeft, PanelLeftClose, RotateCw } from "lucide-react";
+import { Layers, PanelLeft, PanelLeftClose } from "lucide-react";
 
 import { EventsApi } from "@/api/events";
 import { ApiClient } from "@/api/http";
 import { MapaVista } from "@/components/ui/MapaVista";
-import { ResultsPanelSkeleton } from "@/components/ui/Skeleton";
+import {
+  EmptyState,
+  ErrorState,
+  LoadingState,
+} from "@/components/ui/AsyncState";
+import { Field } from "@/components/ui/Field";
+import { Button } from "@/components/ui/button";
 import { filterMapEvents } from "@/lib/map-events";
 import {
   getMobileMapSheetState,
@@ -156,82 +162,35 @@ export function MapPage() {
   }, []);
 
   return (
-    <div
-      className="flex h-full min-h-[calc(100dvh-4rem)] flex-col overflow-hidden"
-      style={{ background: "var(--cyber-bg)", color: "var(--cyber-text)" }}
-    >
-      <header
-        className="flex items-center justify-between border-b px-4 py-2"
-        style={{
-          background: "var(--cyber-surface-1)",
-          borderColor: "var(--cyber-border-subtle)",
-        }}
-      >
-        <button
-          type="button"
-          onClick={() => setSidebarVisible((value) => !value)}
-          aria-label={
-            sidebarVisible ? "Ocultar explorador" : "Mostrar explorador"
-          }
-          aria-expanded={sidebarVisible}
-          className="p-1.5"
-          style={{ color: "var(--cyber-text-secondary)" }}
-        >
-          {sidebarVisible ? (
-            <PanelLeftClose size={18} />
-          ) : (
-            <PanelLeft size={18} />
-          )}
-        </button>
-        <p
-          className="font-mono text-xs tracking-widest"
-          style={{ color: "var(--cyber-cyan)" }}
-        >
-          EVENTOS PÚBLICOS
-        </p>
-        <button
-          type="button"
-          onClick={() => setPanelCapasAbierto((value) => !value)}
-          aria-label="Capas territoriales"
-          aria-expanded={panelCapasAbierto}
-          className="flex items-center gap-2 border px-3 py-1.5 text-xs"
-          style={{ borderColor: "var(--cyber-border-subtle)" }}
-        >
-          <Layers size={14} /> Capas
-        </button>
-      </header>
-      <div className="flex min-h-0 flex-1">
+    <div className="map-page">
+      <div className="map-page__layout">
         <aside
           className={cn(
-            "z-20 w-full shrink-0 overflow-y-auto border-r sm:w-80",
-            "max-sm:absolute max-sm:inset-x-0 max-sm:bottom-0 max-sm:max-h-[62dvh] max-sm:rounded-t-xl",
-            sidebarVisible ? "block" : "hidden",
+            "map-page__explorer",
+            !sidebarVisible && "map-page__explorer--hidden",
           )}
           aria-label="Explorador de eventos"
           data-sheet-state={mobileSheetState}
-          style={{
-            background: "var(--cyber-surface-1)",
-            borderColor: "var(--cyber-border-subtle)",
-          }}
         >
-          <div className="space-y-3 p-3">
-            <label className="block text-xs" htmlFor="event-search">
-              Buscar eventos
-            </label>
-            <input
-              id="event-search"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              className="w-full border bg-transparent px-2 py-2 text-sm"
-              placeholder="Nombre, lugar o descripción"
-            />
-            <div className="grid grid-cols-2 gap-2">
-              <label className="text-xs">
-                Tipo
+          <div className="map-page__explorer-header">
+            <h2 className="map-page__explorer-title">Explorador de eventos</h2>
+          </div>
+          <div className="map-page__filters">
+            <Field label="Buscar eventos">
+              <input
+                type="search"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Nombre, lugar o descripción"
+                autoComplete="off"
+              />
+            </Field>
+            <div className="map-page__filter-row">
+              <Field label="Tipo">
                 <select
+                  className="ui-control"
                   value={type}
                   onChange={(event) => setType(event.target.value)}
-                  className="mt-1 w-full border bg-transparent p-2"
                 >
                   <option value="all">Todos</option>
                   {eventTypes.map((item) => (
@@ -240,122 +199,141 @@ export function MapPage() {
                     </option>
                   ))}
                 </select>
-              </label>
-              <label className="text-xs">
-                Fecha
+              </Field>
+              <Field label="Fecha">
                 <select
+                  className="ui-control"
                   value={date}
                   onChange={(event) =>
                     setDate(event.target.value as DateFilter)
                   }
-                  className="mt-1 w-full border bg-transparent p-2"
                 >
                   <option value="all">Todas</option>
                   <option value="today">Hoy</option>
                   <option value="week">Próximos 7 días</option>
                 </select>
-              </label>
+              </Field>
             </div>
           </div>
           <section
+            id="map-event-results"
             aria-live="polite"
             aria-busy={requestState === "loading"}
-            className="border-t"
-            style={{ borderColor: "var(--cyber-border-subtle)" }}
+            className="map-page__results"
           >
-            <p
-              className="px-4 pt-3 text-xs"
-              style={{ color: "var(--cyber-text-secondary)" }}
-            >
+            <p className="map-page__results-summary">
               {visibleEvents.length} resultados en el área visible
             </p>
             {requestState === "loading" && (
-              <div role="status" aria-live="polite">
-                <span className="sr-only">Cargando eventos públicos…</span>
-                <ResultsPanelSkeleton />
-              </div>
+              <LoadingState label="Cargando eventos públicos…" />
             )}
-            {requestState === "error" && (
-              <div role="alert" className="space-y-3 p-4 text-sm">
-                <p>{requestError}</p>
-                <button
-                  type="button"
-                  onClick={retryEvents}
-                  className="flex items-center gap-2 border px-3 py-2"
-                >
-                  <RotateCw size={14} /> Reintentar
-                </button>
-              </div>
+            {requestState === "error" && requestError && (
+              <ErrorState message={requestError} onRetry={retryEvents} />
             )}
             {requestState === "success" && visibleEvents.length === 0 && (
-              <p className="p-4 text-sm">
+              <EmptyState
+                actionLabel="Actualizar listado"
+                onAction={retryEvents}
+              >
                 No hay eventos públicos que coincidan con los filtros.
-              </p>
+              </EmptyState>
             )}
-            {requestState === "success" &&
-              visibleEvents.map((event) => (
-                <button
-                  key={event.id}
-                  type="button"
-                  onClick={() => selectEvent(event.id)}
-                  aria-pressed={visibleSelectedEventId === event.id}
-                  className="block w-full border-b p-4 text-left focus-visible:outline focus-visible:outline-2"
-                  style={{
-                    borderColor: "var(--cyber-border-subtle)",
-                    background:
-                      visibleSelectedEventId === event.id
-                        ? "var(--cyber-cyan-dim)"
-                        : "transparent",
-                  }}
-                >
-                  <span
-                    className="text-xs"
-                    style={{ color: "var(--cyber-cyan)" }}
-                  >
-                    {event.type}
-                  </span>
-                  <strong className="mt-1 block">{event.name}</strong>
-                  <span className="mt-1 block text-xs">
-                    {event.locationText} ·{" "}
-                    {event.startsAt.toLocaleDateString("es-MX")}
-                  </span>
-                </button>
-              ))}
+            {requestState === "success" && visibleEvents.length > 0 && (
+              <ul className="map-page__event-list" role="list">
+                {visibleEvents.map((event) => {
+                  const isSelected = visibleSelectedEventId === event.id;
+                  return (
+                    <li key={event.id}>
+                      <button
+                        type="button"
+                        className="map-page__event-item"
+                        onClick={() => selectEvent(event.id)}
+                        aria-pressed={isSelected}
+                      >
+                        {isSelected && (
+                          <span className="map-page__event-selected-badge">
+                            Seleccionado
+                          </span>
+                        )}
+                        <span className="map-page__event-type">
+                          {event.type}
+                        </span>
+                        <strong className="map-page__event-name">
+                          {event.name}
+                        </strong>
+                        <span className="map-page__event-meta">
+                          {event.locationText} ·{" "}
+                          {event.startsAt.toLocaleDateString("es-MX")}
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </section>
           {selectedEvent && (
             <section
-              className="space-y-2 border-t p-4"
+              className="map-page__detail"
               aria-label="Evento seleccionado"
-              style={{ borderColor: "var(--cyber-border-subtle)" }}
             >
-              <h2 className="font-semibold">{selectedEvent.name}</h2>
-              <p className="text-sm">{selectedEvent.description}</p>
-              <div className="flex gap-2">
-                <a
-                  className="border px-3 py-2 text-sm"
-                  href={`/eventos?evento=${encodeURIComponent(selectedEvent.id)}`}
-                >
-                  Ver detalle
-                </a>
-                <a
-                  className="border px-3 py-2 text-sm"
-                  href={
-                    selectedEvent.mapUrl ??
-                    `https://www.google.com/maps/dir/?api=1&destination=${selectedEvent.coordinates.latitude},${selectedEvent.coordinates.longitude}`
-                  }
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Cómo llegar
-                </a>
+              <h2>{selectedEvent.name}</h2>
+              <p>{selectedEvent.description}</p>
+              <div className="map-page__detail-actions">
+                <Button variant="outline" asChild>
+                  <a
+                    href={`/eventos?evento=${encodeURIComponent(selectedEvent.id)}`}
+                  >
+                    Ver detalle
+                  </a>
+                </Button>
+                <Button variant="outline" asChild>
+                  <a
+                    href={
+                      selectedEvent.mapUrl ??
+                      `https://www.google.com/maps/dir/?api=1&destination=${selectedEvent.coordinates.latitude},${selectedEvent.coordinates.longitude}`
+                    }
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Cómo llegar
+                  </a>
+                </Button>
               </div>
             </section>
           )}
         </aside>
-        <section
-          className="relative min-w-0 flex-1 max-sm:min-h-[calc(100dvh-7rem)]"
-          aria-label="Mapa de eventos"
-        >
+        <section className="map-page__map" aria-label="Mapa de eventos">
+          <div className="map-page__map-toolbar">
+            <Button
+              type="button"
+              variant="outline"
+              size="icon-sm"
+              onClick={() => setSidebarVisible((value) => !value)}
+              aria-label={
+                sidebarVisible ? "Ocultar explorador" : "Mostrar explorador"
+              }
+              aria-expanded={sidebarVisible}
+              aria-controls="map-event-results"
+            >
+              {sidebarVisible ? (
+                <PanelLeftClose aria-hidden="true" />
+              ) : (
+                <PanelLeft aria-hidden="true" />
+              )}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setPanelCapasAbierto((value) => !value)}
+              aria-label="Capas territoriales"
+              aria-expanded={panelCapasAbierto}
+            >
+              <Layers aria-hidden="true" />
+              Capas
+            </Button>
+          </div>
           <MapaVista
             events={visibleEvents}
             selectedEventId={visibleSelectedEventId}
