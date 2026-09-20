@@ -19,6 +19,9 @@ import type {
   ScopedMap,
 } from "@/types/domain";
 
+import { MetricGrid } from "@/components/ui/MetricGrid";
+import { RoleChip } from "@/components/ui/RoleChip";
+
 import { HierarchyBreadcrumbs } from "./HierarchyBreadcrumbs";
 import { PersonForm } from "./PersonForm";
 import { apiErrorMessage, nameOf, roleLabel } from "./person-display";
@@ -27,32 +30,16 @@ type DetailTab = "resumen" | "persona" | "territorio" | "documentos";
 
 function SummaryTab({ metrics }: { metrics: PersonMetrics | null }) {
   return (
-    <dl className="person-metrics">
-      <div>
-        <dt>Descendientes</dt>
-        <dd>{metrics?.descendants ?? "—"}</dd>
-      </div>
-      <div>
-        <dt>Coordinadores</dt>
-        <dd>{metrics?.coordinators ?? "—"}</dd>
-      </div>
-      <div>
-        <dt>Enlaces</dt>
-        <dd>{metrics?.links ?? "—"}</dd>
-      </div>
-      <div>
-        <dt>Amigos</dt>
-        <dd>{metrics?.friends ?? "—"}</dd>
-      </div>
-      <div>
-        <dt>Documentos</dt>
-        <dd>{metrics?.documents ?? "—"}</dd>
-      </div>
-      <div>
-        <dt>Eventos</dt>
-        <dd>{metrics?.createdEvents ?? "—"}</dd>
-      </div>
-    </dl>
+    <MetricGrid
+      items={[
+        { label: "Descendientes", value: metrics?.descendants ?? "—" },
+        { label: "Coordinadores", value: metrics?.coordinators ?? "—" },
+        { label: "Enlaces", value: metrics?.links ?? "—" },
+        { label: "Amigos", value: metrics?.friends ?? "—" },
+        { label: "Documentos", value: metrics?.documents ?? "—" },
+        { label: "Eventos", value: metrics?.createdEvents ?? "—" },
+      ]}
+    />
   );
 }
 
@@ -66,9 +53,7 @@ function PersonaTab({ person }: { person: Person }) {
       <div>
         <dt>Rol</dt>
         <dd>
-          <span className="role-chip" data-role={person.role}>
-            {roleLabel(person.role)}
-          </span>
+          <RoleChip role={person.role} />
         </dd>
       </div>
       <div>
@@ -107,10 +92,7 @@ function TerritoryTab({
     <ul className="scoped-map-list">
       {withGeofences.map((person) => (
         <li key={person.personId}>
-          <strong>{nameOf(person)}</strong>{" "}
-          <span className="role-chip" data-role={person.role}>
-            {roleLabel(person.role)}
-          </span>
+          <strong>{nameOf(person)}</strong> <RoleChip role={person.role} />
           <ul>
             {person.geofences.map((geofence) => (
               <li key={`${person.personId}-${geofence.id}`}>

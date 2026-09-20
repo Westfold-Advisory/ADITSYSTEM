@@ -455,55 +455,6 @@ a:focus-visible {
   font-size: 0.8125rem;
   margin-top: 0.15rem;
 }
-.tree-filter-bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 0.75rem;
-  margin: 0.75rem 0;
-}
-.tree-filter-bar > *:first-child {
-  flex: 1 1 12rem;
-}
-.hierarchy-tree-panel ul {
-  list-style: none;
-  margin: 0.5rem 0 0;
-  padding-left: 1rem;
-}
-.hierarchy-tree-panel > ul {
-  padding-left: 0;
-}
-.tree-node {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-.tree-spacer {
-  width: 1.5rem;
-}
-.tree-person {
-  appearance: none;
-  border: 0;
-  padding: 0.35rem;
-  background: transparent;
-  color: var(--cyber-text);
-  cursor: pointer;
-  text-align: left;
-}
-.tree-person:hover,
-[role="treeitem"][aria-selected="true"] > .tree-node .tree-person {
-  color: var(--md-sys-color-primary);
-  text-decoration: underline;
-}
-.tree-person small {
-  color: var(--cyber-text-secondary);
-  text-transform: capitalize;
-}
-.tree-empty {
-  color: var(--cyber-text-secondary);
-  font-size: 0.875rem;
-  padding: 0.25rem;
-}
 .person-detail {
   display: grid;
   gap: 0.75rem;
@@ -520,27 +471,6 @@ a:focus-visible {
   font-size: 0.875rem;
   text-transform: capitalize;
 }
-.person-metrics {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.5rem;
-  margin: 0;
-}
-.person-metrics div {
-  padding: 0.5rem;
-  border-radius: var(--md-sys-radius-sm);
-  background: var(--md-sys-color-surface-container-low);
-}
-.person-metrics dt {
-  color: var(--cyber-text-secondary);
-  font-size: 0.75rem;
-}
-.person-metrics dd {
-  margin: 0.15rem 0 0;
-  font-size: 1.25rem;
-  font-weight: 700;
-}
-
 .scoped-map {
   margin-top: 1.5rem;
 }
@@ -567,22 +497,6 @@ a:focus-visible {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
-}
-.role-chip {
-  display: inline-flex;
-  align-items: center;
-  align-self: flex-start;
-  padding: 0.35rem 0.85rem;
-  border-radius: var(--md-sys-radius-full);
-  background: var(--md-sys-color-primary-container);
-  color: var(--md-sys-color-on-primary-container);
-  font-weight: 600;
-  font-size: 0.875rem;
-  text-transform: capitalize;
-}
-.role-chip[data-role="AMIGO"] {
-  background: var(--md-sys-color-tertiary-container);
-  color: var(--md-sys-color-on-tertiary-container);
 }
 @media (max-width: 48rem) {
   .hierarchy-layout,

@@ -303,6 +303,133 @@
     justify-content: center;
   }
 }
+/* Admin design system — tokens --md-sys-* only */
+.ui-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--md-sys-spacing-2);
+  margin: 0;
+}
+.ui-metric-grid[data-columns="2"] {
+  grid-template-columns: repeat(2, 1fr);
+}
+.ui-metric-grid[data-columns="4"] {
+  grid-template-columns: repeat(4, 1fr);
+}
+.ui-metric-grid > div {
+  padding: var(--md-sys-spacing-2);
+  border-radius: var(--md-sys-radius-sm);
+  background: var(--md-sys-color-surface-container-low);
+}
+.ui-metric-grid dt {
+  color: var(--md-sys-color-on-surface-variant);
+  font: var(--md-sys-typescale-label-small);
+}
+.ui-metric-grid dd {
+  margin: var(--md-sys-spacing-1) 0 0;
+  font: var(--md-sys-typescale-title-medium);
+  font-weight: 700;
+}
+.ui-role-chip {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--md-sys-radius-full);
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+  font: var(--md-sys-typescale-label-large);
+  text-transform: capitalize;
+}
+.ui-role-chip[data-role="AMIGO"] {
+  background: var(--md-sys-color-tertiary-container);
+  color: var(--md-sys-color-on-tertiary-container);
+}
+.ui-role-chip[data-role="ADMIN"] {
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+.ui-hierarchy-layout {
+  display: grid;
+  grid-template-columns: minmax(16rem, 0.8fr) minmax(20rem, 1.2fr);
+  gap: var(--md-sys-spacing-4);
+  margin-top: var(--md-sys-spacing-4);
+}
+.ui-hierarchy-tree-panel,
+.ui-hierarchy-tree-panel + section .person-detail,
+.domain-form {
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-radius-lg);
+  padding: var(--md-sys-spacing-4);
+  background: var(--md-sys-color-surface);
+}
+.ui-hierarchy-tree-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--md-sys-spacing-3);
+  margin: var(--md-sys-spacing-3) 0;
+}
+.ui-hierarchy-tree-filter > *:first-child {
+  flex: 1 1 12rem;
+}
+.ui-hierarchy-tree-panel .ui-hierarchy-tree {
+  list-style: none;
+  margin: var(--md-sys-spacing-2) 0 0;
+  padding-left: 0;
+}
+.ui-hierarchy-tree ul {
+  list-style: none;
+  margin: 0;
+  padding-left: var(--md-sys-spacing-4);
+}
+.ui-hierarchy-tree-node {
+  display: flex;
+  align-items: center;
+  gap: var(--md-sys-spacing-1);
+}
+.ui-hierarchy-tree-spacer {
+  width: 1.5rem;
+}
+.ui-hierarchy-tree-person {
+  appearance: none;
+  border: 0;
+  padding: 0.35rem;
+  background: transparent;
+  color: var(--md-sys-color-on-surface);
+  cursor: pointer;
+  text-align: left;
+  border-radius: var(--md-sys-radius-sm);
+  font: inherit;
+}
+.ui-hierarchy-tree-person:focus-visible {
+  outline: var(--md-sys-focus-ring);
+  outline-offset: 2px;
+}
+.ui-hierarchy-tree-person:hover,
+[role="treeitem"][aria-selected="true"]
+  > .ui-hierarchy-tree-node
+  .ui-hierarchy-tree-person {
+  color: var(--md-sys-color-primary);
+  text-decoration: underline;
+}
+.ui-hierarchy-tree-person small {
+  color: var(--md-sys-color-on-surface-variant);
+  text-transform: capitalize;
+}
+.ui-hierarchy-tree-empty {
+  color: var(--md-sys-color-on-surface-variant);
+  font: var(--md-sys-typescale-body-medium);
+  padding: var(--md-sys-spacing-1);
+}
+@media (max-width: 48rem) {
+  .ui-metric-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .ui-hierarchy-layout {
+    grid-template-columns: 1fr;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   .ui-spinner {
     animation: none;

@@ -8,6 +8,10 @@ import { Alert } from "./ui/Alert";
 import { LoadingState } from "./ui/AsyncState";
 import { Button } from "./ui/button";
 import { Field } from "./ui/Field";
+import { HierarchyTree, HierarchyTreeNode } from "./ui/HierarchyTree";
+import { MetricGrid } from "./ui/MetricGrid";
+import { RoleChip } from "./ui/RoleChip";
+import type { Person } from "@/types/domain";
 import {
   EventDetailSkeleton,
   EventFormSkeleton,
@@ -72,6 +76,74 @@ test("motion tokens and feedback do not force animation for reduced motion", () 
     primitives.match(/\.ui-button-progress\s*\{[^}]*\}/)?.[0] ?? "",
     /animation:/,
   );
+});
+
+test("admin structure components expose tree semantics and role labels", () => {
+  const chip = renderToStaticMarkup(createElement(RoleChip, { role: "AMIGO" }));
+  assert.match(chip, /ui-role-chip/);
+  assert.match(chip, /data-role="AMIGO"/);
+  assert.match(chip, /amigo/);
+
+  const metrics = renderToStaticMarkup(
+    createElement(MetricGrid, {
+      items: [{ label: "Eventos", value: 3 }],
+      columns: 2,
+    }),
+  );
+  assert.match(metrics, /ui-metric-grid/);
+  assert.match(metrics, /data-columns="2"/);
+  assert.match(metrics, /<dt>Eventos<\/dt>/);
+
+  const person = {
+    id: "00000000-0000-4000-8000-000000000001",
+    role: "ENLACE",
+    nombre: "Ana",
+    apellidoPaterno: "López",
+    apellidoMaterno: "Ruiz",
+    telefono: "555",
+    parentId: null,
+    status: "ACTIVO",
+    registeredAt: new Date(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  } satisfies Person;
+
+  const tree = renderToStaticMarkup(
+    createElement(
+      HierarchyTree,
+      { busy: true },
+      createElement(HierarchyTreeNode, {
+        person,
+        selectedId: person.id,
+        expanded: false,
+        children: [],
+        totalChildren: 0,
+        filterActive: false,
+        loading: false,
+        expandedById: {},
+        childrenById: {},
+        totalChildrenById: {},
+        loadingNode: null,
+        onSelect: () => {},
+        onToggle: () => {},
+      }),
+    ),
+  );
+  assert.match(tree, /role="tree"/);
+  assert.match(tree, /aria-busy="true"/);
+  assert.match(tree, /role="treeitem"/);
+  assert.match(tree, /ui-hierarchy-tree-person/);
+});
+
+test("admin component styles avoid legacy hierarchy and metric classes in App.css", () => {
+  const appStyles = readFileSync(
+    new URL("../App.css", import.meta.url),
+    "utf8",
+  );
+  assert.doesNotMatch(appStyles, /\.person-metrics\b/);
+  assert.doesNotMatch(appStyles, /\.role-chip\b/);
+  assert.doesNotMatch(appStyles, /\.tree-filter-bar\b/);
+  assert.doesNotMatch(appStyles, /\.tree-person\b/);
 });
 
 test("skeleton primitives reserve content geometry without misleading text", () => {

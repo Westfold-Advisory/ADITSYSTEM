@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/Field";
 import type { Person, PersonInput } from "@/types/domain";
 
+import { RoleChip } from "@/components/ui/RoleChip";
+
 import { apiErrorMessage, nameOf, roleLabel } from "./person-display";
 
 const empty: PersonInput = {
@@ -61,9 +63,7 @@ export function PersonForm({
       </div>
       <div className="form-section">
         <p className="eyebrow">Tipo de registro</p>
-        <span className="role-chip" data-role={role}>
-          {roleLabel(role)}
-        </span>
+        <RoleChip role={role} />
       </div>
       <p className="eyebrow">Datos personales</p>
       <div className="event-form-grid">

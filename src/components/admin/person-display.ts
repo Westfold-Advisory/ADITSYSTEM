@@ -15,6 +15,4 @@ export function nameOf(
     .join(" ");
 }
 
-export function roleLabel(role: Person["role"]): string {
-  return role.toLowerCase().replaceAll("_", " ");
-}
+export { roleLabel } from "@/lib/role-label";
