@@ -34,10 +34,10 @@ test("directChildren narrows a recursive descendants response to one generation"
     role: "AMIGO",
   });
 
-  const result = directChildren(
-    [child, grandchild, greatGrandchild],
-    { id: "root", role: "COORDINADOR_GENERAL" },
-  );
+  const result = directChildren([child, grandchild, greatGrandchild], {
+    id: "root",
+    role: "COORDINADOR_GENERAL",
+  });
 
   assert.deepEqual(result, [child]);
 });
