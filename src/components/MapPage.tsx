@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Layers, PanelLeft, PanelLeftClose } from "lucide-react";
 
 import { EventsApi } from "@/api/events";
@@ -47,6 +47,7 @@ export function MapPage() {
   const [selectedEventId, setSelectedEventId] = useState<UUID | null>(null);
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [panelCapasAbierto, setPanelCapasAbierto] = useState(false);
+  const capasTriggerRef = useRef<HTMLButtonElement>(null);
   const [geofences, setGeofences] = useState<Geofence[]>([]);
   const [geofencesLoading, setGeofencesLoading] = useState(true);
   const [geofencesError, setGeofencesError] = useState<string | null>(null);
@@ -333,12 +334,14 @@ export function MapPage() {
               )}
             </Button>
             <Button
+              ref={capasTriggerRef}
               type="button"
               variant="outline"
               size="sm"
               onClick={() => setPanelCapasAbierto((value) => !value)}
               aria-label="Capas territoriales"
               aria-expanded={panelCapasAbierto}
+              aria-haspopup="dialog"
             >
               <Layers aria-hidden="true" />
               Capas
@@ -359,6 +362,7 @@ export function MapPage() {
             onSelectGeofence={setSelectedGeofenceId}
             pointGeofences={pointGeofences}
             pointLookup={pointLookup}
+            capasTriggerRef={capasTriggerRef}
           />
         </section>
       </div>

@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, type RefObject } from "react";
 import { Layers, Search, X } from "lucide-react";
 import type { Geofence, GeofenceType } from "@/api/geofences";
+import { useModalFocus } from "@/hooks/useModalFocus";
 import { MapControlsSkeleton } from "./Skeleton";
 
 const typeLabels: Record<GeofenceType, string> = {
@@ -20,6 +21,7 @@ export function PanelCapas({
   onToggle,
   onSelect,
   onClose,
+  returnFocusRef,
 }: {
   items: Geofence[];
   visible: Record<GeofenceType, boolean>;
@@ -31,26 +33,18 @@ export function PanelCapas({
   pointLookup: { loading: boolean; error: string | null };
   onSelect: (id: string) => void;
   onClose: () => void;
+  returnFocusRef?: RefObject<HTMLElement | null>;
 }) {
   const [search, setSearch] = useState("");
   const dialogRef = useRef<HTMLElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
-  useEffect(() => {
-    closeButtonRef.current?.focus();
-  }, []);
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        onClose();
-      }
-    };
-    const node = dialogRef.current;
-    node?.addEventListener("keydown", handleKeyDown);
-    return () => node?.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
+  useModalFocus({
+    containerRef: dialogRef,
+    returnFocusRef,
+    onClose,
+    initialFocusRef: closeButtonRef,
+  });
 
   const filtered = useMemo(() => {
     const term = search.trim().toLocaleLowerCase();
