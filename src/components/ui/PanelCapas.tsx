@@ -213,8 +213,9 @@ export function PanelCapas({
                 )}
                 {emptyCatalog && (
                   <p className="px-1 text-[10px] text-muted-foreground">
-                    Sin registros en el servidor para esta capa (import INE
-                    pendiente).
+                    {type === "MUNICIPIO" || type === "ESTADO"
+                      ? "En dev/RDS no hay esta capa: el import TRA-128 solo subió distrito local, distrito federal y sección desde el release GitHub, aunque los shapes de Puebla existan en disco."
+                      : "Sin registros en el servidor para esta capa."}
                   </p>
                 )}
                 {isTruncated && GEOFENCE_CATALOG_LIMITS[type]?.mapHint && (

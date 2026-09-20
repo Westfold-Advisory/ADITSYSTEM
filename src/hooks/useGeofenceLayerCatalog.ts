@@ -16,6 +16,11 @@ function geofenceLoadErrorMessage(reason: unknown): string {
   if (reason instanceof ApiError && reason.status === 500) {
     return "El servidor no pudo devolver esta capa (respuesta demasiado grande). Se reintentará con lotes más pequeños.";
   }
+  const message =
+    reason instanceof Error ? reason.message : String(reason ?? "");
+  if (/failed to fetch|networkerror|load failed/i.test(message)) {
+    return "No se pudo conectar con la API (red saturada o timeout). Espera un momento y vuelve a activar la capa.";
+  }
   if (reason instanceof Error) return reason.message;
   return "No fue posible cargar las capas territoriales.";
 }
@@ -35,10 +40,11 @@ export function useGeofenceLayerCatalog(api: GeofencesApi) {
   const [loadedTypes, setLoadedTypes] = useState<Set<GeofenceType>>(
     () => new Set(),
   );
+  const queuedTypesRef = useRef<Set<GeofenceType>>(new Set());
+  const workerRef = useRef<Promise<void> | null>(null);
 
-  const ensureTypeLoaded = useCallback(
+  const loadType = useCallback(
     async (type: GeofenceType, signal?: AbortSignal) => {
-      if (loadedTypesRef.current.has(type)) return;
       setLoadingTypes((current) => new Set(current).add(type));
       setErrorsByType((current) => {
         if (!current[type]) return current;
@@ -73,6 +79,37 @@ export function useGeofenceLayerCatalog(api: GeofencesApi) {
       }
     },
     [api],
+  );
+
+  const drainQueue = useCallback(async () => {
+    while (queuedTypesRef.current.size > 0) {
+      const type = queuedTypesRef.current.values().next().value as GeofenceType;
+      queuedTypesRef.current.delete(type);
+      await loadType(type);
+    }
+  }, [loadType]);
+
+  const ensureTypeLoaded = useCallback(
+    (type: GeofenceType, signal?: AbortSignal) => {
+      if (loadedTypesRef.current.has(type)) return;
+      if (queuedTypesRef.current.has(type)) return;
+      if (signal) {
+        signal.addEventListener(
+          "abort",
+          () => {
+            queuedTypesRef.current.delete(type);
+          },
+          { once: true },
+        );
+      }
+      queuedTypesRef.current.add(type);
+      if (!workerRef.current) {
+        workerRef.current = drainQueue().finally(() => {
+          workerRef.current = null;
+        });
+      }
+    },
+    [drainQueue],
   );
 
   const loading = loadingTypes.size > 0;
