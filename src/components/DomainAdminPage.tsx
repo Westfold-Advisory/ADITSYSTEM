@@ -46,15 +46,19 @@ function roleLabel(role: Person["role"]): string {
 function PersonForm({
   role,
   parent,
+  initialValues = empty,
+  submitLabel = "Guardar",
   onSave,
   onCancel,
 }: {
   role: Person["role"];
   parent: Person;
+  initialValues?: PersonInput;
+  submitLabel?: string;
   onSave: (input: PersonInput) => Promise<void>;
   onCancel: () => void;
 }) {
-  const [values, setValues] = useState<PersonInput>(empty);
+  const [values, setValues] = useState<PersonInput>(initialValues);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const submit = async (event: FormEvent<HTMLFormElement>) => {
@@ -77,7 +81,9 @@ function PersonForm({
       aria-label={`Registrar ${roleLabel(role)}`}
     >
       <div>
-        <h2>Registrar {roleLabel(role)}</h2>
+        <h2>
+          {submitLabel === "Guardar" ? "Registrar" : "Editar"} {roleLabel(role)}
+        </h2>
         <p className="form-intro">
           Se agregará bajo {nameOf(parent)}. No necesitas capturar un
           identificador.
@@ -128,7 +134,7 @@ function PersonForm({
       )}
       <div className="event-form-actions">
         <Button status={saving ? "loading" : "idle"} type="submit">
-          Guardar
+          {submitLabel}
         </Button>
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancelar
@@ -238,6 +244,7 @@ export function DomainAdminPage({
   > | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
+  const [editing, setEditing] = useState(false);
   const breadcrumb = useMemo(() => {
     if (!self || !selected) return [];
     const byId = new Map(
@@ -274,6 +281,7 @@ export function DomainAdminPage({
   const select = useCallback((person: Person) => {
     setSelected(person);
     setCreating(false);
+    setEditing(false);
   }, []);
   const toggle = useCallback(
     (person: Person) => {
@@ -316,6 +324,21 @@ export function DomainAdminPage({
     setCreating(false);
     await loadChildren(selected);
     setExpanded((current) => ({ ...current, [selected.id]: true }));
+  };
+  const updatePerson = async (input: PersonInput) => {
+    if (!selected) return;
+    const updated = await api.updatePerson(selected.id, input);
+    setSelected(updated);
+    setChildren((current) =>
+      Object.fromEntries(
+        Object.entries(current).map(([id, items]) => [
+          id,
+          items.map((person) => (person.id === updated.id ? updated : person)),
+        ]),
+      ),
+    );
+    if (self?.id === updated.id) setSelf(updated);
+    setEditing(false);
   };
   const remove = async () => {
     if (
@@ -433,6 +456,9 @@ export function DomainAdminPage({
                         Registrar {roleLabel(capabilities.childRole)}
                       </Button>
                     )}
+                  <Button variant="outline" onClick={() => setEditing(true)}>
+                    Editar datos
+                  </Button>
                   {selected.id !== session.user.persona_id && (
                     <Button variant="destructive" onClick={() => void remove()}>
                       Dar de baja
@@ -449,6 +475,21 @@ export function DomainAdminPage({
                 parent={selected}
                 onSave={createChild}
                 onCancel={() => setCreating(false)}
+              />
+            )}
+            {editing && selected && (
+              <PersonForm
+                role={selected.role}
+                parent={selected}
+                initialValues={{
+                  nombre: selected.nombre,
+                  apellidoPaterno: selected.apellidoPaterno,
+                  apellidoMaterno: selected.apellidoMaterno,
+                  telefono: selected.telefono,
+                }}
+                submitLabel="Actualizar"
+                onSave={updatePerson}
+                onCancel={() => setEditing(false)}
               />
             )}
           </section>
