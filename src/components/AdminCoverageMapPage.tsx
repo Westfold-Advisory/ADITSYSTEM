@@ -9,7 +9,7 @@ import {
   type GeofenceType,
 } from "@/api/geofences";
 import { ApiClient } from "@/api/http";
-import { AdminNav } from "@/components/admin/AdminNav";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { PersonForm } from "@/components/admin/PersonForm";
 import { nameOf, roleLabel } from "@/components/admin/person-display";
 import { UnauthorizedRoleScreen } from "@/components/UnauthorizedRoleScreen";
@@ -281,21 +281,16 @@ export function AdminCoverageMapPage() {
 
   return (
     <main className="admin-page coverage-map-page">
-      <header className="admin-header">
-        <div>
-          <p className="eyebrow">{institution.productName}</p>
-          <h1>Mapa de cobertura</h1>
-          <p>
+      <AdminPageHeader
+        eyebrow={institution.productName}
+        title="Mapa de cobertura"
+        subtitle={
+          <>
             {session.user.email} · alcance {roleLabel(session.user.rol)}
-          </p>
-        </div>
-        <div className="flex flex-col items-end gap-2">
-          <AdminNav />
-          <button type="button" onClick={logout}>
-            Cerrar sesión
-          </button>
-        </div>
-      </header>
+          </>
+        }
+        onSignOut={logout}
+      />
 
       <section
         className="coverage-map-toolbar flex flex-wrap items-center gap-2"

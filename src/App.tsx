@@ -4,6 +4,7 @@ import { MapPage } from "./components/MapPage";
 import { PublicEventsPage } from "./components/PublicEventsPage";
 import { AdminEventsPage } from "./components/AdminEventsPage";
 import { AdminCoverageMapPage } from "./components/AdminCoverageMapPage";
+import { AdminStructurePage } from "./components/AdminStructurePage";
 import { LoginPage } from "./components/LoginPage";
 import { PrivacyNoticePage } from "./components/PrivacyNoticePage";
 import { PublicAppShell } from "./components/PublicAppShell";
@@ -60,6 +61,7 @@ export default function App() {
   }
   if (currentPath === "/admin") return <AdminEventsPage />;
   if (currentPath === "/admin/mapa") return <AdminCoverageMapPage />;
+  if (currentPath === "/admin/personas") return <AdminStructurePage />;
   if (currentPath === "/eventos") {
     return (
       <PublicAppShell currentPath="/eventos">
