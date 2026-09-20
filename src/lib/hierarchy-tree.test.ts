@@ -31,7 +31,11 @@ function person(overrides: Partial<Person>): Person {
 }
 
 test("buildVisibleTreeRows respects expansion and depth", () => {
-  const root = person({ id: "root", role: "COORDINADOR_GENERAL", parentId: null });
+  const root = person({
+    id: "root",
+    role: "COORDINADOR_GENERAL",
+    parentId: null,
+  });
   const child = person({ id: "child", parentId: "root", role: "COORDINADOR" });
   const grandchild = person({ id: "grand", parentId: "child", role: "AMIGO" });
   const childrenById = {
@@ -39,17 +43,27 @@ test("buildVisibleTreeRows respects expansion and depth", () => {
     child: [grandchild],
   };
 
-  const collapsed = buildVisibleTreeRows(root, childrenById, { root: true, child: false });
+  const collapsed = buildVisibleTreeRows(root, childrenById, {
+    root: true,
+    child: false,
+  });
   assert.equal(collapsed.length, 2);
   assert.equal(collapsed[1].depth, 1);
 
-  const expanded = buildVisibleTreeRows(root, childrenById, { root: true, child: true });
+  const expanded = buildVisibleTreeRows(root, childrenById, {
+    root: true,
+    child: true,
+  });
   assert.equal(expanded.length, 3);
   assert.equal(expanded[2].person.id, "grand");
 });
 
 test("tree keyboard navigation follows WAI-ARIA tree arrows", () => {
-  const root = person({ id: "root", role: "COORDINADOR_GENERAL", parentId: null });
+  const root = person({
+    id: "root",
+    role: "COORDINADOR_GENERAL",
+    parentId: null,
+  });
   const a = person({ id: "a", parentId: "root" });
   const b = person({ id: "b", parentId: "root" });
   const rows = buildVisibleTreeRows(root, { root: [a, b] }, { root: true });
@@ -63,7 +77,11 @@ test("tree keyboard navigation follows WAI-ARIA tree arrows", () => {
 });
 
 test("ArrowRight expands collapsed branch before moving to child", () => {
-  const root = person({ id: "root", role: "COORDINADOR_GENERAL", parentId: null });
+  const root = person({
+    id: "root",
+    role: "COORDINADOR_GENERAL",
+    parentId: null,
+  });
   const child = person({ id: "child", parentId: "root", role: "COORDINADOR" });
   const rows = buildVisibleTreeRows(root, { root: [child] }, { root: false });
 
@@ -87,7 +105,10 @@ test("buildVisibleTreeRows stays fast for 250-node seed", () => {
   const rows = buildVisibleTreeRows(root, childrenById, expanded);
   const elapsed = performance.now() - start;
   assert.equal(rows.length, 250);
-  assert.ok(elapsed < 100, `expected flatten under 100ms, got ${elapsed.toFixed(1)}ms`);
+  assert.ok(
+    elapsed < 100,
+    `expected flatten under 100ms, got ${elapsed.toFixed(1)}ms`,
+  );
 });
 
 test("sliceVirtualWindow renders a bounded slice for long lists", () => {

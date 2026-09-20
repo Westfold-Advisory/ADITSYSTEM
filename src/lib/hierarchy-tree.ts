@@ -14,12 +14,7 @@ export type TreeRow = {
 };
 
 export type TreeNavigationKey =
-  | "ArrowDown"
-  | "ArrowUp"
-  | "ArrowLeft"
-  | "ArrowRight"
-  | "Home"
-  | "End";
+  "ArrowDown" | "ArrowUp" | "ArrowLeft" | "ArrowRight" | "Home" | "End";
 
 export type TreeKeyboardResult = {
   nextIndex: number;
@@ -123,10 +118,7 @@ export function sliceVirtualWindow(
   if (rowCount === 0) {
     return { start: 0, end: 0, offsetY: 0, totalHeight: 0 };
   }
-  const start = Math.max(
-    0,
-    Math.floor(scrollTop / rowHeight) - overscan,
-  );
+  const start = Math.max(0, Math.floor(scrollTop / rowHeight) - overscan);
   const visibleRows = Math.ceil(viewportHeight / rowHeight) + overscan * 2;
   const end = Math.min(rowCount, start + visibleRows);
   return {
