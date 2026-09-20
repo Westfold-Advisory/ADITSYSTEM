@@ -18,7 +18,15 @@ import {
   LoadingState,
 } from "@/components/ui/AsyncState";
 import { Field } from "@/components/ui/Field";
-import type { Person, PersonInput } from "@/types/domain";
+import { directChildren } from "@/lib/hierarchy";
+import {
+  emptyPersonFilter,
+  filterPersonList,
+  isPersonFilterActive,
+  type PersonFilter,
+  type PersonStatusFilter,
+} from "@/lib/person-filters";
+import { PERSON_STATUSES, type Person, type PersonInput } from "@/types/domain";
 
 const empty: PersonInput = {
   nombre: "",
@@ -156,9 +164,12 @@ function TreeNode({
   selectedId,
   expanded,
   children,
+  totalChildren,
+  filterActive,
   loading,
   expandedById,
   childrenById,
+  totalChildrenById,
   loadingNode,
   onSelect,
   onToggle,
@@ -167,9 +178,12 @@ function TreeNode({
   selectedId: string | null;
   expanded: boolean;
   children: Person[] | undefined;
+  totalChildren: number | undefined;
+  filterActive: boolean;
   loading: boolean;
   expandedById: Record<string, boolean>;
   childrenById: Record<string, Person[]>;
+  totalChildrenById: Record<string, Person[]>;
   loadingNode: string | null;
   onSelect: (person: Person) => void;
   onToggle: (person: Person) => void;
@@ -209,16 +223,23 @@ function TreeNode({
               selectedId={selectedId}
               expanded={Boolean(expandedById[child.id])}
               children={childrenById[child.id]}
+              totalChildren={totalChildrenById[child.id]?.length}
+              filterActive={filterActive}
               loading={loadingNode === child.id}
               expandedById={expandedById}
               childrenById={childrenById}
+              totalChildrenById={totalChildrenById}
               loadingNode={loadingNode}
               onSelect={onSelect}
               onToggle={onToggle}
             />
           ))}
           {!loading && children?.length === 0 && (
-            <li className="tree-empty">Sin descendientes.</li>
+            <li className="tree-empty">
+              {filterActive && (totalChildren ?? 0) > 0
+                ? "Ningún descendiente coincide con el filtro."
+                : "Sin descendientes."}
+            </li>
           )}
         </ul>
       )}
@@ -252,6 +273,18 @@ export function DomainAdminPage({
   const [error, setError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [filter, setFilter] = useState<PersonFilter>(emptyPersonFilter);
+  const filterActive = isPersonFilterActive(filter);
+  const filteredChildren = useMemo(
+    () =>
+      Object.fromEntries(
+        Object.entries(children).map(([id, list]) => [
+          id,
+          filterPersonList(list, filter),
+        ]),
+      ),
+    [children, filter],
+  );
   const breadcrumb = useMemo(() => {
     if (!self || !selected) return [];
     const byId = new Map(
@@ -276,7 +309,10 @@ export function DomainAdminPage({
       setError(null);
       try {
         const descendants = await api.listDescendants(person.id);
-        setChildren((current) => ({ ...current, [person.id]: descendants }));
+        setChildren((current) => ({
+          ...current,
+          [person.id]: directChildren(descendants, person.id),
+        }));
       } catch (reason) {
         setError(message(reason));
       } finally {
@@ -347,6 +383,9 @@ export function DomainAdminPage({
     if (self?.id === updated.id) setSelf(updated);
     setEditing(false);
   };
+  const canManageSelected = (person: Person) =>
+    person.id === self?.id ||
+    (capabilities.canCreateChild && person.role === capabilities.childRole);
   const remove = async () => {
     if (
       !selected ||
@@ -411,15 +450,61 @@ export function DomainAdminPage({
             aria-labelledby="structure-title"
           >
             <h2 id="structure-title">Tu estructura</h2>
+            <div className="tree-filter-bar">
+              <Field label="Buscar por nombre">
+                <input
+                  type="search"
+                  value={filter.text}
+                  placeholder="Nombre o apellido"
+                  onChange={(event) =>
+                    setFilter((current) => ({
+                      ...current,
+                      text: event.target.value,
+                    }))
+                  }
+                />
+              </Field>
+              <Field label="Estado">
+                <select
+                  value={filter.status}
+                  onChange={(event) =>
+                    setFilter((current) => ({
+                      ...current,
+                      status: event.target.value as PersonStatusFilter,
+                    }))
+                  }
+                >
+                  <option value="TODOS">Todos</option>
+                  {PERSON_STATUSES.map((status) => (
+                    <option key={status} value={status}>
+                      {status.charAt(0) + status.slice(1).toLowerCase()}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              {filterActive && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setFilter(emptyPersonFilter)}
+                >
+                  Limpiar filtro
+                </Button>
+              )}
+            </div>
             <ul role="tree" aria-busy={loadingNode === self.id}>
               <TreeNode
                 person={self}
                 selectedId={selected?.id ?? null}
                 expanded={Boolean(expanded[self.id])}
-                children={children[self.id]}
+                children={filteredChildren[self.id]}
+                totalChildren={children[self.id]?.length}
+                filterActive={filterActive}
                 loading={loadingNode === self.id}
                 expandedById={expanded}
-                childrenById={children}
+                childrenById={filteredChildren}
+                totalChildrenById={children}
                 loadingNode={loadingNode}
                 onSelect={select}
                 onToggle={toggle}
@@ -463,14 +548,20 @@ export function DomainAdminPage({
                         Registrar {roleLabel(capabilities.childRole)}
                       </Button>
                     )}
-                  <Button variant="outline" onClick={() => setEditing(true)}>
-                    Editar datos
-                  </Button>
-                  {selected.id !== session.user.persona_id && (
-                    <Button variant="destructive" onClick={() => void remove()}>
-                      Dar de baja
+                  {canManageSelected(selected) && (
+                    <Button variant="outline" onClick={() => setEditing(true)}>
+                      Editar datos
                     </Button>
                   )}
+                  {selected.id !== session.user.persona_id &&
+                    canManageSelected(selected) && (
+                      <Button
+                        variant="destructive"
+                        onClick={() => void remove()}
+                      >
+                        Dar de baja
+                      </Button>
+                    )}
                 </div>
               </Card>
             ) : (

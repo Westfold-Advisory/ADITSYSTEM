@@ -1,0 +1,44 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+
+import { directChildren } from "./hierarchy";
+import type { Person } from "@/types/domain";
+
+function person(overrides: Partial<Person>): Person {
+  return {
+    id: "child",
+    role: "ENLACE",
+    parentId: "root",
+    nombre: "Ana",
+    apellidoPaterno: "Robles",
+    apellidoMaterno: "Valdés",
+    telefono: "5555555555",
+    status: "ACTIVO",
+    registeredAt: new Date("2026-01-01T00:00:00Z"),
+    createdAt: new Date("2026-01-01T00:00:00Z"),
+    updatedAt: new Date("2026-01-01T00:00:00Z"),
+    ...overrides,
+  };
+}
+
+test("directChildren narrows a recursive descendants response to one generation", () => {
+  const child = person({ id: "child", parentId: "root", role: "COORDINADOR" });
+  const grandchild = person({
+    id: "grandchild",
+    parentId: "child",
+    role: "ENLACE",
+  });
+  const greatGrandchild = person({
+    id: "great-grandchild",
+    parentId: "grandchild",
+    role: "AMIGO",
+  });
+
+  const result = directChildren([child, grandchild, greatGrandchild], "root");
+
+  assert.deepEqual(result, [child]);
+});
+
+test("returns an empty list for a leaf with no descendants", () => {
+  assert.deepEqual(directChildren([], "root"), []);
+});
