@@ -136,6 +136,33 @@
   opacity: 1;
 }
 
+/* Auth shell (/login): single-row bar, no public primary nav. */
+.public-app-shell--auth .public-app-shell__app-bar.ui-app-bar {
+  flex-wrap: nowrap;
+}
+
+.public-app-shell__public-return {
+  min-height: 2.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--md-sys-spacing-1);
+  padding: 0 var(--md-sys-spacing-2);
+  border-radius: var(--md-sys-radius-md);
+  color: var(--md-sys-color-primary);
+  font: var(--md-sys-typescale-label-large);
+  text-decoration: none;
+}
+
+.public-app-shell__public-return:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.public-app-shell__public-return:focus-visible {
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
+
 .public-app-shell .ui-navigation a {
   min-height: 2.75rem;
   padding: 0 var(--md-sys-spacing-3);

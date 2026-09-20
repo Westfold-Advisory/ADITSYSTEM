@@ -56,7 +56,7 @@ export function AdminStructurePage() {
 
   if (!session) {
     return (
-      <PublicAppShell>
+      <PublicAppShell variant="auth">
         <LoginPage initialNotice={loginNotice} onLogin={login} />
       </PublicAppShell>
     );
