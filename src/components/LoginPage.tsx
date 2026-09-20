@@ -11,7 +11,8 @@ import {
 } from "@/lib/auth-messages";
 import { getInstitutionConfig } from "@/config/institution";
 import { InstitutionBrandMark } from "./InstitutionBrandMark";
-import { privacyNoticeSimplificado } from "@/content/legal/privacy-notice-simplificado";
+import { InstitutionDeploymentIdentity } from "./InstitutionDeploymentIdentity";
+import { LoginPrivacyCallout } from "./LoginPrivacyCallout";
 import { Alert } from "./ui/Alert";
 import { Button } from "./ui/button";
 import { Card } from "./ui/Card";
@@ -53,9 +54,12 @@ export function LoginPage({ onLogin, initialNotice = null }: LoginPageProps) {
             logoClassName="login-page__logo"
             productClassName="login-page__product"
           />
-          <p className="login-page__institution">
-            {institution.institutionName}
-          </p>
+          <InstitutionDeploymentIdentity
+            institution={institution}
+            className="login-page__institution-block"
+            nameClassName="login-page__institution"
+            taglineClassName="login-page__environment-tagline"
+          />
           <h1 className="login-page__title">Acceso administrativo</h1>
           <p className="login-page__intro">
             Inicia sesión con una cuenta autorizada para administrar personas,
@@ -104,14 +108,7 @@ export function LoginPage({ onLogin, initialNotice = null }: LoginPageProps) {
           </Button>
         </form>
 
-        <p className="login-page__privacy">
-          {privacyNoticeSimplificado.summary}{" "}
-          <a href={institution.legal.privacySummaryPath}>
-            Leer resumen de privacidad
-          </a>
-          {" · "}
-          <a href={institution.legal.privacyIntegralPath}>Aviso integral</a>
-        </p>
+        <LoginPrivacyCallout presentation={institution.loginPrivacy} />
       </Card>
     </div>
   );

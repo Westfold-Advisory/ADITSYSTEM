@@ -42,9 +42,22 @@
   color: var(--md-sys-color-primary);
 }
 
+.login-page__institution-block {
+  display: grid;
+  gap: var(--md-sys-spacing-1);
+}
+
 .login-page__institution {
   margin: 0;
-  font: var(--md-sys-typescale-body-medium);
+  font: var(--md-sys-typescale-title-medium);
+  color: var(--md-sys-color-on-surface);
+}
+
+.login-page__environment-tagline {
+  margin: 0;
+  font: var(--md-sys-typescale-label-medium);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: var(--md-sys-color-on-surface-variant);
 }
 
@@ -72,7 +85,7 @@
   min-height: 2.75rem;
 }
 
-.login-page__privacy {
+.login-privacy-callout {
   margin: 0;
   padding: var(--md-sys-spacing-3) var(--md-sys-spacing-4);
   border-radius: var(--md-sys-radius-md);
@@ -83,12 +96,26 @@
   line-height: 1.55;
 }
 
-.login-page__privacy a {
+.login-privacy-callout__heading {
+  margin: 0 0 var(--md-sys-spacing-2);
+  font: var(--md-sys-typescale-title-small);
+  color: var(--md-sys-color-on-surface);
+}
+
+.login-privacy-callout__body {
+  margin: 0 0 var(--md-sys-spacing-2);
+}
+
+.login-privacy-callout__cta {
+  margin: 0;
+}
+
+.login-privacy-callout__cta a {
   color: var(--md-sys-color-primary);
   font: var(--md-sys-typescale-label-large);
 }
 
-.login-page__privacy a:focus-visible {
+.login-privacy-callout__cta a:focus-visible {
   outline: 2px solid var(--md-sys-color-primary);
   outline-offset: 2px;
   border-radius: var(--md-sys-radius-sm);

@@ -14,8 +14,17 @@ test("buildInstitutionTheme usa ADITSYSTEM por defecto sin variables", () => {
   assert.deepEqual(buildInstitutionTheme({}), ADITSYSTEM_INSTITUTION_THEME);
 });
 
+test("tema demo por defecto usa instituto ficticio sin proveedor", () => {
+  const theme = buildInstitutionTheme({});
+  assert.equal(theme.institutionName, "Instituto Demo de Gestión Ciudadana");
+  assert.equal(theme.environmentTagline, "Entorno demostrativo");
+  assert.match(theme.demoDisclaimer ?? "", /información ficticia/);
+  assert.doesNotMatch(theme.institutionName, /Westfold/i);
+});
+
 test("buildInstitutionTheme aplica overrides DIF desde entorno mock", () => {
   const difTheme = buildInstitutionTheme({
+    VITE_DEPLOYMENT_KIND: "client",
     VITE_INSTITUTION_PRODUCT_NAME: "Portal DIF",
     VITE_INSTITUTION_NAME: "Sistema Estatal DIF — Ejemplo",
     VITE_INSTITUTION_LOGO_URL: "https://example.test/dif-logo.svg",
@@ -32,7 +41,9 @@ test("buildInstitutionTheme aplica overrides DIF desde entorno mock", () => {
   assert.equal(difTheme.logoUrl, "https://example.test/dif-logo.svg");
   assert.equal(difTheme.logoAlt, "Logotipo del DIF estatal");
   assert.equal(difTheme.contact.email, "contacto@dif.ejemplo.gob.mx");
+  assert.equal(difTheme.legal.legalNoticePath, "/terminos");
   assert.equal(difTheme.legal.termsOfUsePath, "/terminos");
+  assert.equal(difTheme.deploymentKind, "client");
 });
 
 test("PublicAppShell renderiza marca institucional mock (snapshot markup)", () => {

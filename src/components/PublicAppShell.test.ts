@@ -21,6 +21,8 @@ test("PublicAppShell exposes skip link, main landmark, nav and legal footer", ()
   assert.match(markup, /href="\/eventos"(?! aria-current)/);
   assert.match(markup, /role="contentinfo"/);
   assert.match(markup, /Aviso de privacidad/);
+  assert.match(markup, /Aviso legal/);
+  assert.match(markup, /Entorno demostrativo/);
   assert.doesNotMatch(markup, /--cyber-/);
 });
 

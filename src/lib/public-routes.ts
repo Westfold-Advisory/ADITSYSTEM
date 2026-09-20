@@ -8,6 +8,7 @@ export const PUBLIC_PATHS = [
   "/login",
   "/privacidad",
   "/privacidad/simplificado",
+  "/aviso-legal",
 ] as const;
 
 export type PublicPath = (typeof PUBLIC_PATHS)[number];

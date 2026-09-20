@@ -4,6 +4,7 @@ void React;
 
 import {
   getInstitutionConfig,
+  type FooterSegment,
   type InstitutionTheme,
 } from "@/config/institution";
 
@@ -11,27 +12,42 @@ export type PublicLegalFooterProps = {
   institution?: InstitutionTheme;
 };
 
+function renderSegment(segment: FooterSegment, index: number) {
+  if (segment.type === "link") {
+    return (
+      <a key={`${segment.href}-${index}`} href={segment.href}>
+        {segment.label}
+      </a>
+    );
+  }
+  return (
+    <span
+      key={`${segment.label}-${index}`}
+      className="public-legal-footer__text"
+    >
+      {segment.label}
+    </span>
+  );
+}
+
 export function PublicLegalFooter({
   institution: institutionOverride,
 }: PublicLegalFooterProps = {}) {
   const institution = institutionOverride ?? getInstitutionConfig();
-  const { legal, contact, institutionName, productName } = institution;
-  const year = new Date().getFullYear();
+  const { contact, footer } = institution;
 
   return (
     <footer className="public-legal-footer" role="contentinfo">
       <nav aria-label="Enlaces secundarios">
-        <a href="/mapa">Mapa</a>
-        <span aria-hidden="true">·</span>
-        <a href={legal.privacyIntegralPath}>Aviso de privacidad</a>
-        <span aria-hidden="true">·</span>
-        <a href={legal.privacySummaryPath}>Resumen de privacidad</a>
-        {legal.termsOfUsePath ? (
-          <>
-            <span aria-hidden="true">·</span>
-            <a href={legal.termsOfUsePath}>Términos de uso</a>
-          </>
-        ) : null}
+        {footer.segments.map((segment, index) => (
+          <span
+            key={`footer-seg-${index}`}
+            className="public-legal-footer__segment"
+          >
+            {index > 0 ? <span aria-hidden="true"> · </span> : null}
+            {renderSegment(segment, index)}
+          </span>
+        ))}
       </nav>
       {contact.email || contact.phone ? (
         <p className="public-legal-footer__contact">
@@ -48,10 +64,9 @@ export function PublicLegalFooter({
           ) : null}
         </p>
       ) : null}
-      <p className="public-legal-footer__copyright">
-        © {year} {institutionName}. {productName}. Todos los derechos
-        reservados.
-      </p>
+      {footer.copyright ? (
+        <p className="public-legal-footer__copyright">{footer.copyright}</p>
+      ) : null}
     </footer>
   );
 }

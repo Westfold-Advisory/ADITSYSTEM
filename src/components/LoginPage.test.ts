@@ -14,9 +14,16 @@ test("LoginPage muestra identidad institucional y enlaces de privacidad", () => 
 
   assert.match(markup, new RegExp(institution.productName));
   assert.match(markup, new RegExp(institution.institutionName));
+  if (institution.environmentTagline) {
+    assert.match(markup, new RegExp(institution.environmentTagline));
+  }
+  assert.match(markup, /Privacidad y protección de datos/);
   assert.match(markup, /Acceso administrativo/);
-  assert.match(markup, /href="\/privacidad"/);
-  assert.match(markup, /href="\/privacidad\/simplificado"/);
+  assert.match(
+    markup,
+    new RegExp(`href="${institution.loginPrivacy.cta.href}"`),
+  );
+  assert.match(markup, new RegExp(institution.loginPrivacy.cta.label));
   assert.match(markup, /Correo electrónico/);
   assert.match(markup, /Iniciar sesión/);
   assert.doesNotMatch(markup, /class="login-form"/);

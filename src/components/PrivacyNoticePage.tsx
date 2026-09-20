@@ -1,18 +1,23 @@
+import { getInstitutionConfig } from "@/config/institution";
 import {
   formatPrivacyEffectiveDate,
   getPrivacyNotice,
   type PrivacyNoticeKind,
 } from "@/content/legal";
+import { DemoEnvironmentBanner } from "./DemoEnvironmentBanner";
 
 type PrivacyNoticePageProps = {
   kind: PrivacyNoticeKind;
 };
 
 export function PrivacyNoticePage({ kind }: PrivacyNoticePageProps) {
-  const notice = getPrivacyNotice(kind);
+  const institution = getInstitutionConfig();
+  const notice = getPrivacyNotice(kind, institution);
   const otherKind = kind === "integral" ? "simplificado" : "integral";
   const otherHref =
-    otherKind === "simplificado" ? "/privacidad/simplificado" : "/privacidad";
+    otherKind === "simplificado"
+      ? institution.legal.privacySummaryPath
+      : institution.legal.privacyIntegralPath;
   const otherLabel =
     otherKind === "simplificado"
       ? "Ver aviso simplificado"
@@ -20,11 +25,15 @@ export function PrivacyNoticePage({ kind }: PrivacyNoticePageProps) {
 
   return (
     <div className="privacy-notice-page" aria-labelledby="privacy-notice-title">
-      <div className="privacy-notice-banner" role="note">
-        Contenido informativo con requisitos mínimos habituales en México
-        (LFPDPPP). Antes de un despliegue oficial, conviene validarlo con
-        asesoría jurídica y completar domicilio fiscal del responsable.
-      </div>
+      {institution.demoDisclaimer ? (
+        <DemoEnvironmentBanner disclaimer={institution.demoDisclaimer} />
+      ) : (
+        <div className="privacy-notice-banner" role="note">
+          Contenido informativo con requisitos mínimos habituales en México
+          (LFPDPPP). Antes de un despliegue oficial, conviene validarlo con
+          asesoría jurídica y completar domicilio fiscal del responsable.
+        </div>
+      )}
 
       <header className="privacy-notice-header">
         <p className="eyebrow">Privacidad</p>
