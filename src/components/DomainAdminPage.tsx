@@ -1,10 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  type FormEvent,
-} from "react";
+import { useCallback, useMemo, useState, type FormEvent } from "react";
 
 import { DomainApi } from "@/api/domain";
 import { ApiClient, ApiError } from "@/api/http";
@@ -18,7 +12,7 @@ import {
   LoadingState,
 } from "@/components/ui/AsyncState";
 import { Field } from "@/components/ui/Field";
-import { buildChildMap, mergePersonScope } from "@/lib/hierarchy";
+import { useHierarchyScope } from "@/hooks/useHierarchyScope";
 import {
   emptyPersonFilter,
   filterPersonList,
@@ -264,18 +258,24 @@ export function DomainAdminPage({
       ),
     [session.access_token],
   );
-  const [self, setSelf] = useState<Person | null>(null);
-  const [selected, setSelected] = useState<Person | null>(null);
-  const [children, setChildren] = useState<Record<string, Person[]>>({});
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
-  const [loadingNode, setLoadingNode] = useState<string | null>(null);
-  const [metrics, setMetrics] = useState<Awaited<
-    ReturnType<DomainApi["metrics"]>
-  > | null>(null);
-  const [scopedMap, setScopedMap] = useState<Awaited<
-    ReturnType<DomainApi["scopedMap"]>
-  > | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    self,
+    selected,
+    select: selectPerson,
+    childrenById: children,
+    expanded,
+    loadingNode,
+    metrics,
+    scopedMap,
+    error,
+    setError,
+    refreshDescendants,
+    toggle,
+    expandNode,
+    applyPersonUpdate,
+    removePersonFromTree,
+    resetSelectionToRoot,
+  } = useHierarchyScope(api, session.user.persona_id);
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState(false);
   const [filter, setFilter] = useState<PersonFilter>(emptyPersonFilter);
@@ -308,67 +308,14 @@ export function DomainAdminPage({
     return path.length ? path : [selected];
   }, [children, selected, self]);
 
-  const loadChildren = useCallback(
-    async (person: Person, anchor?: Person) => {
-      const treeRoot = anchor ?? self ?? person;
-      setLoadingNode(person.id);
-      setError(null);
-      try {
-        const descendants = await api.listDescendants(person.id);
-        setChildren((current) => ({
-          ...current,
-          ...buildChildMap(
-            treeRoot,
-            mergePersonScope(treeRoot, current, descendants),
-          ),
-        }));
-      } catch (reason) {
-        setError(message(reason));
-      } finally {
-        setLoadingNode(null);
-      }
-    },
-    [api, self],
-  );
-  const select = useCallback((person: Person) => {
-    setSelected(person);
-    setCreating(false);
-    setEditing(false);
-  }, []);
-  const toggle = useCallback(
+  const select = useCallback(
     (person: Person) => {
-      const next = !expanded[person.id];
-      setExpanded((current) => ({ ...current, [person.id]: next }));
-      if (next && !children[person.id]) void loadChildren(person);
+      selectPerson(person);
+      setCreating(false);
+      setEditing(false);
     },
-    [children, expanded, loadChildren],
+    [selectPerson],
   );
-
-  useEffect(() => {
-    void (async () => {
-      setError(null);
-      try {
-        const current = await api.getPerson(session.user.persona_id);
-        setSelf(current);
-        setSelected(current);
-        setExpanded({ [current.id]: true });
-        await loadChildren(current, current);
-      } catch (reason) {
-        setError(message(reason));
-      }
-    })();
-  }, [api, loadChildren, session.user.persona_id]);
-  useEffect(() => {
-    if (!selected) return;
-    void api
-      .metrics(selected.id)
-      .then(setMetrics)
-      .catch((reason) => setError(message(reason)));
-    void api
-      .scopedMap(selected.id)
-      .then(setScopedMap)
-      .catch((reason) => setError(message(reason)));
-  }, [api, selected]);
 
   const createChild = async (input: PersonInput) => {
     if (!selected || !capabilities.childRole) return;
@@ -378,22 +325,13 @@ export function DomainAdminPage({
       capabilities.childRole === "COORDINADOR_GENERAL" ? null : selected.id,
     );
     setCreating(false);
-    await loadChildren(selected);
-    setExpanded((current) => ({ ...current, [selected.id]: true }));
+    await refreshDescendants(selected);
+    expandNode(selected.id);
   };
   const updatePerson = async (input: PersonInput) => {
     if (!selected) return;
     const updated = await api.updatePerson(selected.id, input);
-    setSelected(updated);
-    setChildren((current) =>
-      Object.fromEntries(
-        Object.entries(current).map(([id, items]) => [
-          id,
-          items.map((person) => (person.id === updated.id ? updated : person)),
-        ]),
-      ),
-    );
-    if (self?.id === updated.id) setSelf(updated);
+    applyPersonUpdate(updated);
     setEditing(false);
   };
   const canManageSelected = (person: Person) =>
@@ -410,15 +348,8 @@ export function DomainAdminPage({
       return;
     try {
       await api.deletePerson(selected.id);
-      setChildren((current) =>
-        Object.fromEntries(
-          Object.entries(current).map(([id, items]) => [
-            id,
-            items.filter((item) => item.id !== selected.id),
-          ]),
-        ),
-      );
-      setSelected(self);
+      removePersonFromTree(selected.id);
+      resetSelectionToRoot();
     } catch (reason) {
       setError(message(reason));
     }
@@ -451,7 +382,7 @@ export function DomainAdminPage({
       {error && (
         <ErrorState
           message={error}
-          onRetry={() => self && void loadChildren(self)}
+          onRetry={() => self && void refreshDescendants(self)}
         />
       )}
       {!self ? (

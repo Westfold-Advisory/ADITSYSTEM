@@ -85,6 +85,10 @@ export function mapPerson(response: PersonResponse): Person {
   };
 }
 
+export interface DomainReadOptions {
+  signal?: AbortSignal;
+}
+
 export function mapPersonInput(
   input: Partial<PersonInput>,
 ): Record<string, string> {
@@ -105,18 +109,22 @@ export class DomainApi {
   constructor(client: ApiClient) {
     this.client = client;
   }
-  async getPerson(id: UUID): Promise<Person> {
+  async getPerson(id: UUID, options?: DomainReadOptions): Promise<Person> {
     return mapPerson(
       await this.client.request<PersonResponse>(`/personas/${id}`, {
         access: "authenticated",
+        signal: options?.signal,
       }),
     );
   }
-  async listDescendants(id: UUID): Promise<Person[]> {
+  async listDescendants(
+    id: UUID,
+    options?: DomainReadOptions,
+  ): Promise<Person[]> {
     return (
       await this.client.request<PersonResponse[]>(
         `/personas/${id}/descendientes`,
-        { access: "authenticated" },
+        { access: "authenticated", signal: options?.signal },
       )
     ).map(mapPerson);
   }
@@ -155,10 +163,10 @@ export class DomainApi {
       method: "DELETE",
     });
   }
-  async metrics(id: UUID): Promise<PersonMetrics> {
+  async metrics(id: UUID, options?: DomainReadOptions): Promise<PersonMetrics> {
     const result = await this.client.request<MetricsResponse>(
       `/personas/${id}/metricas`,
-      { access: "authenticated" },
+      { access: "authenticated", signal: options?.signal },
     );
     return {
       descendants: result.descendientes,
@@ -171,10 +179,10 @@ export class DomainApi {
       attendances: result.asistencias,
     };
   }
-  async scopedMap(id: UUID): Promise<ScopedMap> {
+  async scopedMap(id: UUID, options?: DomainReadOptions): Promise<ScopedMap> {
     const result = await this.client.request<ScopedMapResponse>(
       `/personas/${id}/mapa`,
-      { access: "authenticated" },
+      { access: "authenticated", signal: options?.signal },
     );
     return {
       rootPersonId: result.root_persona_id,
