@@ -11,7 +11,6 @@ import {
   pushPublicEventDetailUrl,
   readPublicEventIdFromUrl,
 } from "@/components/events/public";
-import { getInstitutionConfig } from "@/config/institution";
 import {
   buildPublicEventQueryString,
   filterPublicEvents,
@@ -63,7 +62,6 @@ function readFiltersFromUrl(): PublicEventFilters {
 }
 
 export function PublicEventsPage() {
-  const institution = getInstitutionConfig();
   const [listState, dispatchList] = useReducer(requestReducer<Event[]>, {
     status: "loading",
     value: null,
@@ -183,19 +181,10 @@ export function PublicEventsPage() {
   return (
     <div className="public-events-page">
       <header className="public-events-header">
-        <p className="eyebrow">{institution.productName}</p>
         <h1>Eventos públicos</h1>
-        <p>Consulta las actividades publicadas y su información actualizada.</p>
-        <nav aria-label="Vistas de eventos públicos">
-          <ul className="public-events-context-nav">
-            <li>
-              <span aria-current="page">Listado</span>
-            </li>
-            <li>
-              <a href={mapHref}>Mapa</a>
-            </li>
-          </ul>
-        </nav>
+        <p className="public-events-header__intro">
+          Consulta las actividades publicadas y su información actualizada.
+        </p>
       </header>
 
       {selectedEventId ? (
