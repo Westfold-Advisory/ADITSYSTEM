@@ -1,0 +1,5 @@
+# Datos geoespaciales estáticos servidos tal cual desde public/: se mantienen
+# minificados a propósito (pretty-printing infla su tamaño ~30% sin ningún
+# beneficio, ya que nadie los edita a mano) y no son código fuente.
+public/**/*.geojson
+public/**/*.json
