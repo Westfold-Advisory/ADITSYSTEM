@@ -87,6 +87,14 @@
   color: inherit;
 }
 
+.public-app-shell__brand-label--short {
+  display: none;
+}
+
+.public-app-shell__auth-action-label {
+  display: inline;
+}
+
 .public-app-shell__brand:focus-visible {
   outline: 2px solid var(--md-sys-color-primary);
   outline-offset: 2px;
@@ -264,29 +272,58 @@
 @media (max-width: 640px) {
   .public-app-shell:not(.public-app-shell--auth)
     .public-app-shell__app-bar.ui-app-bar {
-    grid-template-columns: 1fr auto;
-    grid-template-areas:
-      "brand actions"
-      "nav nav";
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas: "brand nav actions";
+    column-gap: var(--md-sys-spacing-2);
+    min-height: 3rem;
     padding: var(--md-sys-spacing-2) var(--md-sys-spacing-3);
   }
 
-  .public-app-shell:not(.public-app-shell--auth)
-    .public-app-shell__nav.ui-navigation {
-    width: 100%;
-    gap: var(--md-sys-spacing-2);
+  .public-app-shell__brand-label--full {
+    display: none;
+  }
+
+  .public-app-shell__brand-label--short {
+    display: inline;
+  }
+
+  .public-app-shell__brand-mark:has(.public-app-shell__brand-logo)
+    + .public-app-shell__brand-label--short {
+    display: none;
   }
 
   .public-app-shell:not(.public-app-shell--auth)
-    .public-app-shell__nav.ui-navigation
+    .public-app-shell__nav.ui-navigation.public-app-shell__nav-segment {
+    grid-column: nav;
+    justify-content: center;
+    flex-wrap: nowrap;
+    width: auto;
+    max-width: 100%;
+    gap: 0;
+    padding: 0.125rem;
+    border-radius: var(--md-sys-radius-full);
+    background: var(--md-sys-color-surface-container);
+  }
+
+  .public-app-shell:not(.public-app-shell--auth)
+    .public-app-shell__nav-segment.ui-navigation
     a {
-    flex: 1 1 0;
+    flex: 1 1 auto;
     justify-content: center;
     min-width: 0;
+    min-height: 2.25rem;
+    padding: 0 var(--md-sys-spacing-2);
+    font: var(--md-sys-typescale-label-medium);
   }
 
   .public-app-shell__auth-action {
-    max-width: 100%;
-    text-align: right;
+    justify-content: center;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    padding: 0;
+  }
+
+  .public-app-shell__auth-action-label {
+    display: none;
   }
 }

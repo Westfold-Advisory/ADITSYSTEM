@@ -37,6 +37,8 @@ export type FooterPresentation = {
 /** Configuración de marca e identidad para una institución desplegada. */
 export type InstitutionTheme = {
   productName: string;
+  /** Marca compacta en barra pública móvil (p. ej. «ADIT»). */
+  productShortName: string;
   institutionName: string;
   /** Línea secundaria bajo la institución (p. ej. «Entorno demostrativo»). */
   environmentTagline: string | null;
@@ -188,6 +190,7 @@ function buildFooterPresentation(input: {
 
 function buildDemoInstitutionTheme(): InstitutionTheme {
   const productName = "ADIT SYSTEM";
+  const productShortName = "ADIT";
   const deploymentKind: DeploymentKind = "demo";
   const institutionName = DEMO_INSTITUTION_NAME;
   const environmentTagline = DEMO_ENVIRONMENT_TAGLINE;
@@ -201,6 +204,7 @@ function buildDemoInstitutionTheme(): InstitutionTheme {
 
   return {
     productName,
+    productShortName,
     institutionName,
     environmentTagline,
     deploymentKind,
@@ -247,6 +251,11 @@ export function buildInstitutionTheme(
     source,
     "VITE_INSTITUTION_PRODUCT_NAME",
     base.productName,
+  );
+  const productShortName = envString(
+    source,
+    "VITE_INSTITUTION_PRODUCT_SHORT_NAME",
+    base.productShortName,
   );
   const institutionName = envString(
     source,
@@ -310,6 +319,7 @@ export function buildInstitutionTheme(
 
   return {
     productName,
+    productShortName,
     institutionName,
     environmentTagline,
     deploymentKind,

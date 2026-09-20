@@ -36,7 +36,7 @@ test("Public shell groups Eventos and Mapa in nav; login stays in actions", () =
   );
 
   const navMatch = markup.match(
-    /<nav class="ui-navigation public-app-shell__nav"[^>]*>(.*?)<\/nav>/,
+    /<nav class="[^"]*public-app-shell__nav[^"]*"[^>]*>(.*?)<\/nav>/,
   );
   assert.ok(navMatch, "expected a primary navigation landmark");
   const primaryNav = navMatch[1];
@@ -45,7 +45,10 @@ test("Public shell groups Eventos and Mapa in nav; login stays in actions", () =
   assert.match(primaryNav, /Mapa/);
 
   assert.match(markup, /class="public-app-shell__auth-action"/);
-  assert.match(markup, /Personal autorizado/);
+  assert.match(markup, /aria-label="Personal autorizado"/);
+  assert.match(markup, /public-app-shell__auth-action-label/);
+  assert.match(markup, /public-app-shell__nav-segment/);
+  assert.match(markup, /public-app-shell__brand-label--short[^>]*>ADIT</);
   assert.doesNotMatch(markup, /class="public-app-shell__map-link"/);
 });
 
