@@ -312,6 +312,106 @@ a:focus-visible {
   font-size: 0.875rem;
 }
 
+.hierarchy-layout {
+  display: grid;
+  grid-template-columns: minmax(16rem, 0.8fr) minmax(20rem, 1.2fr);
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.hierarchy-tree-panel,
+.person-detail,
+.domain-form {
+  border: 1px solid var(--cyber-border-subtle);
+  border-radius: var(--md-sys-radius-lg);
+  padding: 1rem;
+  background: var(--cyber-surface-1);
+}
+.hierarchy-tree-panel ul {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding-left: 1rem;
+}
+.hierarchy-tree-panel > ul {
+  padding-left: 0;
+}
+.tree-node {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.tree-spacer {
+  width: 1.5rem;
+}
+.tree-person {
+  appearance: none;
+  border: 0;
+  padding: 0.35rem;
+  background: transparent;
+  color: var(--cyber-text);
+  cursor: pointer;
+  text-align: left;
+}
+.tree-person:hover,
+[role="treeitem"][aria-selected="true"] > .tree-node .tree-person {
+  color: var(--md-sys-color-primary);
+  text-decoration: underline;
+}
+.tree-person small {
+  color: var(--cyber-text-secondary);
+  text-transform: capitalize;
+}
+.tree-empty {
+  color: var(--cyber-text-secondary);
+  font-size: 0.875rem;
+  padding: 0.25rem;
+}
+.person-detail {
+  display: grid;
+  gap: 0.75rem;
+}
+.person-detail h2 {
+  margin: 0;
+  color: var(--cyber-text-bright);
+}
+.breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  color: var(--cyber-text-secondary);
+  font-size: 0.875rem;
+  text-transform: capitalize;
+}
+.person-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin: 0;
+}
+.person-metrics div {
+  padding: 0.5rem;
+  border-radius: var(--md-sys-radius-sm);
+  background: var(--md-sys-color-surface-container-low);
+}
+.person-metrics dt {
+  color: var(--cyber-text-secondary);
+  font-size: 0.75rem;
+}
+.person-metrics dd {
+  margin: 0.15rem 0 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+.domain-form {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+@media (max-width: 48rem) {
+  .hierarchy-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
 .admin-event-card {
   display: grid;
   gap: 0.75rem;
