@@ -16,11 +16,7 @@ import { UnauthorizedRoleScreen } from "@/components/UnauthorizedRoleScreen";
 import { LoginPage } from "@/components/LoginPage";
 import { PublicAppShell } from "@/components/PublicAppShell";
 import { Capa } from "@/components/ui/Capa";
-import {
-  EmptyState,
-  ErrorState,
-  LoadingState,
-} from "@/components/ui/AsyncState";
+import { ErrorState, LoadingState } from "@/components/ui/AsyncState";
 import { Button } from "@/components/ui/button";
 import { PanelCapas } from "@/components/ui/PanelCapas";
 import { RoleChip } from "@/components/ui/RoleChip";
@@ -54,6 +50,8 @@ import {
 } from "@/lib/coverage-map";
 import type { CommunityNeed, CoverageMapPin, Person } from "@/types/domain";
 import type { UUID } from "@/types/events";
+
+import "./AdminCoverageMapPage.css";
 
 function loadAdminSession(): {
   session: AdminSession | null;
@@ -364,64 +362,71 @@ export function AdminCoverageMapPage() {
       )}
 
       <div className="coverage-map-layout grid gap-4 lg:grid-cols-[1fr_320px]">
-        <div className="relative min-h-[520px]">
+        <div className="coverage-map-stage">
           {coverageLoading ? (
             <LoadingState label="Cargando cobertura…" />
-          ) : filteredPins.length === 0 && !coverageError ? (
-            <EmptyState>
-              No hay personas con ubicación en tu alcance con los filtros
-              actuales.
-            </EmptyState>
-          ) : (
-            <Map
-              theme="dark"
-              keyboard={false}
-              viewport={{
-                center: [-98.2, 19.04] as [number, number],
-                zoom: 8,
-              }}
-            >
-              <MapControls position="bottom-right" />
-              <Capa
-                items={geofences}
-                visible={geofenceVisibility}
-                selectedId={selectedGeofenceId}
-                onSelect={setSelectedGeofenceId}
-              />
-              {showHeatmap && heatmap.features.length > 0 && (
-                <MapHeatmapLayer data={heatmap} visible={showHeatmap} />
+          ) : coverageError ? null : (
+            <>
+              {filteredPins.length === 0 && (
+                <p className="coverage-map-empty-banner" role="status">
+                  {pins.length === 0
+                    ? "No hay personas con ubicación en tu alcance. Puedes activar capas territoriales y el mapa de calor."
+                    : "Ningún pin coincide con los filtros actuales. Ajusta rol o búsqueda."}
+                </p>
               )}
-              <MapClusterLayer
-                data={pinFeatures}
-                clusterMaxZoom={12}
-                clusterRadius={40}
-                pointColor="var(--md-sys-color-primary)"
-                onPointClick={(feature) => {
-                  setEditing(false);
-                  setSelectedPinId(feature.properties.id);
+              <Map
+                className="absolute inset-0 h-full w-full"
+                theme="dark"
+                keyboard={false}
+                viewport={{
+                  center: [-98.2, 19.04] as [number, number],
+                  zoom: 8,
                 }}
-              />
-              {panelCapasAbierto && (
-                <PanelCapas
+              >
+                <MapControls position="bottom-right" />
+                <Capa
                   items={geofences}
                   visible={geofenceVisibility}
                   selectedId={selectedGeofenceId}
-                  loading={geofencesLoading}
-                  error={geofencesError}
-                  pointGeofences={pointGeofences}
-                  pointLookup={pointLookup}
-                  onToggle={(type: GeofenceType) =>
-                    setGeofenceVisibility((current) => ({
-                      ...current,
-                      [type]: !current[type],
-                    }))
-                  }
                   onSelect={setSelectedGeofenceId}
-                  onClose={() => setPanelCapasAbierto(false)}
-                  returnFocusRef={capasTriggerRef}
                 />
-              )}
-            </Map>
+                {showHeatmap && heatmap.features.length > 0 && (
+                  <MapHeatmapLayer data={heatmap} visible={showHeatmap} />
+                )}
+                {pinFeatures.features.length > 0 && (
+                  <MapClusterLayer
+                    data={pinFeatures}
+                    clusterMaxZoom={12}
+                    clusterRadius={40}
+                    pointColor="var(--md-sys-color-primary)"
+                    onPointClick={(feature) => {
+                      setEditing(false);
+                      setSelectedPinId(feature.properties.id);
+                    }}
+                  />
+                )}
+                {panelCapasAbierto && (
+                  <PanelCapas
+                    items={geofences}
+                    visible={geofenceVisibility}
+                    selectedId={selectedGeofenceId}
+                    loading={geofencesLoading}
+                    error={geofencesError}
+                    pointGeofences={pointGeofences}
+                    pointLookup={pointLookup}
+                    onToggle={(type: GeofenceType) =>
+                      setGeofenceVisibility((current) => ({
+                        ...current,
+                        [type]: !current[type],
+                      }))
+                    }
+                    onSelect={setSelectedGeofenceId}
+                    onClose={() => setPanelCapasAbierto(false)}
+                    returnFocusRef={capasTriggerRef}
+                  />
+                )}
+              </Map>
+            </>
           )}
         </div>
 
