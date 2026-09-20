@@ -378,10 +378,23 @@ a:focus-visible {
 .hierarchy-tree-panel,
 .person-detail,
 .domain-form {
-  border: 1px solid var(--cyber-border-subtle);
+  border: 1px solid var(--md-sys-color-outline-variant);
   border-radius: var(--md-sys-radius-lg);
   padding: 1rem;
-  background: var(--cyber-surface-1);
+  background: var(--md-sys-color-surface);
+  box-shadow: var(--md-sys-elevation-1, 0 1px 2px rgb(0 0 0 / 0.06));
+}
+
+.hierarchy-panel-title {
+  margin: 0 0 0.35rem;
+  font: var(--md-sys-typescale-title-medium);
+  color: var(--md-sys-color-on-surface);
+}
+
+.hierarchy-panel-intro {
+  margin: 0 0 0.75rem;
+  font: var(--md-sys-typescale-body-small);
+  color: var(--md-sys-color-on-surface-variant);
 }
 .hierarchy-tabs {
   display: grid;
