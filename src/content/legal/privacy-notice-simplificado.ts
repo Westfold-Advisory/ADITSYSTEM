@@ -32,9 +32,7 @@ export const privacyNoticeSimplificado: PrivacyNoticeContent = {
       id: "derechos",
       title: "Sus derechos",
       placeholder: true,
-      body: [
-        "[PO — LEGAL REVIEW REQUIRED] Derechos ARCO y cómo contactarnos.",
-      ],
+      body: ["[PO — LEGAL REVIEW REQUIRED] Derechos ARCO y cómo contactarnos."],
     },
     {
       id: "integral",

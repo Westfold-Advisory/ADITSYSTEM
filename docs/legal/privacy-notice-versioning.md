@@ -8,9 +8,9 @@ Mantener trazabilidad de cambios al aviso de privacidad publicado en rutas públ
 
 Cada documento en `src/content/legal/` expone:
 
-| Campo | Uso |
-| --- | --- |
-| `version` | Semver o etiqueta de borrador (`0.1.0-draft`) |
+| Campo           | Uso                                                            |
+| --------------- | -------------------------------------------------------------- |
+| `version`       | Semver o etiqueta de borrador (`0.1.0-draft`)                  |
 | `effectiveDate` | Fecha ISO (solo día) en que entra en vigor la versión mostrada |
 
 Ambas variantes (integral y simplificado) deben actualizarse de forma coordinada cuando el PO publique un cambio material.

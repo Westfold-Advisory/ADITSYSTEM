@@ -123,8 +123,8 @@ function Login({ onLogin }: { onLogin: (session: LoginResponse) => void }) {
           Iniciar sesión
         </Button>
         <p className="login-legal">
-          Consulta el{" "}
-          <a href="/privacidad">aviso de privacidad</a> antes de acceder.
+          Consulta el <a href="/privacidad">aviso de privacidad</a> antes de
+          acceder.
         </p>
       </form>
     </main>
