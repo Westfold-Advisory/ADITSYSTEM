@@ -11,6 +11,9 @@ describe("map explorer interaction state", () => {
       ESTADO: false,
       MUNICIPIO: false,
       DISTRITO: false,
+      SECCION: false,
+      DISTRITO_LOCAL: false,
+      DISTRITO_FEDERAL: false,
     }));
 
   it("transitions the mobile sheet between closed, list, and detail", () => {

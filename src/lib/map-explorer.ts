@@ -7,6 +7,9 @@ export const initialGeofenceVisibility: Record<GeofenceType, boolean> = {
   ESTADO: false,
   MUNICIPIO: false,
   DISTRITO: false,
+  SECCION: false,
+  DISTRITO_LOCAL: false,
+  DISTRITO_FEDERAL: false,
 };
 
 export function getMobileMapSheetState(

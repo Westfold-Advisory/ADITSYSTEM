@@ -7,7 +7,10 @@ import { MapControlsSkeleton } from "./Skeleton";
 const typeLabels: Record<GeofenceType, string> = {
   ESTADO: "Estados",
   MUNICIPIO: "Municipios",
-  DISTRITO: "Distritos",
+  DISTRITO: "Distritos (legado)",
+  SECCION: "Secciones",
+  DISTRITO_LOCAL: "Distrito local",
+  DISTRITO_FEDERAL: "Distrito federal",
 };
 
 export function PanelCapas({

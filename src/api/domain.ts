@@ -1,5 +1,7 @@
 import { ApiClient } from "./http";
 import type {
+  CommunityNeed,
+  CoverageMap,
   DocumentRegistrationInput,
   Documento,
   Geofence,
@@ -67,6 +69,26 @@ interface GeofenceResponse {
   fuente: string;
   version: number;
   vigente: boolean;
+}
+interface CoveragePinResponse {
+  persona_id: UUID;
+  rol: PersonRole;
+  nombre: string;
+  apellido_paterno: string;
+  apellido_materno: string;
+  latitud: string;
+  longitud: string;
+}
+interface CoverageHeatmapResponse {
+  latitud: string;
+  longitud: string;
+  necesidad: CommunityNeed;
+  intensidad: number;
+}
+interface CoverageMapResponse {
+  root_persona_id: UUID;
+  pines: CoveragePinResponse[];
+  heatmap: CoverageHeatmapResponse[];
 }
 
 export function mapPerson(response: PersonResponse): Person {
@@ -177,6 +199,44 @@ export class DomainApi {
       createdEvents: result.eventos_creados,
       invitations: result.invitaciones,
       attendances: result.asistencias,
+    };
+  }
+  async coverageMap(
+    id: UUID,
+    options?: DomainReadOptions & {
+      gridPrecision?: number;
+      need?: CommunityNeed | null;
+    },
+  ): Promise<CoverageMap> {
+    const query = new URLSearchParams();
+    if (options?.gridPrecision != null) {
+      query.set("grid_precision", String(options.gridPrecision));
+    }
+    if (options?.need) {
+      query.set("necesidad", options.need);
+    }
+    const suffix = query.size ? `?${query}` : "";
+    const result = await this.client.request<CoverageMapResponse>(
+      `/personas/${id}/mapa/cobertura${suffix}`,
+      { access: "authenticated", signal: options?.signal },
+    );
+    return {
+      rootPersonId: result.root_persona_id,
+      pins: result.pines.map((pin) => ({
+        personId: pin.persona_id,
+        role: pin.rol,
+        nombre: pin.nombre,
+        apellidoPaterno: pin.apellido_paterno,
+        apellidoMaterno: pin.apellido_materno,
+        latitude: Number(pin.latitud),
+        longitude: Number(pin.longitud),
+      })),
+      heatmap: result.heatmap.map((cell) => ({
+        latitude: Number(cell.latitud),
+        longitude: Number(cell.longitud),
+        need: cell.necesidad,
+        intensity: cell.intensidad,
+      })),
     };
   }
   async scopedMap(id: UUID, options?: DomainReadOptions): Promise<ScopedMap> {
