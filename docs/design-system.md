@@ -66,4 +66,4 @@ Composición para el panel de estructura:
 - `HierarchyTree` / `HierarchyTreeNode` — `role="tree"` / `treeitem`, expansión con botón accesible, selección con foco visible en `.ui-hierarchy-tree-person`.
 - `HierarchyTreeRoot` — atajo que une filtros, `aria-busy` en carga y nodo raíz.
 
-Los estilos legacy `.hierarchy-*`, `.person-metrics` y `.role-chip` en `App.css` quedaron retirados; usar estos componentes en pantallas nuevas.
+Los módulos en `src/components/admin/` consumen estos primitivos (`HierarchyTreePanel`, `PersonDetailPanel`, `PersonForm`). En `App.css` ya no deben usarse `.person-metrics`, `.role-chip` ni clases de nodo del árbol (`.tree-*`); el layout master-detail (`.hierarchy-master-detail`) permanece como estilo de página.

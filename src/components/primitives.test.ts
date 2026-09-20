@@ -142,7 +142,8 @@ test("admin component styles avoid legacy hierarchy and metric classes in App.cs
   );
   assert.doesNotMatch(appStyles, /\.person-metrics\b/);
   assert.doesNotMatch(appStyles, /\.role-chip\b/);
-  assert.doesNotMatch(appStyles, /\.hierarchy-layout\b/);
+  assert.doesNotMatch(appStyles, /\.tree-filter-bar\b/);
+  assert.doesNotMatch(appStyles, /\.tree-person\b/);
 });
 
 test("skeleton primitives reserve content geometry without misleading text", () => {
