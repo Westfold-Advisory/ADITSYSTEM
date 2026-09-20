@@ -125,13 +125,7 @@ function TerritoryTab({
   );
 }
 
-function DocumentsTab({
-  api,
-  personId,
-}: {
-  api: DomainApi;
-  personId: string;
-}) {
+function DocumentsTab({ api, personId }: { api: DomainApi; personId: string }) {
   const [documents, setDocuments] = useState<Documento[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
@@ -331,7 +325,10 @@ export function PersonDetailPanel({
 
   return (
     <Card className="person-detail hierarchy-detail-panel">
-      <HierarchyBreadcrumbs path={breadcrumb} onNavigate={onNavigateBreadcrumb} />
+      <HierarchyBreadcrumbs
+        path={breadcrumb}
+        onNavigate={onNavigateBreadcrumb}
+      />
 
       {showForm ? (
         <>
