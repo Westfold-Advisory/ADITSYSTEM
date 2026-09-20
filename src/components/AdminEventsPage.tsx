@@ -20,6 +20,7 @@ import { UnauthorizedRoleScreen } from "./UnauthorizedRoleScreen";
 import { capabilitiesFor } from "@/lib/capabilities";
 import { FormularioNuevoEvento } from "./FormularioNuevoEvento";
 import { DomainAdminPage } from "./DomainAdminPage";
+import { AdminNav } from "./admin/AdminNav";
 import { LoginPage } from "./LoginPage";
 import { PublicAppShell } from "./PublicAppShell";
 import { Button } from "./ui/button";
@@ -205,7 +206,12 @@ export function AdminEventsPage() {
             {session.user.email} · {session.user.rol}
           </p>
         </div>
-        <button onClick={logout}>Cerrar sesión</button>
+        <div className="flex flex-col items-end gap-2">
+          <AdminNav onOpenStructure={() => setDomainView(true)} />
+          <button type="button" onClick={logout}>
+            Cerrar sesión
+          </button>
+        </div>
       </header>
       {editing ? (
         <FormularioNuevoEvento

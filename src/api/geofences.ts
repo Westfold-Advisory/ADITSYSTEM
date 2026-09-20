@@ -1,7 +1,14 @@
 import type { Feature, FeatureCollection, Geometry } from "geojson";
 import { ApiClient } from "./http";
 
-export const GEOFENCE_TYPES = ["ESTADO", "MUNICIPIO", "DISTRITO"] as const;
+export const GEOFENCE_TYPES = [
+  "ESTADO",
+  "MUNICIPIO",
+  "DISTRITO",
+  "SECCION",
+  "DISTRITO_LOCAL",
+  "DISTRITO_FEDERAL",
+] as const;
 export type GeofenceType = (typeof GEOFENCE_TYPES)[number];
 
 export interface Geofence {

@@ -1555,6 +1555,55 @@ function MapClusterLayer<
   return null;
 }
 
+type MapHeatmapLayerProps = {
+  data: GeoJSON.FeatureCollection<GeoJSON.Point, { intensity: number }>;
+  visible?: boolean;
+};
+
+function MapHeatmapLayer({ data, visible = true }: MapHeatmapLayerProps) {
+  const { map, isLoaded } = useMap();
+  const id = useId();
+  const sourceId = `heatmap-source-${id}`;
+  const layerId = `heatmap-layer-${id}`;
+
+  useEffect(() => {
+    if (!isLoaded || !map) return;
+
+    map.addSource(sourceId, { type: "geojson", data });
+    map.addLayer({
+      id: layerId,
+      type: "heatmap",
+      source: sourceId,
+      paint: {
+        "heatmap-weight": ["get", "intensity"],
+        "heatmap-intensity": 0.8,
+        "heatmap-radius": 28,
+        "heatmap-opacity": visible ? 0.75 : 0,
+      },
+    });
+
+    return () => {
+      if (map.getLayer(layerId)) map.removeLayer(layerId);
+      if (map.getSource(sourceId)) map.removeSource(sourceId);
+    };
+  }, [data, isLoaded, layerId, map, sourceId, visible]);
+
+  useEffect(() => {
+    if (!isLoaded || !map || !map.getLayer(layerId)) return;
+    map.setPaintProperty(layerId, "heatmap-opacity", visible ? 0.75 : 0);
+  }, [isLoaded, layerId, map, visible]);
+
+  useEffect(() => {
+    if (!isLoaded || !map) return;
+    const source = map.getSource(sourceId);
+    if (source && "setData" in source) {
+      (source as MapLibreGL.GeoJSONSource).setData(data);
+    }
+  }, [data, isLoaded, map, sourceId]);
+
+  return null;
+}
+
 export {
   Map,
   useMap,
@@ -1567,6 +1616,7 @@ export {
   MapControls,
   MapRoute,
   MapClusterLayer,
+  MapHeatmapLayer,
 };
 
 export type { MapRef, MapViewport };
