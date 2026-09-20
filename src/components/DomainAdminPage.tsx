@@ -41,7 +41,9 @@ function message(error: unknown): string {
     : "No fue posible completar la solicitud.";
 }
 
-function nameOf(person: Person): string {
+function nameOf(
+  person: Pick<Person, "nombre" | "apellidoPaterno" | "apellidoMaterno">,
+): string {
   return [person.nombre, person.apellidoPaterno, person.apellidoMaterno]
     .filter(Boolean)
     .join(" ");
