@@ -30,11 +30,11 @@ test("listAll paginates until a page returns fewer than page_size items", async 
       calls.push(path);
       const page = path.includes("page=2") ? 2 : 1;
       const batch = Array.from(
-        { length: page === 1 ? 200 : 3 },
+        { length: page === 1 ? 100 : 3 },
         (_, index) => ({
           id: `${page}-${index}`,
-          tipo: "SECCION" as const,
-          nombre: `S ${page}-${index}`,
+          tipo: "DISTRITO_LOCAL" as const,
+          nombre: `D ${page}-${index}`,
           codigo: String(index),
           codigo_padre: null,
           fuente: "ine",
@@ -57,9 +57,45 @@ test("listAll paginates until a page returns fewer than page_size items", async 
     },
   } as ApiClient;
   const api = new GeofencesApi(stubClient);
-  const items = await api.listAll({ tipo: "SECCION" });
-  assert.equal(items.length, 203);
+  const items = await api.listAll({ tipo: "DISTRITO_LOCAL" });
+  assert.equal(items.length, 103);
   assert.equal(calls.length, 2);
-  assert.match(calls[0], /tipo=SECCION/);
+  assert.match(calls[0], /page_size=100/);
   assert.match(calls[1], /page=2/);
+});
+
+test("listAll caps SECCION pagination to protect map and API payload size", async () => {
+  let page = 0;
+  const stubClient = {
+    request<T>(path: string): Promise<T> {
+      assert.match(path, /page_size=50/);
+      page += 1;
+      const batch = Array.from({ length: 50 }, (_, index) => ({
+        id: `${page}-${index}`,
+        tipo: "SECCION" as const,
+        nombre: `S ${page}-${index}`,
+        codigo: String(index),
+        codigo_padre: null,
+        fuente: "ine",
+        version: 1,
+        vigente: true,
+        geometry_simplified: {
+          type: "Polygon" as const,
+          coordinates: [
+            [
+              [0, 0],
+              [1, 0],
+              [1, 1],
+              [0, 0],
+            ],
+          ],
+        },
+      }));
+      return Promise.resolve(batch as T);
+    },
+  } as ApiClient;
+  const api = new GeofencesApi(stubClient);
+  const items = await api.listAll({ tipo: "SECCION" });
+  assert.equal(items.length, 250);
+  assert.equal(page, 5);
 });

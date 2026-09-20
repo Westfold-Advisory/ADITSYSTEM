@@ -7,6 +7,10 @@ import {
 } from "@/api/geofences";
 import { useModalFocus } from "@/hooks/useModalFocus";
 import {
+  catalogLimitsFor,
+  GEOFENCE_CATALOG_LIMITS,
+} from "@/lib/geofence-catalog-limits";
+import {
   filterGeofencesForPanelList,
   type GeofenceListScope,
 } from "@/lib/geofence-panel";
@@ -27,6 +31,8 @@ export function PanelCapas({
   selectedId,
   loading,
   error,
+  errorsByType,
+  truncatedTypes,
   countsByType,
   isTypeLoading,
   isTypeLoaded,
@@ -43,6 +49,8 @@ export function PanelCapas({
   selectedId: string | null;
   loading: boolean;
   error: string | null;
+  errorsByType?: Partial<Record<GeofenceType, string>>;
+  truncatedTypes?: Set<GeofenceType>;
   countsByType?: Record<GeofenceType, number>;
   isTypeLoading?: (type: GeofenceType) => boolean;
   isTypeLoaded?: (type: GeofenceType) => boolean;
@@ -96,6 +104,7 @@ export function PanelCapas({
 
   const setAllLayers = (next: boolean) => {
     for (const type of GEOFENCE_TYPES) {
+      if (next && type === "SECCION") continue;
       if (visible[type] !== next) onToggle(type, next);
     }
   };
@@ -150,7 +159,7 @@ export function PanelCapas({
             className="rounded border px-2 py-1 text-[11px]"
             onClick={() => setAllLayers(true)}
           >
-            Mostrar todas
+            Mostrar capas base
           </button>
           <button
             type="button"
@@ -165,8 +174,16 @@ export function PanelCapas({
             const count = countsByType?.[type];
             const loaded = isTypeLoaded?.(type) ?? true;
             const typeLoading = isTypeLoading?.(type) ?? false;
+            const typeError = errorsByType?.[type];
+            const isTruncated = truncatedTypes?.has(type);
+            const emptyCatalog =
+              loaded &&
+              visible[type] &&
+              !typeLoading &&
+              count === 0 &&
+              !typeError;
             return (
-              <li key={type}>
+              <li key={type} className="space-y-0.5">
                 <label className="flex cursor-pointer items-center gap-2 rounded border px-2 py-1.5 text-xs">
                   <input
                     type="checkbox"
@@ -185,6 +202,34 @@ export function PanelCapas({
                           : ""}
                   </span>
                 </label>
+                {typeError && (
+                  <p
+                    className="px-1 text-[10px]"
+                    style={{ color: "var(--cyber-error)" }}
+                    role="alert"
+                  >
+                    {typeError}
+                  </p>
+                )}
+                {emptyCatalog && (
+                  <p className="px-1 text-[10px] text-muted-foreground">
+                    Sin registros en el servidor para esta capa (import INE
+                    pendiente).
+                  </p>
+                )}
+                {isTruncated && GEOFENCE_CATALOG_LIMITS[type]?.mapHint && (
+                  <p className="px-1 text-[10px] text-muted-foreground">
+                    {GEOFENCE_CATALOG_LIMITS[type]?.mapHint}
+                  </p>
+                )}
+                {!isTruncated &&
+                  visible[type] &&
+                  catalogLimitsFor(type).mapHint &&
+                  type === "SECCION" && (
+                    <p className="px-1 text-[10px] text-muted-foreground">
+                      {catalogLimitsFor(type).mapHint}
+                    </p>
+                  )}
               </li>
             );
           })}
