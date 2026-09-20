@@ -1,8 +1,12 @@
-import { useCallback, useMemo, useState, type FormEvent } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import { DomainApi } from "@/api/domain";
-import { ApiClient, ApiError } from "@/api/http";
+import { ApiClient } from "@/api/http";
 import type { LoginResponse } from "@/api/auth";
+import { HierarchyMasterDetail } from "@/components/admin/HierarchyMasterDetail";
+import { HierarchyTreePanel } from "@/components/admin/HierarchyTree";
+import { PersonDetailPanel } from "@/components/admin/PersonDetailPanel";
+import { apiErrorMessage, roleLabel } from "@/components/admin/person-display";
 import { capabilitiesFor } from "@/lib/capabilities";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/Card";
@@ -21,13 +25,13 @@ import {
 import { MetricGrid } from "@/components/ui/MetricGrid";
 import { RoleChip } from "@/components/ui/RoleChip";
 import { roleLabel } from "@/lib/role-label";
+import { ErrorState, LoadingState } from "@/components/ui/AsyncState";
 import { useHierarchyScope } from "@/hooks/useHierarchyScope";
 import {
   emptyPersonFilter,
   filterPersonList,
   isPersonFilterActive,
   type PersonFilter,
-  type PersonStatusFilter,
 } from "@/lib/person-filters";
 import { PERSON_STATUSES, type Person, type PersonInput } from "@/types/domain";
 
@@ -157,6 +161,7 @@ function PersonForm({
     </form>
   );
 }
+import type { Person, PersonInput } from "@/types/domain";
 
 export function DomainAdminPage({
   session,
@@ -193,6 +198,7 @@ export function DomainAdminPage({
   } = useHierarchyScope(api, session.user.persona_id);
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [treeSheetOpen, setTreeSheetOpen] = useState(false);
   const [filter, setFilter] = useState<PersonFilter>(emptyPersonFilter);
   const filterActive = isPersonFilterActive(filter);
   const filteredChildren = useMemo(
@@ -228,6 +234,7 @@ export function DomainAdminPage({
       selectPerson(person);
       setCreating(false);
       setEditing(false);
+      setTreeSheetOpen(false);
     },
     [selectPerson],
   );
@@ -257,7 +264,7 @@ export function DomainAdminPage({
       !selected ||
       selected.id === session.user.persona_id ||
       !window.confirm(
-        `Dar de baja a ${nameOf(selected)}? Esta operación es una baja lógica.`,
+        `Dar de baja a ${selected.nombre}? Esta operación es una baja lógica.`,
       )
     )
       return;
@@ -266,7 +273,7 @@ export function DomainAdminPage({
       removePersonFromTree(selected.id);
       resetSelectionToRoot();
     } catch (reason) {
-      setError(message(reason));
+      setError(apiErrorMessage(reason));
     }
   };
 
@@ -276,6 +283,24 @@ export function DomainAdminPage({
         <ErrorState message="Tu rol no tiene acceso a la estructura." />
       </main>
     );
+
+  const treePanel = self && (
+    <HierarchyTreePanel
+      self={self}
+      selectedId={selected?.id ?? null}
+      filter={filter}
+      filterActive={filterActive}
+      filteredChildren={filteredChildren}
+      children={children}
+      expanded={expanded}
+      loadingNode={loadingNode}
+      onFilterChange={setFilter}
+      onClearFilter={() => setFilter(emptyPersonFilter)}
+      onSelect={select}
+      onToggle={toggle}
+    />
+  );
+
   return (
     <main className="admin-page hierarchy-page">
       <header className="admin-header">
@@ -483,14 +508,43 @@ export function DomainAdminPage({
                   apellidoPaterno: selected.apellidoPaterno,
                   apellidoMaterno: selected.apellidoMaterno,
                   telefono: selected.telefono,
+        <HierarchyMasterDetail
+          treePanel={treePanel}
+          hasSelection={Boolean(selected)}
+          treeSheetOpen={treeSheetOpen}
+          onOpenTreeSheet={() => setTreeSheetOpen(true)}
+          onCloseTreeSheet={() => setTreeSheetOpen(false)}
+          detailPanel={
+            selected ? (
+              <PersonDetailPanel
+                selected={selected}
+                breadcrumb={breadcrumb}
+                metrics={metrics}
+                scopedMap={scopedMap}
+                api={api}
+                capabilities={capabilities}
+                self={self}
+                sessionPersonId={session.user.persona_id}
+                canManageSelected={canManageSelected}
+                creating={creating}
+                editing={editing}
+                onNavigateBreadcrumb={select}
+                onStartCreate={() => setCreating(true)}
+                onStartEdit={() => setEditing(true)}
+                onCancelForm={() => {
+                  setCreating(false);
+                  setEditing(false);
                 }}
-                submitLabel="Actualizar"
-                onSave={updatePerson}
-                onCancel={() => setEditing(false)}
+                onCreate={createChild}
+                onUpdate={updatePerson}
+                onRemove={() => void remove()}
               />
             )}
           </section>
         </HierarchyLayout>
+            ) : null
+          }
+        />
       )}
     </main>
   );
