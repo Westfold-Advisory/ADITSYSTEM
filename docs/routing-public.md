@@ -37,16 +37,16 @@ Leyenda **BREAKING:** `Sí` = enlaces guardados o integraciones externas pueden 
 
 ### Rutas públicas (sin auth)
 
-| CURRENT (implementado)                                                     | PROPOSED                                                                                                                   | REASON                                                                                                               | BREAKING                                                                                               |
-| -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `/` → listado de eventos publicados (`PublicEventsPage`)                   | Mantener `/` **o** canonicalizar a `/eventos` con redirect 301 interno (cliente)                                           | Dos URLs equivalentes dificultan analytics y SEO; una sola canonical mejora predictibilidad                          | **PO** — redirect `/` → `/eventos`: **No** si se mantiene `/`; **Sí** si se elimina `/` sin redirect   |
-| `/eventos` → mismo listado                                                 | Mantener                                                                                                                   | URL principal del catálogo público; alineada con nav y 404                                                           | No                                                                                                     |
-| `/mapa` → explorador mapa + lista                                          | Mantener                                                                                                                   | Superficie territorial; debe seguir teniendo equivalente lista (`TRA-104` 1.1.7)                                     | No                                                                                                     |
-| Detalle evento: `?evento=<uuid>` en `/eventos` o `/mapa` (con `pushState`) | **Fase A:** mantener query. **Fase B (SEO):** añadir `/eventos/<uuid>` (path) con **redirect 308/301** desde query antigua | Query compartible y funcional hoy; path dedicado mejora OG meta, URLs legibles e indexación futura (`TRA-104` 1.1.5) | **PO** — Fase B: **Sí** si se deja de aceptar `?evento=`; **No** si conviven path + query con redirect |
-| `/privacidad` → aviso integral                                             | Mantener; contenido legal definitivo fuera de alcance epic                                                                 | Cumplimiento UX LFPDPPP-oriented; enlazado desde `InstitutionConfig`                                                 | No                                                                                                     |
-| `/privacidad/simplificado` → resumen                                       | Mantener                                                                                                                   | Acceso alternativo documentado en config institucional                                                               | No                                                                                                     |
-| Cualquier otra ruta → `NotFoundPage` (404 UI in-app)                       | Mantener; opcional `/404` explícita **no** recomendada (confunde con HTTP 404 de hosting)                                  | SPA resuelve 404 en cliente tras cargar `index.html`                                                                 | No                                                                                                     |
-| `#/…` hash legacy                                                          | Mantener normalización one-shot; **no** documentar para enlaces nuevos                                                     | Compatibilidad bookmarks antiguos                                                                                    | No (eliminar soporte hash sería **Sí**)                                                                |
+| CURRENT (implementado)                                                     | PROPOSED                                                                                                                   | REASON                                                                                                               | BREAKING                                                                                                        |
+| -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `/` → `LoginPage` (vista de entrada institucional)                         | **Resuelto (TRA-126):** implementado — `/` y `/login` muestran el mismo formulario                                         | PO decidió priorizar el acceso administrativo como landing sobre el catálogo público                                 | No (ver nota debajo)                                                                                            |
+| `/eventos` → listado de eventos públicos (`PublicEventsPage`)              | Mantener; accesible sólo desde el menú de navegación, ya **no** es la landing (`/`)                                        | URL principal del catálogo público; alineada con nav y 404                                                           | **Sí** para enlaces externos/bookmarks a `/` esperando el listado (ahora ven login) — sin redirect implementado |
+| `/mapa` → explorador mapa + lista                                          | Mantener                                                                                                                   | Superficie territorial; debe seguir teniendo equivalente lista (`TRA-104` 1.1.7)                                     | No                                                                                                              |
+| Detalle evento: `?evento=<uuid>` en `/eventos` o `/mapa` (con `pushState`) | **Fase A:** mantener query. **Fase B (SEO):** añadir `/eventos/<uuid>` (path) con **redirect 308/301** desde query antigua | Query compartible y funcional hoy; path dedicado mejora OG meta, URLs legibles e indexación futura (`TRA-104` 1.1.5) | **PO** — Fase B: **Sí** si se deja de aceptar `?evento=`; **No** si conviven path + query con redirect          |
+| `/privacidad` → aviso integral                                             | Mantener; contenido legal definitivo fuera de alcance epic                                                                 | Cumplimiento UX LFPDPPP-oriented; enlazado desde `InstitutionConfig`                                                 | No                                                                                                              |
+| `/privacidad/simplificado` → resumen                                       | Mantener                                                                                                                   | Acceso alternativo documentado en config institucional                                                               | No                                                                                                              |
+| Cualquier otra ruta → `NotFoundPage` (404 UI in-app)                       | Mantener; opcional `/404` explícita **no** recomendada (confunde con HTTP 404 de hosting)                                  | SPA resuelve 404 en cliente tras cargar `index.html`                                                                 | No                                                                                                              |
+| `#/…` hash legacy                                                          | Mantener normalización one-shot; **no** documentar para enlaces nuevos                                                     | Compatibilidad bookmarks antiguos                                                                                    | No (eliminar soporte hash sería **Sí**)                                                                         |
 
 ### Entrada administrativa y consola (auth)
 
@@ -98,20 +98,20 @@ El frontend es un **SPA**: todas las rutas de path válidas deben servir `index.
 
 1. **Documentación (esta tarea)** — baseline acordado; sin cambios de código.
 2. **PO: login único en `/login`** — redirect desde `/admin` sin sesión; actualizar enlaces en `PublicAppShell` / docs (`tra-114-admin-login-routing.md`).
-3. **PO: canonical `/` vs `/eventos`** — una sola URL preferida en nav y analytics.
+3. ~~**PO: canonical `/` vs `/eventos`**~~ — **Resuelto (TRA-126):** `/` es `LoginPage`; `/eventos` es una URL aparte, alcanzable sólo por enlace de menú.
 4. **PO: Fase B detalle** — introducir `/eventos/:uuid` manteniendo redirect desde `?evento=` al menos un release.
 5. **PO: noindex admin** — meta robots en shells restringidos.
 6. **Opcional futuro** — sub-rutas `/admin/*` tras estabilizar shell público (TRA-105–TRA-110).
 
 ## Decisiones pendientes de Product Owner
 
-| ID       | Decisión                                     | Opciones                                                                                             | Impacto                                |
-| -------- | -------------------------------------------- | ---------------------------------------------------------------------------------------------------- | -------------------------------------- |
-| PO-114-1 | ¿Redirect `/admin` sin sesión → `/login`?    | A) Mantener login duplicado (actual) · B) Redirect (recomendado en `tra-114-admin-login-routing.md`) | UX, bookmarks, enlaces institucionales |
-| PO-114-2 | ¿URL canonical del listado?                  | A) `/` y `/eventos` · B) Solo `/eventos` + redirect desde `/`                                        | SEO, métricas                          |
-| PO-114-3 | ¿Path `/eventos/:id` además de `?evento=`?   | A) Solo query · B) Path + compat query · C) Path y deprecar query                                    | Enlaces compartidos, OG, breaking      |
-| PO-114-4 | ¿`noindex` en `/login` y `/admin`?           | A) Sí · B) No                                                                                        | Visibilidad en buscadores              |
-| PO-114-5 | ¿Implementar redirects en código en TRA-114? | A) No (default issue) · B) Sí, subset aprobado                                                       | Alcance de desarrollo                  |
+| ID       | Decisión                                               | Opciones                                                                                                   | Impacto                                |
+| -------- | ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| PO-114-1 | ¿Redirect `/admin` sin sesión → `/login`?              | A) Mantener login duplicado (actual) · B) Redirect (recomendado en `tra-114-admin-login-routing.md`)       | UX, bookmarks, enlaces institucionales |
+| PO-114-2 | ~~¿URL canonical del listado?~~ **Resuelto (TRA-126)** | C) `/` es `LoginPage`; `/eventos` es ruta aparte accesible sólo por menú (opción no listada originalmente) | SEO, métricas                          |
+| PO-114-3 | ¿Path `/eventos/:id` además de `?evento=`?             | A) Solo query · B) Path + compat query · C) Path y deprecar query                                          | Enlaces compartidos, OG, breaking      |
+| PO-114-4 | ¿`noindex` en `/login` y `/admin`?                     | A) Sí · B) No                                                                                              | Visibilidad en buscadores              |
+| PO-114-5 | ¿Implementar redirects en código en TRA-114?           | A) No (default issue) · B) Sí, subset aprobado                                                             | Alcance de desarrollo                  |
 
 ## Verificación manual (sin backend)
 
@@ -120,15 +120,16 @@ npm install
 npm run dev   # http://localhost:5173
 ```
 
-| URL                                       | Resultado esperado                      |
-| ----------------------------------------- | --------------------------------------- |
-| `/eventos`                                | Listado público                         |
-| `/eventos?q=test&evento=<uuid-publicado>` | Listado + detalle si UUID válido en API |
-| `/mapa?evento=<uuid>`                     | Mapa con selección                      |
-| `/login`                                  | Formulario institucional                |
-| `/admin`                                  | Login (hoy) o consola con sesión        |
-| `/privacidad`                             | Aviso integral (placeholder legal)      |
-| `/ruta-inexistente`                       | 404 in-app con enlace a `/eventos`      |
+| URL                                       | Resultado esperado                                     |
+| ----------------------------------------- | ------------------------------------------------------ |
+| `/`                                       | Formulario institucional (igual que `/login`, TRA-126) |
+| `/eventos`                                | Listado público                                        |
+| `/eventos?q=test&evento=<uuid-publicado>` | Listado + detalle si UUID válido en API                |
+| `/mapa?evento=<uuid>`                     | Mapa con selección                                     |
+| `/login`                                  | Formulario institucional                               |
+| `/admin`                                  | Login (hoy) o consola con sesión                       |
+| `/privacidad`                             | Aviso integral (placeholder legal)                     |
+| `/ruta-inexistente`                       | 404 in-app con enlace a `/eventos`                     |
 
 ## Definition of Done — TRA-114
 

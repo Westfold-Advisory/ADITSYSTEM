@@ -45,7 +45,7 @@ export default function App() {
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
-  if (currentPath === "/login") {
+  if (currentPath === "/" || currentPath === "/login") {
     return (
       <PublicAppShell>
         <LoginPage
@@ -58,7 +58,7 @@ export default function App() {
     );
   }
   if (currentPath === "/admin") return <AdminEventsPage />;
-  if (currentPath === "/" || currentPath === "/eventos") {
+  if (currentPath === "/eventos") {
     return (
       <PublicAppShell currentPath="/eventos">
         <PublicEventsPage />

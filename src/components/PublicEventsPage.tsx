@@ -18,7 +18,7 @@ import {
   publicMapHref,
   type PublicEventFilters,
 } from "@/lib/public-event-filters";
-import { isPublishedEvent } from "@/lib/public-events";
+import { isPublicEvent } from "@/lib/public-events";
 import type { Event, UUID } from "@/types/events";
 import { EmptyState, ErrorState, LoadingState } from "./ui/AsyncState";
 import { EventDetailSkeleton, EventListSkeleton } from "./ui/Skeleton";
@@ -119,7 +119,7 @@ export function PublicEventsPage() {
       .then((events) =>
         dispatchList({
           type: "success",
-          value: events.filter(isPublishedEvent),
+          value: events.filter((event) => isPublicEvent(event)),
         }),
       )
       .catch((error: unknown) => {
@@ -139,7 +139,7 @@ export function PublicEventsPage() {
     void eventsApi
       .getPublic(selectedEventId, controller.signal)
       .then((event) => {
-        if (!isPublishedEvent(event)) {
+        if (!isPublicEvent(event)) {
           throw new Error("El evento no está disponible públicamente.");
         }
         dispatchDetail({ type: "success", value: event });

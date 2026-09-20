@@ -24,7 +24,7 @@ import {
   getMobileMapSheetState,
   initialGeofenceVisibility,
 } from "@/lib/map-explorer";
-import { isPublishedEvent } from "@/lib/public-events";
+import { isPublicEvent } from "@/lib/public-events";
 import { cn } from "@/lib/utils";
 import type { Event, UUID } from "@/types/events";
 
@@ -105,7 +105,7 @@ export function MapPage() {
     void eventsApi
       .listPublic(controller.signal)
       .then((items) => {
-        setEvents(items.filter(isPublishedEvent));
+        setEvents(items.filter((event) => isPublicEvent(event)));
         setRequestState("success");
       })
       .catch((error: unknown) => {
