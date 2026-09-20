@@ -15,6 +15,7 @@ import type {
   Person,
   PersonInput,
   PersonMetrics,
+  PersonRole,
   ScopedMap,
 } from "@/types/domain";
 
@@ -22,8 +23,7 @@ import { HierarchyBreadcrumbs } from "./HierarchyBreadcrumbs";
 import { PersonForm } from "./PersonForm";
 import { apiErrorMessage, nameOf, roleLabel } from "./person-display";
 
-const TAB_IDS = ["resumen", "persona", "territorio", "documentos"] as const;
-type DetailTab = (typeof TAB_IDS)[number];
+type DetailTab = "resumen" | "persona" | "territorio" | "documentos";
 
 function SummaryTab({ metrics }: { metrics: PersonMetrics | null }) {
   return (
@@ -128,21 +128,16 @@ function TerritoryTab({
 function DocumentsTab({
   api,
   personId,
-  active,
 }: {
   api: DomainApi;
   personId: string;
-  active: boolean;
 }) {
   const [documents, setDocuments] = useState<Documento[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
-    if (!active) return;
     let cancelled = false;
-    setLoading(true);
-    setError(null);
     void api
       .listDocuments(personId)
       .then((items) => {
@@ -150,16 +145,13 @@ function DocumentsTab({
       })
       .catch((reason) => {
         if (!cancelled) setError(apiErrorMessage(reason));
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
       });
     return () => {
       cancelled = true;
     };
-  }, [active, api, personId]);
+  }, [api, personId, attempt]);
 
-  if (loading && documents === null) {
+  if (documents === null && !error) {
     return <LoadingState label="Cargando documentos…" />;
   }
   if (error) {
@@ -169,12 +161,7 @@ function DocumentsTab({
         onRetry={() => {
           setDocuments(null);
           setError(null);
-          setLoading(true);
-          void api
-            .listDocuments(personId)
-            .then(setDocuments)
-            .catch((reason) => setError(apiErrorMessage(reason)))
-            .finally(() => setLoading(false));
+          setAttempt((value) => value + 1);
         }}
       />
     );
@@ -198,6 +185,101 @@ function DocumentsTab({
         </li>
       ))}
     </ul>
+  );
+}
+
+function PersonDetailTabs({
+  selected,
+  metrics,
+  scopedMap,
+  api,
+  canRegisterChild,
+  childRole,
+  canEdit,
+  showRemove,
+  onStartCreate,
+  onStartEdit,
+  onRemove,
+}: {
+  selected: Person;
+  metrics: PersonMetrics | null;
+  scopedMap: ScopedMap | null;
+  api: DomainApi;
+  canRegisterChild: boolean;
+  childRole: PersonRole | null;
+  canEdit: boolean;
+  showRemove: boolean;
+  onStartCreate: () => void;
+  onStartEdit: () => void;
+  onRemove: () => void;
+}) {
+  const [tab, setTab] = useState<DetailTab>("resumen");
+
+  const primaryAction = (() => {
+    if (tab === "resumen" && canRegisterChild && childRole) {
+      return (
+        <Button onClick={onStartCreate}>
+          Registrar {roleLabel(childRole)}
+        </Button>
+      );
+    }
+    if (tab === "persona" && canEdit) {
+      return <Button onClick={onStartEdit}>Editar datos</Button>;
+    }
+    return null;
+  })();
+
+  const secondaryActions = showRemove ? (
+    <Button variant="destructive" onClick={onRemove}>
+      Dar de baja
+    </Button>
+  ) : null;
+
+  return (
+    <>
+      <div className="person-detail-heading">
+        <div>
+          <p className="eyebrow">{selected.status}</p>
+          <h2>{nameOf(selected)}</h2>
+        </div>
+        {(primaryAction || secondaryActions) && (
+          <div className="detail-primary-actions">
+            {primaryAction}
+            {secondaryActions}
+          </div>
+        )}
+      </div>
+      <Tabs.Root
+        className="hierarchy-tabs"
+        value={tab}
+        onValueChange={(value) => setTab(value as DetailTab)}
+      >
+        <Tabs.List aria-label="Detalle de persona">
+          <Tabs.Trigger value="resumen">Resumen</Tabs.Trigger>
+          <Tabs.Trigger value="persona">Persona</Tabs.Trigger>
+          <Tabs.Trigger value="territorio">Territorio</Tabs.Trigger>
+          <Tabs.Trigger value="documentos">Documentos</Tabs.Trigger>
+        </Tabs.List>
+        <Tabs.Content value="resumen" className="hierarchy-tab-panel">
+          <SummaryTab metrics={metrics} />
+        </Tabs.Content>
+        <Tabs.Content value="persona" className="hierarchy-tab-panel">
+          <PersonaTab person={selected} />
+        </Tabs.Content>
+        <Tabs.Content value="territorio" className="hierarchy-tab-panel">
+          <p className="form-intro">
+            Geocercas asignadas a personas dentro del subárbol seleccionado. No
+            incluye coordenadas personales ni datos fuera de tu alcance.
+          </p>
+          <TerritoryTab scopedMap={scopedMap} selected={selected} />
+        </Tabs.Content>
+        <Tabs.Content value="documentos" className="hierarchy-tab-panel">
+          {tab === "documentos" ? (
+            <DocumentsTab key={selected.id} api={api} personId={selected.id} />
+          ) : null}
+        </Tabs.Content>
+      </Tabs.Root>
+    </>
   );
 }
 
@@ -240,12 +322,6 @@ export function PersonDetailPanel({
   onUpdate: (input: PersonInput) => Promise<void>;
   onRemove: () => void;
 }) {
-  const [tab, setTab] = useState<DetailTab>("resumen");
-
-  useEffect(() => {
-    setTab("resumen");
-  }, [selected.id]);
-
   const showForm = creating || editing;
   const canRegisterChild =
     capabilities.canCreateChild &&
@@ -253,104 +329,57 @@ export function PersonDetailPanel({
     capabilities.childRole &&
     selected.role !== "AMIGO";
 
-  const primaryAction = (() => {
-    if (showForm) return null;
-    if (tab === "resumen" && canRegisterChild && capabilities.childRole) {
-      return (
-        <Button onClick={onStartCreate}>
-          Registrar {roleLabel(capabilities.childRole)}
-        </Button>
-      );
-    }
-    if (tab === "persona" && canManageSelected(selected)) {
-      return <Button onClick={onStartEdit}>Editar datos</Button>;
-    }
-    return null;
-  })();
-
-  const secondaryActions =
-    !showForm &&
-    selected.id !== sessionPersonId &&
-    canManageSelected(selected) ? (
-      <Button variant="destructive" onClick={onRemove}>
-        Dar de baja
-      </Button>
-    ) : null;
-
   return (
     <Card className="person-detail hierarchy-detail-panel">
-      <HierarchyBreadcrumbs
-        path={breadcrumb}
-        onNavigate={onNavigateBreadcrumb}
-      />
-      <div className="person-detail-heading">
-        <div>
-          <p className="eyebrow">{selected.status}</p>
-          <h2>{nameOf(selected)}</h2>
-        </div>
-        {(primaryAction || secondaryActions) && (
-          <div className="detail-primary-actions">
-            {primaryAction}
-            {secondaryActions}
-          </div>
-        )}
-      </div>
+      <HierarchyBreadcrumbs path={breadcrumb} onNavigate={onNavigateBreadcrumb} />
 
       {showForm ? (
-        <PersonForm
-          role={
-            creating && capabilities.childRole
-              ? capabilities.childRole
-              : selected.role
-          }
-          parent={selected}
-          initialValues={
-            editing
-              ? {
-                  nombre: selected.nombre,
-                  apellidoPaterno: selected.apellidoPaterno,
-                  apellidoMaterno: selected.apellidoMaterno,
-                  telefono: selected.telefono,
-                }
-              : undefined
-          }
-          submitLabel={editing ? "Actualizar" : "Guardar"}
-          onSave={editing ? onUpdate : onCreate}
-          onCancel={onCancelForm}
-        />
+        <>
+          <div className="person-detail-heading">
+            <div>
+              <p className="eyebrow">{selected.status}</p>
+              <h2>{nameOf(selected)}</h2>
+            </div>
+          </div>
+          <PersonForm
+            role={
+              creating && capabilities.childRole
+                ? capabilities.childRole
+                : selected.role
+            }
+            parent={selected}
+            initialValues={
+              editing
+                ? {
+                    nombre: selected.nombre,
+                    apellidoPaterno: selected.apellidoPaterno,
+                    apellidoMaterno: selected.apellidoMaterno,
+                    telefono: selected.telefono,
+                  }
+                : undefined
+            }
+            submitLabel={editing ? "Actualizar" : "Guardar"}
+            onSave={editing ? onUpdate : onCreate}
+            onCancel={onCancelForm}
+          />
+        </>
       ) : (
-        <Tabs.Root
-          className="hierarchy-tabs"
-          value={tab}
-          onValueChange={(value) => setTab(value as DetailTab)}
-        >
-          <Tabs.List aria-label="Detalle de persona">
-            <Tabs.Trigger value="resumen">Resumen</Tabs.Trigger>
-            <Tabs.Trigger value="persona">Persona</Tabs.Trigger>
-            <Tabs.Trigger value="territorio">Territorio</Tabs.Trigger>
-            <Tabs.Trigger value="documentos">Documentos</Tabs.Trigger>
-          </Tabs.List>
-          <Tabs.Content value="resumen" className="hierarchy-tab-panel">
-            <SummaryTab metrics={metrics} />
-          </Tabs.Content>
-          <Tabs.Content value="persona" className="hierarchy-tab-panel">
-            <PersonaTab person={selected} />
-          </Tabs.Content>
-          <Tabs.Content value="territorio" className="hierarchy-tab-panel">
-            <p className="form-intro">
-              Geocercas asignadas a personas dentro del subárbol seleccionado.
-              No incluye coordenadas personales ni datos fuera de tu alcance.
-            </p>
-            <TerritoryTab scopedMap={scopedMap} selected={selected} />
-          </Tabs.Content>
-          <Tabs.Content value="documentos" className="hierarchy-tab-panel">
-            <DocumentsTab
-              api={api}
-              personId={selected.id}
-              active={tab === "documentos"}
-            />
-          </Tabs.Content>
-        </Tabs.Root>
+        <PersonDetailTabs
+          key={selected.id}
+          selected={selected}
+          metrics={metrics}
+          scopedMap={scopedMap}
+          api={api}
+          canRegisterChild={Boolean(canRegisterChild)}
+          childRole={capabilities.childRole}
+          canEdit={canManageSelected(selected)}
+          showRemove={
+            selected.id !== sessionPersonId && canManageSelected(selected)
+          }
+          onStartCreate={onStartCreate}
+          onStartEdit={onStartEdit}
+          onRemove={onRemove}
+        />
       )}
     </Card>
   );

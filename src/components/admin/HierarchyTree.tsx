@@ -1,10 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/Field";
-import {
-  emptyPersonFilter,
-  type PersonFilter,
-  type PersonStatusFilter,
-} from "@/lib/person-filters";
+import type { PersonFilter, PersonStatusFilter } from "@/lib/person-filters";
 import { PERSON_STATUSES, type Person } from "@/types/domain";
 
 import { nameOf, roleLabel } from "./person-display";
@@ -191,5 +187,3 @@ export function HierarchyTreePanel({
     </>
   );
 }
-
-export { emptyPersonFilter };
