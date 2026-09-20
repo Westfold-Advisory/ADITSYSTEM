@@ -10,6 +10,7 @@ import {
   SESSION_EXPIRED_MESSAGE,
 } from "@/lib/auth-messages";
 import { getInstitutionConfig } from "@/config/institution";
+import { InstitutionBrandMark } from "./InstitutionBrandMark";
 import { privacyNoticeSimplificado } from "@/content/legal/privacy-notice-simplificado";
 import { Alert } from "./ui/Alert";
 import { Button } from "./ui/button";
@@ -46,7 +47,12 @@ export function LoginPage({ onLogin, initialNotice = null }: LoginPageProps) {
     <div className="login-page">
       <Card className="login-page__card">
         <header className="login-page__header">
-          <p className="login-page__product">{institution.productName}</p>
+          <InstitutionBrandMark
+            institution={institution}
+            className="login-page__brand"
+            logoClassName="login-page__logo"
+            productClassName="login-page__product"
+          />
           <p className="login-page__institution">
             {institution.institutionName}
           </p>
@@ -100,11 +106,11 @@ export function LoginPage({ onLogin, initialNotice = null }: LoginPageProps) {
 
         <p className="login-page__privacy">
           {privacyNoticeSimplificado.summary}{" "}
-          <a href={institution.privacySummaryPath}>
+          <a href={institution.legal.privacySummaryPath}>
             Leer resumen de privacidad
           </a>
           {" · "}
-          <a href={institution.privacyIntegralPath}>Aviso integral</a>
+          <a href={institution.legal.privacyIntegralPath}>Aviso integral</a>
         </p>
       </Card>
     </div>

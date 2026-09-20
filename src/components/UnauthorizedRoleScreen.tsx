@@ -21,7 +21,7 @@ export function UnauthorizedRoleScreen({
   const institution = getInstitutionConfig();
 
   return (
-    <PublicAppShell brandLabel={institution.productName}>
+    <PublicAppShell>
       <div className="login-page">
         <Card className="login-page__card">
           <header className="login-page__header">

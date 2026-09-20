@@ -6,7 +6,6 @@ import { AdminEventsPage } from "./components/AdminEventsPage";
 import { LoginPage } from "./components/LoginPage";
 import { PrivacyNoticePage } from "./components/PrivacyNoticePage";
 import { PublicAppShell } from "./components/PublicAppShell";
-import { getInstitutionConfig } from "./config/institution";
 import { persistAdminSession } from "./lib/admin-session";
 import { privacyNoticeKindFromPath } from "./lib/public-routes";
 import { normalizePathname } from "./lib/routing";
@@ -46,11 +45,9 @@ export default function App() {
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
-  const institution = getInstitutionConfig();
-
   if (currentPath === "/login") {
     return (
-      <PublicAppShell brandLabel={institution.productName}>
+      <PublicAppShell>
         <LoginPage
           onLogin={(session) => {
             persistAdminSession(session);
