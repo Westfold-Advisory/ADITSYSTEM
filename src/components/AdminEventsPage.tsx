@@ -24,9 +24,12 @@ import { roleLabel } from "./admin/person-display";
 import { adminPageTitle } from "@/lib/admin-nav";
 import { LoginPage } from "./LoginPage";
 import { PublicAppShell } from "./PublicAppShell";
+import { EventStatusBadge } from "@/components/events/public/EventStatusBadge";
 import { Button } from "./ui/button";
 import { Card } from "./ui/Card";
 import { EmptyState, ErrorState, LoadingState } from "./ui/AsyncState";
+
+import "@/components/events/public/events-public.css";
 
 function loadAdminSession(): {
   session: AdminSession | null;
@@ -40,14 +43,6 @@ function loadAdminSession(): {
   }
   return { session: stored, expiredNotice: null };
 }
-
-const statusLabels: Record<Event["status"], string> = {
-  BORRADOR: "Borrador",
-  PUBLICADO: "Publicado",
-  EN_CURSO: "En curso",
-  FINALIZADO: "Finalizado",
-  CANCELADO: "Cancelado",
-};
 
 type EventAction =
   "publish" | "unpublish" | "start" | "finish" | "cancel" | "delete";
@@ -78,6 +73,18 @@ function actionsFor(
     case "FINALIZADO":
       return [];
   }
+}
+
+function actionButtonVariant(
+  action: EventAction,
+  sensitive?: boolean,
+): "default" | "outline" | "secondary" | "destructive" {
+  if (action === "delete") return "destructive";
+  if (sensitive) return "outline";
+  if (action === "publish" || action === "start" || action === "finish") {
+    return "default";
+  }
+  return "secondary";
 }
 
 export function AdminEventsPage() {
@@ -232,17 +239,19 @@ export function AdminEventsPage() {
             <section className="admin-events" aria-live="polite">
               {events.map((event) => (
                 <Card key={event.id} className="admin-event-card">
-                  <div
-                    className={`event-status event-status--${event.status.toLowerCase()}`}
-                  >
-                    {statusLabels[event.status]}
-                  </div>
-                  <h2>{event.name}</h2>
-                  <p>
+                  <header className="admin-event-card__head">
+                    <h2>{event.name}</h2>
+                    <EventStatusBadge status={event.status} />
+                  </header>
+                  <p className="admin-event-card__meta">
                     {event.type} · {event.locationText}
                   </p>
-                  <div className="event-card-actions">
-                    <Button variant="outline" onClick={() => setEditing(event)}>
+                  <div className="admin-event-card__actions">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setEditing(event)}
+                    >
                       Editar
                     </Button>
                     {actionsFor(event).map(({ action, label, sensitive }) => {
@@ -250,7 +259,8 @@ export function AdminEventsPage() {
                       return (
                         <Button
                           key={action}
-                          variant={sensitive ? "destructive" : "secondary"}
+                          size="sm"
+                          variant={actionButtonVariant(action, sensitive)}
                           status={busy ? "loading" : "idle"}
                           onClick={() => void runAction(event, action)}
                         >
