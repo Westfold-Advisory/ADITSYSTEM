@@ -18,7 +18,7 @@ import {
   LoadingState,
 } from "@/components/ui/AsyncState";
 import { Field } from "@/components/ui/Field";
-import { directChildren } from "@/lib/hierarchy";
+import { buildChildMap, mergePersonScope } from "@/lib/hierarchy";
 import {
   emptyPersonFilter,
   filterPersonList,
@@ -309,14 +309,18 @@ export function DomainAdminPage({
   }, [children, selected, self]);
 
   const loadChildren = useCallback(
-    async (person: Person) => {
+    async (person: Person, anchor?: Person) => {
+      const treeRoot = anchor ?? self ?? person;
       setLoadingNode(person.id);
       setError(null);
       try {
         const descendants = await api.listDescendants(person.id);
         setChildren((current) => ({
           ...current,
-          [person.id]: directChildren(descendants, person),
+          ...buildChildMap(
+            treeRoot,
+            mergePersonScope(treeRoot, current, descendants),
+          ),
         }));
       } catch (reason) {
         setError(message(reason));
@@ -324,7 +328,7 @@ export function DomainAdminPage({
         setLoadingNode(null);
       }
     },
-    [api],
+    [api, self],
   );
   const select = useCallback((person: Person) => {
     setSelected(person);
@@ -348,7 +352,7 @@ export function DomainAdminPage({
         setSelf(current);
         setSelected(current);
         setExpanded({ [current.id]: true });
-        await loadChildren(current);
+        await loadChildren(current, current);
       } catch (reason) {
         setError(message(reason));
       }

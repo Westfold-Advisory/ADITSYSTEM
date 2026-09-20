@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { directChildren } from "./hierarchy";
+import { buildChildMap, directChildren } from "./hierarchy";
 import type { Person } from "@/types/domain";
 
 function person(overrides: Partial<Person>): Person {
@@ -63,4 +63,29 @@ test("admin tree includes root coordinadores generales as immediate children", (
   const result = directChildren([general, coordinator], admin);
 
   assert.deepEqual(result, [general]);
+});
+
+test("buildChildMap indexes every parent from one descendants payload", () => {
+  const admin = person({ id: "admin", role: "ADMIN", parentId: null });
+  const general = person({
+    id: "general",
+    role: "COORDINADOR_GENERAL",
+    parentId: null,
+  });
+  const coordinator = person({
+    id: "coord",
+    role: "COORDINADOR",
+    parentId: "general",
+  });
+  const link = person({
+    id: "link",
+    role: "ENLACE",
+    parentId: "coord",
+  });
+
+  const map = buildChildMap(admin, [general, coordinator, link]);
+
+  assert.deepEqual(map[admin.id], [general]);
+  assert.deepEqual(map[general.id], [coordinator]);
+  assert.deepEqual(map[coordinator.id], [link]);
 });
