@@ -118,14 +118,21 @@
 
 .public-events-header {
   max-width: 42rem;
-  margin-bottom: 2.5rem;
+  margin-bottom: 2rem;
 }
 
 .public-events-header h1 {
-  margin: 0.25rem 0;
+  margin: 0;
   font: var(--md-sys-typescale-headline-large);
   color: var(--md-sys-color-on-surface);
   letter-spacing: -0.02em;
+}
+
+.public-events-header__intro {
+  margin: var(--md-sys-spacing-2) 0 0;
+  font: var(--md-sys-typescale-body-large);
+  color: var(--md-sys-color-on-surface-variant);
+  line-height: 1.5;
 }
 
 .eyebrow,
