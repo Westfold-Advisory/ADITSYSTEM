@@ -176,7 +176,7 @@ export function PublicEventsPage() {
   };
 
   return (
-    <main className="public-events-page">
+    <div className="public-events-page">
       <header className="public-events-header">
         <p className="eyebrow">ADIT SYSTEM</p>
         <h1>Eventos públicos</h1>
@@ -228,6 +228,6 @@ export function PublicEventsPage() {
           )}
         </section>
       )}
-    </main>
+    </div>
   );
 }

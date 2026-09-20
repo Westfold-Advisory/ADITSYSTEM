@@ -19,10 +19,7 @@ export function PrivacyNoticePage({ kind }: PrivacyNoticePageProps) {
       : "Ver aviso integral";
 
   return (
-    <main
-      className="privacy-notice-page"
-      aria-labelledby="privacy-notice-title"
-    >
+    <div className="privacy-notice-page" aria-labelledby="privacy-notice-title">
       <div className="privacy-notice-banner" role="note">
         <strong>LEGAL REVIEW REQUIRED.</strong> Este aviso es un borrador
         estructural con placeholders. No sustituye asesoría jurídica ni
@@ -64,6 +61,6 @@ export function PrivacyNoticePage({ kind }: PrivacyNoticePageProps) {
           ))}
         </section>
       ))}
-    </main>
+    </div>
   );
 }

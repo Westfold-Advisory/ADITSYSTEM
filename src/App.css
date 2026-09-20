@@ -1,46 +1,4 @@
 /* ─── Public events page ─────────────────────────────────────────────────── */
-.public-shell {
-  min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
-}
-.public-shell > .ui-app-bar {
-  flex: 0 0 auto;
-}
-.public-shell > .flex,
-.public-shell > .privacy-notice-page,
-.public-shell > .public-events-page {
-  flex: 1;
-}
-.public-shell > .flex {
-  min-height: 0;
-}
-
-.public-legal-footer {
-  flex: 0 0 auto;
-  border-top: 1px solid var(--cyber-border-subtle);
-  padding: 1rem 1.5rem 1.25rem;
-  font: var(--md-sys-typescale-body-small);
-  color: var(--md-sys-color-on-surface-variant);
-}
-.public-legal-footer nav {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem 0.75rem;
-  max-width: 72rem;
-  margin: 0 auto;
-}
-.public-legal-footer a {
-  color: var(--md-sys-color-primary);
-  text-decoration: underline;
-  text-underline-offset: 0.15em;
-}
-.public-legal-footer a:focus-visible {
-  outline: 2px solid var(--md-sys-color-primary);
-  outline-offset: 2px;
-}
-
 .privacy-notice-page {
   box-sizing: border-box;
   margin: 0 auto;
