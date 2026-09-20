@@ -12,6 +12,14 @@ import {
   LoadingState,
 } from "@/components/ui/AsyncState";
 import { Field } from "@/components/ui/Field";
+import {
+  HierarchyLayout,
+  HierarchyTreeFilterBar,
+  HierarchyTreePanel,
+  HierarchyTreeRoot,
+} from "@/components/ui/HierarchyTree";
+import { MetricGrid } from "@/components/ui/MetricGrid";
+import { RoleChip, roleLabel } from "@/components/ui/RoleChip";
 import { useHierarchyScope } from "@/hooks/useHierarchyScope";
 import {
   emptyPersonFilter,
@@ -41,10 +49,6 @@ function nameOf(
   return [person.nombre, person.apellidoPaterno, person.apellidoMaterno]
     .filter(Boolean)
     .join(" ");
-}
-
-function roleLabel(role: Person["role"]): string {
-  return role.toLowerCase().replaceAll("_", " ");
 }
 
 function PersonForm({
@@ -95,9 +99,7 @@ function PersonForm({
       </div>
       <div className="form-section">
         <p className="eyebrow">Tipo de registro</p>
-        <span className="role-chip" data-role={role}>
-          {roleLabel(role)}
-        </span>
+        <RoleChip role={role} />
       </div>
       <p className="eyebrow">Datos personales</p>
       <div className="event-form-grid">
@@ -152,94 +154,6 @@ function PersonForm({
         </Button>
       </div>
     </form>
-  );
-}
-
-function TreeNode({
-  person,
-  selectedId,
-  expanded,
-  children,
-  totalChildren,
-  filterActive,
-  loading,
-  expandedById,
-  childrenById,
-  totalChildrenById,
-  loadingNode,
-  onSelect,
-  onToggle,
-}: {
-  person: Person;
-  selectedId: string | null;
-  expanded: boolean;
-  children: Person[] | undefined;
-  totalChildren: number | undefined;
-  filterActive: boolean;
-  loading: boolean;
-  expandedById: Record<string, boolean>;
-  childrenById: Record<string, Person[]>;
-  totalChildrenById: Record<string, Person[]>;
-  loadingNode: string | null;
-  onSelect: (person: Person) => void;
-  onToggle: (person: Person) => void;
-}) {
-  const hasChildren = person.role !== "AMIGO";
-  return (
-    <li
-      role="treeitem"
-      aria-expanded={hasChildren ? expanded : undefined}
-      aria-selected={selectedId === person.id}
-    >
-      <div className="tree-node">
-        {hasChildren ? (
-          <Button
-            size="icon-xs"
-            variant="ghost"
-            aria-label={`${expanded ? "Contraer" : "Expandir"} ${nameOf(person)}`}
-            aria-expanded={expanded}
-            status={loading ? "loading" : "idle"}
-            onClick={() => onToggle(person)}
-          >
-            {expanded ? "−" : "+"}
-          </Button>
-        ) : (
-          <span className="tree-spacer" aria-hidden="true" />
-        )}
-        <button className="tree-person" onClick={() => onSelect(person)}>
-          {nameOf(person)} <small>{roleLabel(person.role)}</small>
-        </button>
-      </div>
-      {expanded && (
-        <ul role="group">
-          {children?.map((child) => (
-            <TreeNode
-              key={child.id}
-              person={child}
-              selectedId={selectedId}
-              expanded={Boolean(expandedById[child.id])}
-              children={childrenById[child.id]}
-              totalChildren={totalChildrenById[child.id]?.length}
-              filterActive={filterActive}
-              loading={loadingNode === child.id}
-              expandedById={expandedById}
-              childrenById={childrenById}
-              totalChildrenById={totalChildrenById}
-              loadingNode={loadingNode}
-              onSelect={onSelect}
-              onToggle={onToggle}
-            />
-          ))}
-          {!loading && children?.length === 0 && (
-            <li className="tree-empty">
-              {filterActive && (totalChildren ?? 0) > 0
-                ? "Ningún descendiente coincide con el filtro."
-                : "Sin descendientes."}
-            </li>
-          )}
-        </ul>
-      )}
-    </li>
   );
 }
 
@@ -388,73 +302,72 @@ export function DomainAdminPage({
       {!self ? (
         <LoadingState label="Cargando estructura…" />
       ) : (
-        <div className="hierarchy-layout">
-          <section
-            className="hierarchy-tree-panel"
-            aria-labelledby="structure-title"
-          >
-            <h2 id="structure-title">Tu estructura</h2>
-            <div className="tree-filter-bar">
-              <Field label="Buscar por nombre">
-                <input
-                  type="search"
-                  value={filter.text}
-                  placeholder="Nombre o apellido"
-                  onChange={(event) =>
-                    setFilter((current) => ({
-                      ...current,
-                      text: event.target.value,
-                    }))
-                  }
-                />
-              </Field>
-              <Field label="Estado">
-                <select
-                  value={filter.status}
-                  onChange={(event) =>
-                    setFilter((current) => ({
-                      ...current,
-                      status: event.target.value as PersonStatusFilter,
-                    }))
-                  }
-                >
-                  <option value="TODOS">Todos</option>
-                  {PERSON_STATUSES.map((status) => (
-                    <option key={status} value={status}>
-                      {status.charAt(0) + status.slice(1).toLowerCase()}
-                    </option>
-                  ))}
-                </select>
-              </Field>
-              {filterActive && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setFilter(emptyPersonFilter)}
-                >
-                  Limpiar filtro
-                </Button>
-              )}
-            </div>
-            <ul role="tree" aria-busy={loadingNode === self.id}>
-              <TreeNode
-                person={self}
-                selectedId={selected?.id ?? null}
-                expanded={Boolean(expanded[self.id])}
-                children={filteredChildren[self.id]}
-                totalChildren={children[self.id]?.length}
-                filterActive={filterActive}
-                loading={loadingNode === self.id}
-                expandedById={expanded}
-                childrenById={filteredChildren}
-                totalChildrenById={children}
-                loadingNode={loadingNode}
-                onSelect={select}
-                onToggle={toggle}
-              />
-            </ul>
-          </section>
+        <HierarchyLayout>
+          <HierarchyTreePanel title="Tu estructura" titleId="structure-title">
+            <HierarchyTreeRoot
+              busy={loadingNode === self.id}
+              filterBar={
+                <HierarchyTreeFilterBar>
+                  <Field label="Buscar por nombre">
+                    <input
+                      type="search"
+                      value={filter.text}
+                      placeholder="Nombre o apellido"
+                      onChange={(event) =>
+                        setFilter((current) => ({
+                          ...current,
+                          text: event.target.value,
+                        }))
+                      }
+                    />
+                  </Field>
+                  <Field label="Estado">
+                    <select
+                      value={filter.status}
+                      onChange={(event) =>
+                        setFilter((current) => ({
+                          ...current,
+                          status: event.target.value as PersonStatusFilter,
+                        }))
+                      }
+                    >
+                      <option value="TODOS">Todos</option>
+                      {PERSON_STATUSES.map((status) => (
+                        <option key={status} value={status}>
+                          {status.charAt(0) + status.slice(1).toLowerCase()}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                  {filterActive && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setFilter(emptyPersonFilter)}
+                    >
+                      Limpiar filtro
+                    </Button>
+                  )}
+                </HierarchyTreeFilterBar>
+              }
+              root={{
+                person: self,
+                selectedId: selected?.id ?? null,
+                expanded: Boolean(expanded[self.id]),
+                children: filteredChildren[self.id],
+                totalChildren: children[self.id]?.length,
+                filterActive,
+                loading: loadingNode === self.id,
+                expandedById: expanded,
+                childrenById: filteredChildren,
+                totalChildrenById: children,
+                loadingNode,
+                onSelect: select,
+                onToggle: toggle,
+              }}
+            />
+          </HierarchyTreePanel>
           <section aria-live="polite">
             {selected ? (
               <Card className="person-detail">
@@ -469,32 +382,22 @@ export function DomainAdminPage({
                 <p className="eyebrow">{selected.status}</p>
                 <h2>{nameOf(selected)}</h2>
                 <p>{selected.telefono}</p>
-                <dl className="person-metrics">
-                  <div>
-                    <dt>Descendientes</dt>
-                    <dd>{metrics?.descendants ?? "—"}</dd>
-                  </div>
-                  <div>
-                    <dt>Coordinadores</dt>
-                    <dd>{metrics?.coordinators ?? "—"}</dd>
-                  </div>
-                  <div>
-                    <dt>Enlaces</dt>
-                    <dd>{metrics?.links ?? "—"}</dd>
-                  </div>
-                  <div>
-                    <dt>Amigos</dt>
-                    <dd>{metrics?.friends ?? "—"}</dd>
-                  </div>
-                  <div>
-                    <dt>Documentos</dt>
-                    <dd>{metrics?.documents ?? "—"}</dd>
-                  </div>
-                  <div>
-                    <dt>Eventos</dt>
-                    <dd>{metrics?.createdEvents ?? "—"}</dd>
-                  </div>
-                </dl>
+                <MetricGrid
+                  items={[
+                    {
+                      label: "Descendientes",
+                      value: metrics?.descendants ?? "—",
+                    },
+                    {
+                      label: "Coordinadores",
+                      value: metrics?.coordinators ?? "—",
+                    },
+                    { label: "Enlaces", value: metrics?.links ?? "—" },
+                    { label: "Amigos", value: metrics?.friends ?? "—" },
+                    { label: "Documentos", value: metrics?.documents ?? "—" },
+                    { label: "Eventos", value: metrics?.createdEvents ?? "—" },
+                  ]}
+                />
                 <section
                   aria-labelledby="scoped-map-title"
                   className="scoped-map"
@@ -520,9 +423,7 @@ export function DomainAdminPage({
                         .map((person) => (
                           <li key={person.personId}>
                             <strong>{nameOf(person)}</strong>{" "}
-                            <span className="role-chip" data-role={person.role}>
-                              {roleLabel(person.role)}
-                            </span>
+                            <RoleChip role={person.role} />
                             <ul>
                               {person.geofences.map((geofence) => (
                                 <li key={`${person.personId}-${geofence.id}`}>
@@ -588,7 +489,7 @@ export function DomainAdminPage({
               />
             )}
           </section>
-        </div>
+        </HierarchyLayout>
       )}
     </main>
   );

@@ -30,3 +30,40 @@ Los tokens `--md-sys-*` son la fuente de verdad. Los aliases `--cyber-*` son una
 ## Accesibilidad y movimiento
 
 El foco se ve en teclado sin depender del hover. Los controles interactivos tienen 40 px mínimos; para objetivos compactos del mapa se conserva la etiqueta accesible. `prefers-reduced-motion` lleva la duración de transiciones a cero. Antes de un componente nuevo, comprobar navegación por teclado, nombre accesible y contraste sobre la superficie donde se ubica.
+
+## Componentes admin (estructura de personas)
+
+Estilos en `src/styles/primitives.css` con prefijo `ui-` y tokens `--md-sys-*` únicamente.
+
+### `MetricGrid`
+
+Cuadrícula de indicadores (`<dl>`) para métricas de una persona.
+
+| Prop | Valores | Uso |
+| ---- | ------- | --- |
+| `columns` | `2`, `3` (default), `4` | Densidad en escritorio; en viewport estrecho baja a 2 columnas. |
+| `items` | `{ label, value, id? }[]` | Etiqueta visible + valor (número o «—» si falta dato). |
+
+### `RoleChip`
+
+Etiqueta compacta del rol jerárquico. Variante por `data-role`:
+
+| Rol | Superficie |
+| --- | ---------- |
+| `AMIGO` | `tertiary-container` |
+| `ADMIN` | `secondary-container` |
+| Resto | `primary-container` |
+
+Texto en minúsculas legibles (sin guiones bajos). No usar color como único indicador: el texto del rol siempre está presente.
+
+### `HierarchyTree`
+
+Composición para el panel de estructura:
+
+- `HierarchyLayout` — columnas árbol + detalle.
+- `HierarchyTreePanel` — encabezado y borde de panel.
+- `HierarchyTreeFilterBar` — filtros sobre el árbol.
+- `HierarchyTree` / `HierarchyTreeNode` — `role="tree"` / `treeitem`, expansión con botón accesible, selección con foco visible en `.ui-hierarchy-tree-person`.
+- `HierarchyTreeRoot` — atajo que une filtros, `aria-busy` en carga y nodo raíz.
+
+Los estilos legacy `.hierarchy-*`, `.person-metrics` y `.role-chip` en `App.css` quedaron retirados; usar estos componentes en pantallas nuevas.
