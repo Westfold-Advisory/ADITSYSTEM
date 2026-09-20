@@ -1,15 +1,23 @@
-import { useCallback, useEffect, useReducer } from "react";
+import { useCallback, useEffect, useMemo, useReducer } from "react";
 
 import { EventsApi } from "@/api/events";
 import { ApiClient } from "@/api/http";
 import {
   EventDetail,
   EventList,
+  PublicEventFiltersForm,
   clearPublicEventDetailUrl,
+  parsePublicEventFilters,
   pushPublicEventDetailUrl,
   readPublicEventIdFromUrl,
 } from "@/components/events/public";
 import { getInstitutionConfig } from "@/config/institution";
+import {
+  buildPublicEventQueryString,
+  filterPublicEvents,
+  publicMapHref,
+  type PublicEventFilters,
+} from "@/lib/public-event-filters";
 import { isPublishedEvent } from "@/lib/public-events";
 import type { Event, UUID } from "@/types/events";
 import { EmptyState, ErrorState, LoadingState } from "./ui/AsyncState";
@@ -50,6 +58,10 @@ function messageFor(error: unknown): string {
     : "No fue posible obtener los eventos. Intenta nuevamente.";
 }
 
+function readFiltersFromUrl(): PublicEventFilters {
+  return parsePublicEventFilters(window.location.search);
+}
+
 export function PublicEventsPage() {
   const institution = getInstitutionConfig();
   const [listState, dispatchList] = useReducer(requestReducer<Event[]>, {
@@ -67,19 +79,37 @@ export function PublicEventsPage() {
     (value: number) => value + 1,
     0,
   );
+  const [filters, setFilters] = useReducer(
+    (_: PublicEventFilters, next: PublicEventFilters) => next,
+    readFiltersFromUrl(),
+  );
   const [selectedEventId, setSelectedEventId] = useReducer(
     (_: UUID | null, next: UUID | null) => next,
     null,
     () => readPublicEventIdFromUrl(),
   );
 
+  const syncFromUrl = useCallback(() => {
+    setFilters(readFiltersFromUrl());
+    setSelectedEventId(readPublicEventIdFromUrl());
+  }, []);
+
   useEffect(() => {
-    const syncFromUrl = () => {
-      setSelectedEventId(readPublicEventIdFromUrl());
-    };
     window.addEventListener("popstate", syncFromUrl);
     return () => window.removeEventListener("popstate", syncFromUrl);
-  }, []);
+  }, [syncFromUrl]);
+
+  useEffect(() => {
+    const nextSearch = buildPublicEventQueryString({
+      filters,
+      eventId: selectedEventId,
+    });
+    const target = `${window.location.pathname}${nextSearch}`;
+    const current = `${window.location.pathname}${window.location.search}`;
+    if (target !== current) {
+      window.history.replaceState(null, "", target);
+    }
+  }, [filters, selectedEventId]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -121,6 +151,19 @@ export function PublicEventsPage() {
     return () => controller.abort();
   }, [detailReload, selectedEventId]);
 
+  const eventTypes = useMemo(() => {
+    if (listState.status !== "success" || !listState.value) return [];
+    return [...new Set(listState.value.map((event) => event.type))].sort();
+  }, [listState]);
+
+  const visibleEvents = useMemo(() => {
+    if (listState.status !== "success" || !listState.value) return [];
+    return filterPublicEvents(listState.value, {
+      ...filters,
+      now: new Date(),
+    });
+  }, [filters, listState]);
+
   const openEvent = useCallback((id: UUID) => {
     pushPublicEventDetailUrl(id);
     setSelectedEventId(id);
@@ -131,12 +174,28 @@ export function PublicEventsPage() {
     setSelectedEventId(null);
   }, []);
 
+  const mapHref = publicMapHref(filters);
+  const mapDetailHref =
+    selectedEventId && detailState.status === "success" && detailState.value
+      ? publicMapHref(filters, detailState.value.id)
+      : mapHref;
+
   return (
     <div className="public-events-page">
       <header className="public-events-header">
         <p className="eyebrow">{institution.productName}</p>
         <h1>Eventos públicos</h1>
         <p>Consulta las actividades publicadas y su información actualizada.</p>
+        <nav aria-label="Vistas de eventos públicos">
+          <ul className="public-events-context-nav">
+            <li>
+              <span aria-current="page">Listado</span>
+            </li>
+            <li>
+              <a href={mapHref}>Mapa</a>
+            </li>
+          </ul>
+        </nav>
       </header>
 
       {selectedEventId ? (
@@ -153,28 +212,60 @@ export function PublicEventsPage() {
             <ErrorState message={detailState.message} onRetry={reloadDetail} />
           )}
           {detailState.status === "success" && detailState.value && (
-            <EventDetail event={detailState.value} onBack={closeDetail} />
+            <EventDetail
+              event={detailState.value}
+              onBack={closeDetail}
+              mapExploreHref={mapDetailHref}
+            />
           )}
         </section>
       ) : (
-        <section aria-live="polite" aria-busy={listState.status === "loading"}>
-          {listState.status === "loading" && (
-            <LoadingState label="Cargando eventos…">
-              <EventListSkeleton />
-            </LoadingState>
-          )}
-          {listState.status === "error" && (
-            <ErrorState message={listState.message} onRetry={reloadList} />
-          )}
-          {listState.status === "success" && listState.value.length === 0 && (
-            <EmptyState actionLabel="Actualizar listado" onAction={reloadList}>
-              No hay eventos públicos disponibles por el momento.
-            </EmptyState>
-          )}
-          {listState.status === "success" && listState.value.length > 0 && (
-            <EventList events={listState.value} onSelectEvent={openEvent} />
-          )}
-        </section>
+        <>
+          <PublicEventFiltersForm
+            filters={filters}
+            eventTypes={eventTypes}
+            onChange={setFilters}
+          />
+          <section
+            aria-live="polite"
+            aria-busy={listState.status === "loading"}
+          >
+            <p className="public-event-results-summary">
+              {listState.status === "success"
+                ? `${visibleEvents.length} evento${visibleEvents.length === 1 ? "" : "s"} encontrado${visibleEvents.length === 1 ? "" : "s"}`
+                : "Cargando resultados…"}
+            </p>
+            {listState.status === "loading" && (
+              <LoadingState label="Cargando eventos…">
+                <EventListSkeleton />
+              </LoadingState>
+            )}
+            {listState.status === "error" && (
+              <ErrorState message={listState.message} onRetry={reloadList} />
+            )}
+            {listState.status === "success" &&
+              listState.value.length > 0 &&
+              visibleEvents.length === 0 && (
+                <EmptyState
+                  actionLabel="Quitar filtros"
+                  onAction={() => setFilters(parsePublicEventFilters(""))}
+                >
+                  No hay eventos que coincidan con los filtros actuales.
+                </EmptyState>
+              )}
+            {listState.status === "success" && listState.value.length === 0 && (
+              <EmptyState
+                actionLabel="Actualizar listado"
+                onAction={reloadList}
+              >
+                No hay eventos públicos disponibles por el momento.
+              </EmptyState>
+            )}
+            {listState.status === "success" && visibleEvents.length > 0 && (
+              <EventList events={visibleEvents} onSelectEvent={openEvent} />
+            )}
+          </section>
+        </>
       )}
     </div>
   );

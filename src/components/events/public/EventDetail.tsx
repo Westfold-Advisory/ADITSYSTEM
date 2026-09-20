@@ -2,7 +2,8 @@ import * as React from "react";
 
 void React;
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import type { Event } from "@/types/events";
 
 import { EventStatusBadge } from "./EventStatusBadge";
@@ -11,9 +12,14 @@ import { formatEventDate } from "./formatEventDate";
 export type EventDetailProps = {
   event: Event;
   onBack: () => void;
+  mapExploreHref: string;
 };
 
-export function EventDetail({ event, onBack }: EventDetailProps) {
+export function EventDetail({
+  event,
+  onBack,
+  mapExploreHref,
+}: EventDetailProps) {
   return (
     <article
       className="public-event-detail"
@@ -55,13 +61,24 @@ export function EventDetail({ event, onBack }: EventDetailProps) {
           </div>
         )}
       </dl>
-      {event.mapUrl && (
-        <Button asChild variant="outline">
-          <a href={event.mapUrl} target="_blank" rel="noreferrer">
-            Abrir mapa
+      <div className="public-event-detail__actions">
+        <a
+          className={cn(buttonVariants({ variant: "outline" }))}
+          href={mapExploreHref}
+        >
+          Ver en mapa
+        </a>
+        {event.mapUrl && (
+          <a
+            className={cn(buttonVariants({ variant: "outline" }))}
+            href={event.mapUrl}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Cómo llegar
           </a>
-        </Button>
-      )}
+        )}
+      </div>
     </article>
   );
 }

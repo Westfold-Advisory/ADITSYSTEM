@@ -9,9 +9,17 @@ import {
   ErrorState,
   LoadingState,
 } from "@/components/ui/AsyncState";
-import { Field } from "@/components/ui/Field";
+import { PublicEventFiltersForm } from "@/components/events/public/PublicEventFiltersForm";
 import { Button } from "@/components/ui/button";
 import { filterMapEvents } from "@/lib/map-events";
+import {
+  buildPublicEventQueryString,
+  parsePublicEventFilters,
+  publicEventsDetailHref,
+  publicEventsListHref,
+  readPublicMapEventIdFromSearch,
+  type PublicEventFilters,
+} from "@/lib/public-event-filters";
 import {
   getMobileMapSheetState,
   initialGeofenceVisibility,
@@ -19,6 +27,8 @@ import {
 import { isPublishedEvent } from "@/lib/public-events";
 import { cn } from "@/lib/utils";
 import type { Event, UUID } from "@/types/events";
+
+import "./events/public/events-public.css";
 import {
   GeofencesApi,
   type Geofence,
@@ -27,8 +37,11 @@ import {
 
 const eventsApi = new EventsApi(new ApiClient());
 
-type DateFilter = "all" | "today" | "week";
 type RequestState = "loading" | "success" | "error";
+
+function readFiltersFromUrl(): PublicEventFilters {
+  return parsePublicEventFilters(window.location.search);
+}
 
 function messageFor(error: unknown) {
   return error instanceof Error
@@ -41,10 +54,11 @@ export function MapPage() {
   const [requestState, setRequestState] = useState<RequestState>("loading");
   const [requestError, setRequestError] = useState<string | null>(null);
   const [reload, setReload] = useState(0);
-  const [search, setSearch] = useState("");
-  const [type, setType] = useState("all");
-  const [date, setDate] = useState<DateFilter>("all");
-  const [selectedEventId, setSelectedEventId] = useState<UUID | null>(null);
+  const [filters, setFilters] =
+    useState<PublicEventFilters>(readFiltersFromUrl);
+  const [selectedEventId, setSelectedEventId] = useState<UUID | null>(() =>
+    readPublicMapEventIdFromSearch(window.location.search),
+  );
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [panelCapasAbierto, setPanelCapasAbierto] = useState(false);
   const capasTriggerRef = useRef<HTMLButtonElement>(null);
@@ -62,6 +76,29 @@ export function MapPage() {
     loading: false,
     error: null as string | null,
   });
+
+  useEffect(() => {
+    const syncFromUrl = () => {
+      setFilters(readFiltersFromUrl());
+      setSelectedEventId(
+        readPublicMapEventIdFromSearch(window.location.search),
+      );
+    };
+    window.addEventListener("popstate", syncFromUrl);
+    return () => window.removeEventListener("popstate", syncFromUrl);
+  }, []);
+
+  useEffect(() => {
+    const nextSearch = buildPublicEventQueryString({
+      filters,
+      eventId: selectedEventId,
+    });
+    const target = `${window.location.pathname}${nextSearch}`;
+    const current = `${window.location.pathname}${window.location.search}`;
+    if (target !== current) {
+      window.history.replaceState(null, "", target);
+    }
+  }, [filters, selectedEventId]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -96,8 +133,8 @@ export function MapPage() {
   }, []);
 
   const visibleEvents = useMemo(
-    () => filterMapEvents(events, { search, type, date, now: new Date() }),
-    [date, events, search, type],
+    () => filterMapEvents(events, { ...filters, now: new Date() }),
+    [events, filters],
   );
   const visibleSelectedEventId = visibleEvents.some(
     (event) => event.id === selectedEventId,
@@ -176,46 +213,24 @@ export function MapPage() {
         >
           <div className="map-page__explorer-header">
             <h2 className="map-page__explorer-title">Explorador de eventos</h2>
+            <nav aria-label="Vistas de eventos públicos">
+              <ul className="public-events-context-nav">
+                <li>
+                  <a href={publicEventsListHref(filters)}>Listado</a>
+                </li>
+                <li>
+                  <span aria-current="page">Mapa</span>
+                </li>
+              </ul>
+            </nav>
           </div>
           <div className="map-page__filters">
-            <Field label="Buscar eventos">
-              <input
-                type="search"
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                placeholder="Nombre, lugar o descripción"
-                autoComplete="off"
-              />
-            </Field>
-            <div className="map-page__filter-row">
-              <Field label="Tipo">
-                <select
-                  className="ui-control"
-                  value={type}
-                  onChange={(event) => setType(event.target.value)}
-                >
-                  <option value="all">Todos</option>
-                  {eventTypes.map((item) => (
-                    <option key={item} value={item}>
-                      {item}
-                    </option>
-                  ))}
-                </select>
-              </Field>
-              <Field label="Fecha">
-                <select
-                  className="ui-control"
-                  value={date}
-                  onChange={(event) =>
-                    setDate(event.target.value as DateFilter)
-                  }
-                >
-                  <option value="all">Todas</option>
-                  <option value="today">Hoy</option>
-                  <option value="week">Próximos 7 días</option>
-                </select>
-              </Field>
-            </div>
+            <PublicEventFiltersForm
+              idPrefix="map-event-filters"
+              filters={filters}
+              eventTypes={eventTypes}
+              onChange={setFilters}
+            />
           </div>
           <section
             id="map-event-results"
@@ -283,9 +298,7 @@ export function MapPage() {
               <p>{selectedEvent.description}</p>
               <div className="map-page__detail-actions">
                 <Button variant="outline" asChild>
-                  <a
-                    href={`/eventos?evento=${encodeURIComponent(selectedEvent.id)}`}
-                  >
+                  <a href={publicEventsDetailHref(selectedEvent.id, filters)}>
                     Ver detalle
                   </a>
                 </Button>

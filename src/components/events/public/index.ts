@@ -8,8 +8,12 @@ export { EventStatusBadge } from "./EventStatusBadge";
 export type { EventStatusBadgeProps } from "./EventStatusBadge";
 export { eventStatusLabels } from "./event-labels";
 export { formatEventDate } from "./formatEventDate";
+export { PublicEventFiltersForm } from "./PublicEventFiltersForm";
+export type { PublicEventFiltersFormProps } from "./PublicEventFiltersForm";
 export {
   clearPublicEventDetailUrl,
+  emptyPublicEventFilters,
+  parsePublicEventFilters,
   pushPublicEventDetailUrl,
   readEventIdFromSearch,
   readPublicEventIdFromUrl,

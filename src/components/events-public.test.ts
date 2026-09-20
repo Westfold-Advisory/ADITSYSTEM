@@ -59,9 +59,11 @@ describe("public event pattern components", () => {
       createElement(EventDetail, {
         event: sampleEvent(),
         onBack: () => {},
+        mapExploreHref: "/mapa?evento=5ad4ce54-72f9-4c15-9cbb-43f6a5bcd9e0",
       }),
     );
     assert.match(html, /<h1[^>]*id="public-event-detail-title"/);
+    assert.match(html, />Ver en mapa</);
   });
 
   it("EventList renders grid list", () => {
