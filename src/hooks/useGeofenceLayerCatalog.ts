@@ -1,11 +1,20 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 
+import { ApiError } from "@/api/http";
 import {
   GEOFENCE_TYPES,
   type Geofence,
   type GeofenceType,
   type GeofencesApi,
 } from "@/api/geofences";
+
+function geofenceLoadErrorMessage(reason: unknown): string {
+  if (reason instanceof ApiError && reason.status === 404) {
+    return "El catálogo territorial (/geocercas) no está disponible en el servidor. Despliega la versión actual del backend.";
+  }
+  if (reason instanceof Error) return reason.message;
+  return "No fue posible cargar las capas territoriales.";
+}
 
 export function useGeofenceLayerCatalog(api: GeofencesApi) {
   const [geofences, setGeofences] = useState<Geofence[]>([]);
@@ -29,11 +38,7 @@ export function useGeofenceLayerCatalog(api: GeofencesApi) {
         ]);
       } catch (reason: unknown) {
         if (signal?.aborted) return;
-        setError(
-          reason instanceof Error
-            ? reason.message
-            : "No fue posible cargar las capas territoriales.",
-        );
+        setError(geofenceLoadErrorMessage(reason));
       } finally {
         setLoadingTypes((current) => {
           const next = new Set(current);
