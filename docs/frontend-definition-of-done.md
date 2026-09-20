@@ -1,16 +1,14 @@
 # Definition of Done — Frontend (ADITSYSTEM)
 
-Aplica a **toda** tarea o PR que toque este repositorio (código, docs en repo, configs).
+Aplica a **toda** tarea o PR que toque este repositorio (código, documentación en repo, configs).
 
 ## Antes de cada commit
-
-Ejecutar en la raíz del proyecto:
 
 ```bash
 npm run format
 ```
 
-Equivale a `prettier --write .` y corrige la mayoría de fallos de `format:check` (incluidos Markdown bajo `docs/`).
+Equivale a `prettier --write .` (también en Markdown bajo `docs/`). Incluir los archivos formateados en el mismo commit.
 
 ## Antes de abrir o actualizar un PR (mismo orden que CI)
 
@@ -22,23 +20,26 @@ npm test
 npm run build
 ```
 
-| Paso | Comando | Obligatorio |
-| ---- | ------- | ----------- |
-| Formatear | `npm run format` | Sí — **siempre**, aunque solo hayas editado documentación |
-| Lint | `npm run lint` | Sí |
-| Verificar formato | `npm run format:check` | Sí (CI falla si hay diff pendiente) |
-| Tests | `npm test` | Sí |
-| Build | `npm run build` | Sí |
+## Comandos
+
+| Comando                | Qué valida                                                                                    |
+| ---------------------- | --------------------------------------------------------------------------------------------- |
+| `npm run format`       | Aplica Prettier — **obligatorio antes de cada commit**                                       |
+| `npm run format:check` | CI: falla si algún archivo no cumple Prettier                                                 |
+| `npm run lint`         | ESLint (incl. reglas React Compiler / `react-hooks/*`)                                        |
+| `npm test`             | Tests unitarios (`tsx --test`)                                                                |
+| `npm run build`        | TypeScript + build Vite de producción                                                         |
 
 ## Checklist DoD (copiar en issues Multica frontend)
 
 - [ ] `npm run format` ejecutado y cambios incluidos en el commit
+- [ ] Código alineado a convenciones existentes (Design System / tokens `--md-sys-*` en componentes nuevos)
 - [ ] `npm run lint`, `npm run format:check`, `npm test`, `npm run build` en verde
 - [ ] Rama actualizada con `origin/main` antes del PR
-- [ ] PR hacia `main`; CI en verde
+- [ ] PR hacia `main`; CI en verde; plan de prueba manual en descripción si aplica
 - [ ] Sin secretos ni `.env` versionados
 
 ## Notas
 
 - Si CI falla solo en Prettier, casi siempre basta con `npm run format` y un commit adicional.
-- Reglas ESLint (React Compiler / `react-hooks/*`) requieren cambios de código puntuales; no las corrige Prettier.
+- Muchos fallos de lint se corrigen con pequeños ajustes (p. ej. deps en `useCallback`, evitar `setState` síncrono en `useEffect`); Prettier no los corrige.

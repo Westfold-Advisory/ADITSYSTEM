@@ -38,7 +38,7 @@ git checkout -b feature/nombre-del-cambio
 # 5. Instalar dependencias
 npm install
 
-# 6. Validar cambios localmente (checklist: docs/frontend-definition-of-done.md)
+# 6. Validar cambios localmente (ver docs/frontend-definition-of-done.md)
 npm run format
 npm run lint
 npm run format:check
