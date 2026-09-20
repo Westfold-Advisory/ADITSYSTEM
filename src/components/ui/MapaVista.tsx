@@ -27,6 +27,7 @@ export function MapaVista({
   selectedGeofenceId,
   onToggleGeofenceType,
   onSelectGeofence,
+  geofenceCountsByType,
   pointGeofences,
   pointLookup,
   capasTriggerRef,
@@ -42,8 +43,9 @@ export function MapaVista({
   geofencesError: string | null;
   geofenceVisibility: Record<GeofenceType, boolean>;
   selectedGeofenceId: string | null;
-  onToggleGeofenceType: (type: GeofenceType) => void;
+  onToggleGeofenceType: (type: GeofenceType, visible?: boolean) => void;
   onSelectGeofence: (id: string) => void;
+  geofenceCountsByType?: Record<GeofenceType, number>;
   pointGeofences: Geofence[];
   pointLookup: { loading: boolean; error: string | null };
 }) {
@@ -167,6 +169,8 @@ export function MapaVista({
             selectedId={selectedGeofenceId}
             loading={geofencesLoading}
             error={geofencesError}
+            countsByType={geofenceCountsByType}
+            isTypeLoaded={() => true}
             onToggle={onToggleGeofenceType}
             onSelect={onSelectGeofence}
             pointGeofences={pointGeofences}

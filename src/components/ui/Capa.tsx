@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import type { MapGeoJSONFeature } from "maplibre-gl";
+import type { FilterSpecification, MapGeoJSONFeature } from "maplibre-gl";
 import { useMap } from "@/components/ui/map";
 import {
   GEOFENCE_TYPES,
@@ -7,6 +7,7 @@ import {
   type Geofence,
   type GeofenceType,
 } from "@/api/geofences";
+import { boundsFromGeometry } from "@/lib/geofence-geometry";
 
 const fillColorByType: Record<GeofenceType, string> = {
   ESTADO: "#4DEBFF",
@@ -70,6 +71,32 @@ export function Capa({
         visible[type] ? "visible" : "none",
       );
     }
+
+    const highlightFill = "geocerca-selected-fill";
+    const highlightLine = "geocerca-selected-line";
+    if (!map.getLayer(highlightFill)) {
+      map.addLayer({
+        id: highlightFill,
+        type: "fill",
+        source: sourceId,
+        filter: ["==", ["get", "id"], ""],
+        paint: {
+          "fill-color": "#ffffff",
+          "fill-opacity": 0.32,
+        },
+      });
+      map.addLayer({
+        id: highlightLine,
+        type: "line",
+        source: sourceId,
+        filter: ["==", ["get", "id"], ""],
+        paint: {
+          "line-color": "#ffffff",
+          "line-width": 3,
+        },
+      });
+    }
+
     const click = (event: { features?: MapGeoJSONFeature[] }) => {
       const id = event.features?.[0]?.properties?.id;
       if (typeof id === "string") onSelect(id);
@@ -83,31 +110,37 @@ export function Capa({
       }
     };
   }, [map, isLoaded, items, visible, onSelect]);
+
   useEffect(() => {
-    if (!map || !selectedId) return;
-    const item = items.find((entry) => entry.id === selectedId);
-    const coordinates =
-      item?.geometry && "coordinates" in item.geometry
-        ? item.geometry.coordinates
-        : undefined;
-    if (!coordinates) return;
-    const points: number[][] = [];
-    const visit = (v: unknown): void => {
-      if (Array.isArray(v) && typeof v[0] === "number") {
-        points.push(v as number[]);
-        return;
-      }
-      if (Array.isArray(v)) v.forEach(visit);
-    };
-    visit(coordinates);
-    if (points.length)
-      map.fitBounds(
-        points.reduce(
-          (bounds, point) => bounds.extend(point as [number, number]),
-          map.getBounds(),
-        ),
-        { padding: 64, maxZoom: 12, duration: 500 },
+    if (!map || !isLoaded) return;
+    const highlightFill = "geocerca-selected-fill";
+    const highlightLine = "geocerca-selected-line";
+    const filter: FilterSpecification = selectedId
+      ? ["==", ["get", "id"], selectedId]
+      : ["==", ["get", "id"], ""];
+    if (map.getLayer(highlightFill)) {
+      map.setFilter(highlightFill, filter);
+      map.setFilter(highlightLine, filter);
+      map.setLayoutProperty(
+        highlightFill,
+        "visibility",
+        selectedId ? "visible" : "none",
       );
-  }, [map, items, selectedId]);
+      map.setLayoutProperty(
+        highlightLine,
+        "visibility",
+        selectedId ? "visible" : "none",
+      );
+    }
+  }, [map, isLoaded, selectedId]);
+
+  useEffect(() => {
+    if (!map || !isLoaded || !selectedId) return;
+    const item = items.find((entry) => entry.id === selectedId);
+    const bounds = boundsFromGeometry(item?.geometry ?? null);
+    if (!bounds) return;
+    map.fitBounds(bounds, { padding: 56, maxZoom: 13, duration: 500 });
+  }, [map, isLoaded, items, selectedId]);
+
   return null;
 }
