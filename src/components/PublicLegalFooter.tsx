@@ -15,7 +15,8 @@ export function PublicLegalFooter({
   institution: institutionOverride,
 }: PublicLegalFooterProps = {}) {
   const institution = institutionOverride ?? getInstitutionConfig();
-  const { legal, contact } = institution;
+  const { legal, contact, institutionName, productName } = institution;
+  const year = new Date().getFullYear();
 
   return (
     <footer className="public-legal-footer" role="contentinfo">
@@ -47,6 +48,10 @@ export function PublicLegalFooter({
           ) : null}
         </p>
       ) : null}
+      <p className="public-legal-footer__copyright">
+        © {year} {institutionName}. {productName}. Todos los derechos
+        reservados.
+      </p>
     </footer>
   );
 }

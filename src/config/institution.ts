@@ -29,11 +29,11 @@ export type InstitutionConfig = InstitutionTheme;
 
 export const ADITSYSTEM_INSTITUTION_THEME: InstitutionTheme = {
   productName: "ADIT SYSTEM",
-  institutionName: "[PO — Nombre de la institución responsable del despliegue]",
+  institutionName: "Westfold Advisory",
   logoUrl: null,
   logoAlt: "ADIT SYSTEM",
   contact: {
-    email: null,
+    email: "privacidad@westfoldadvisory.com",
     phone: null,
   },
   legal: {
@@ -94,8 +94,12 @@ export function buildInstitutionTheme(
     logoUrl,
     logoAlt,
     contact: {
-      email: envOptionalString(source, "VITE_INSTITUTION_CONTACT_EMAIL"),
-      phone: envOptionalString(source, "VITE_INSTITUTION_CONTACT_PHONE"),
+      email:
+        envOptionalString(source, "VITE_INSTITUTION_CONTACT_EMAIL") ??
+        base.contact.email,
+      phone:
+        envOptionalString(source, "VITE_INSTITUTION_CONTACT_PHONE") ??
+        base.contact.phone,
     },
     legal: {
       privacyIntegralPath: envString(
@@ -108,7 +112,9 @@ export function buildInstitutionTheme(
         "VITE_INSTITUTION_PRIVACY_SUMMARY_PATH",
         base.legal.privacySummaryPath,
       ),
-      termsOfUsePath: envOptionalString(source, "VITE_INSTITUTION_TERMS_PATH"),
+      termsOfUsePath:
+        envOptionalString(source, "VITE_INSTITUTION_TERMS_PATH") ??
+        base.legal.termsOfUsePath,
     },
   };
 }

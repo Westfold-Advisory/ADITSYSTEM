@@ -21,9 +21,9 @@ export function PrivacyNoticePage({ kind }: PrivacyNoticePageProps) {
   return (
     <div className="privacy-notice-page" aria-labelledby="privacy-notice-title">
       <div className="privacy-notice-banner" role="note">
-        <strong>LEGAL REVIEW REQUIRED.</strong> Este aviso es un borrador
-        estructural con placeholders. No sustituye asesoría jurídica ni
-        publicación oficial.
+        Contenido informativo con requisitos mínimos habituales en México
+        (LFPDPPP). Antes de un despliegue oficial, conviene validarlo con
+        asesoría jurídica y completar domicilio fiscal del responsable.
       </div>
 
       <header className="privacy-notice-header">
