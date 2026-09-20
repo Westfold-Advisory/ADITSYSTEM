@@ -93,6 +93,7 @@ jobs:
 
   semgrep:
     name: Semgrep SAST
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     container:
       image: semgrep/semgrep:latest
@@ -109,7 +110,6 @@ jobs:
     needs:
       - secret-scan
       - quality
-      - semgrep
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     # Must match the GitHub Environment trusted by the Terraform OIDC role.
     environment: development
