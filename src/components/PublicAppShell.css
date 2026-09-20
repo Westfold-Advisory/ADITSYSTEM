@@ -68,21 +68,72 @@
   border-radius: var(--md-sys-radius-sm);
 }
 
-.public-app-shell__auth-action {
-  min-height: 2.75rem;
+.public-app-shell__secondary-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--md-sys-spacing-4);
+}
+
+.public-app-shell__icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Mapa: acción secundaria — visible pero sin el peso de un tab primario. */
+.public-app-shell__map-link {
+  min-height: 2.5rem;
+  min-width: 2.5rem;
   display: inline-flex;
   align-items: center;
-  padding: 0 var(--md-sys-spacing-3);
-  border: 1px solid var(--md-sys-color-outline);
-  border-radius: var(--md-sys-radius-full);
-  color: var(--md-sys-color-primary);
-  font: var(--md-sys-typescale-label-large);
+  gap: var(--md-sys-spacing-1);
+  padding: 0 var(--md-sys-spacing-2);
+  border-radius: var(--md-sys-radius-md);
+  color: var(--md-sys-color-on-surface-variant);
+  font: var(--md-sys-typescale-body-medium);
   text-decoration: none;
+}
+
+.public-app-shell__map-link:hover {
+  color: var(--md-sys-color-on-surface);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.public-app-shell__map-link[aria-current="page"] {
+  color: var(--md-sys-color-primary);
+  font-weight: 600;
+}
+
+.public-app-shell__map-link:focus-visible {
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
+
+/* Personal autorizado: acción terciaria — acceso administrativo, no compite con eventos. */
+.public-app-shell__auth-action {
+  min-height: 2.5rem;
+  min-width: 2.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--md-sys-spacing-1);
+  padding: 0 var(--md-sys-spacing-2);
+  border-radius: var(--md-sys-radius-md);
+  color: var(--md-sys-color-on-surface-variant);
+  font: var(--md-sys-typescale-label-small);
+  text-decoration: none;
+  opacity: 0.85;
+}
+
+.public-app-shell__auth-action:hover {
+  opacity: 1;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
 }
 
 .public-app-shell__auth-action:focus-visible {
   outline: 2px solid var(--md-sys-color-primary);
   outline-offset: 2px;
+  opacity: 1;
 }
 
 .public-app-shell .ui-navigation a {
@@ -164,10 +215,26 @@
   }
 
   .public-app-shell .ui-navigation {
-    order: 3;
+    order: 2;
     flex: 1 1 100%;
     justify-content: flex-start;
     flex-wrap: wrap;
     gap: var(--md-sys-spacing-1);
+  }
+
+  .public-app-shell .ui-navigation a {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .public-app-shell .ui-app-bar-actions {
+    order: 3;
+    flex: 1 1 100%;
+  }
+
+  .public-app-shell__secondary-actions {
+    width: 100%;
+    justify-content: flex-start;
+    gap: var(--md-sys-spacing-3);
   }
 }

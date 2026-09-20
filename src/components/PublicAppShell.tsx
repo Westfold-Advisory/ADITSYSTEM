@@ -1,5 +1,6 @@
 import * as React from "react";
 import type { ReactNode } from "react";
+import { MapPin, ShieldCheck } from "lucide-react";
 
 void React;
 
@@ -53,9 +54,23 @@ export function PublicAppShell({
           </a>
         }
         actions={
-          <a className="public-app-shell__auth-action" href="/login">
-            Iniciar sesión
-          </a>
+          <div className="public-app-shell__secondary-actions">
+            <a
+              className="public-app-shell__map-link"
+              href="/mapa"
+              aria-current={currentPath === "/mapa" ? "page" : undefined}
+            >
+              <MapPin aria-hidden="true" className="public-app-shell__icon" />
+              Ver mapa
+            </a>
+            <a className="public-app-shell__auth-action" href="/login">
+              <ShieldCheck
+                aria-hidden="true"
+                className="public-app-shell__icon"
+              />
+              Personal autorizado
+            </a>
+          </div>
         }
       >
         <Navigation>
@@ -64,12 +79,6 @@ export function PublicAppShell({
             aria-current={currentPath === "/eventos" ? "page" : undefined}
           >
             Eventos
-          </a>
-          <a
-            href="/mapa"
-            aria-current={currentPath === "/mapa" ? "page" : undefined}
-          >
-            Mapa
           </a>
         </Navigation>
       </AppBar>

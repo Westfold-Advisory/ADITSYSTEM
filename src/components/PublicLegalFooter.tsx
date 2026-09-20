@@ -19,7 +19,9 @@ export function PublicLegalFooter({
 
   return (
     <footer className="public-legal-footer" role="contentinfo">
-      <nav aria-label="Información legal">
+      <nav aria-label="Enlaces secundarios">
+        <a href="/mapa">Mapa</a>
+        <span aria-hidden="true">·</span>
         <a href={legal.privacyIntegralPath}>Aviso de privacidad</a>
         <span aria-hidden="true">·</span>
         <a href={legal.privacySummaryPath}>Resumen de privacidad</a>

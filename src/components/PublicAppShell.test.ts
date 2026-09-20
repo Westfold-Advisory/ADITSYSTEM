@@ -23,3 +23,24 @@ test("PublicAppShell exposes skip link, main landmark, nav and legal footer", ()
   assert.match(markup, /Aviso de privacidad/);
   assert.doesNotMatch(markup, /--cyber-/);
 });
+
+test("Eventos is the only primary nav destination; Mapa and login are secondary/tertiary", () => {
+  const markup = renderToStaticMarkup(
+    createElement(
+      PublicAppShell,
+      { currentPath: "/eventos" },
+      createElement("p", null, "Contenido"),
+    ),
+  );
+
+  const navMatch = markup.match(/<nav class="ui-navigation"[^>]*>(.*?)<\/nav>/);
+  assert.ok(navMatch, "expected a primary navigation landmark");
+  const primaryNav = navMatch[1];
+  assert.match(primaryNav, /href="\/eventos"/);
+  assert.doesNotMatch(primaryNav, /href="\/mapa"/);
+
+  assert.match(markup, /class="public-app-shell__map-link"/);
+  assert.match(markup, /class="public-app-shell__auth-action"/);
+  assert.match(markup, /Ver mapa/);
+  assert.match(markup, /Personal autorizado/);
+});
