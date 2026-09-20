@@ -1,3 +1,7 @@
+import * as React from "react";
+
+void React;
+
 export function PublicLegalFooter() {
   return (
     <footer className="public-legal-footer" role="contentinfo">

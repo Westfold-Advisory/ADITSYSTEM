@@ -1,14 +1,14 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState } from "react";
 
 import { MapPage } from "./components/MapPage";
 import { PublicEventsPage } from "./components/PublicEventsPage";
 import { AdminEventsPage } from "./components/AdminEventsPage";
 import { PrivacyNoticePage } from "./components/PrivacyNoticePage";
-import { PublicLegalFooter } from "./components/PublicLegalFooter";
-import { AppBar, Navigation } from "./components/ui/AppBar";
+import { PublicAppShell } from "./components/PublicAppShell";
 import { privacyNoticeKindFromPath } from "./lib/public-routes";
 import { normalizePathname } from "./lib/routing";
 import "./App.css";
+import "./components/PublicAppShell.css";
 
 function pathname(): string {
   const legacyPath = window.location.hash.slice(1);
@@ -16,56 +16,14 @@ function pathname(): string {
   return normalizePathname(window.location.pathname);
 }
 
-function PublicShell({
-  currentPath,
-  children,
-}: {
-  currentPath?: "/eventos" | "/mapa";
-  children: ReactNode;
-}) {
-  return (
-    <div className="public-shell">
-      <AppBar
-        brand={
-          <a className="public-brand" href="/eventos">
-            ADIT SYSTEM
-          </a>
-        }
-        actions={
-          <a className="auth-action" href="/admin">
-            Iniciar sesión
-          </a>
-        }
-      >
-        <Navigation>
-          <a
-            href="/eventos"
-            aria-current={currentPath === "/eventos" ? "page" : undefined}
-          >
-            Eventos
-          </a>
-          <a
-            href="/mapa"
-            aria-current={currentPath === "/mapa" ? "page" : undefined}
-          >
-            Mapa
-          </a>
-        </Navigation>
-      </AppBar>
-      {children}
-      <PublicLegalFooter />
-    </div>
-  );
-}
-
 function NotFoundPage() {
   return (
-    <main className="not-found" aria-labelledby="not-found-title">
+    <div className="not-found" aria-labelledby="not-found-title">
       <p className="eyebrow">404</p>
       <h1 id="not-found-title">Página no encontrada</h1>
       <p>La ruta solicitada no está disponible.</p>
       <a href="/eventos">Ir a eventos públicos</a>
-    </main>
+    </div>
   );
 }
 
@@ -86,25 +44,29 @@ export default function App() {
   if (currentPath === "/admin") return <AdminEventsPage />;
   if (currentPath === "/" || currentPath === "/eventos") {
     return (
-      <PublicShell currentPath="/eventos">
+      <PublicAppShell currentPath="/eventos">
         <PublicEventsPage />
-      </PublicShell>
+      </PublicAppShell>
     );
   }
   if (currentPath === "/mapa") {
     return (
-      <PublicShell currentPath="/mapa">
+      <PublicAppShell currentPath="/mapa">
         <MapPage />
-      </PublicShell>
+      </PublicAppShell>
     );
   }
   const privacyKind = privacyNoticeKindFromPath(currentPath);
   if (privacyKind) {
     return (
-      <PublicShell>
+      <PublicAppShell>
         <PrivacyNoticePage kind={privacyKind} />
-      </PublicShell>
+      </PublicAppShell>
     );
   }
-  return <NotFoundPage />;
+  return (
+    <PublicAppShell>
+      <NotFoundPage />
+    </PublicAppShell>
+  );
 }

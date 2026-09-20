@@ -156,8 +156,8 @@ export function MapPage() {
   }, []);
 
   return (
-    <main
-      className="flex h-full min-h-[calc(100vh-4rem)] flex-col overflow-hidden"
+    <div
+      className="flex h-full min-h-[calc(100dvh-4rem)] flex-col overflow-hidden"
       style={{ background: "var(--cyber-bg)", color: "var(--cyber-text)" }}
     >
       <header
@@ -374,6 +374,6 @@ export function MapPage() {
           />
         </section>
       </div>
-    </main>
+    </div>
   );
 }
