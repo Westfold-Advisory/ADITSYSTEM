@@ -1,5 +1,5 @@
 import type { Event, UUID } from "@/types/events";
-import { isPublishedEvent } from "./public-events";
+import { isPublicEvent } from "./public-events";
 
 export type PublicEventDateFilter = "all" | "today" | "week";
 
@@ -123,6 +123,11 @@ export function filterPublicEvents(
         ? event.startsAt >= startOfToday &&
           event.startsAt < new Date(startOfToday.getTime() + 86_400_000)
         : event.startsAt >= startOfToday && event.startsAt < endOfWeek);
-    return isPublishedEvent(event) && matchesText && matchesType && matchesDate;
+    return (
+      isPublicEvent(event, filters.now) &&
+      matchesText &&
+      matchesType &&
+      matchesDate
+    );
   });
 }
