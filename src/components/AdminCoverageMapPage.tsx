@@ -10,7 +10,6 @@ import {
 } from "@/api/geofences";
 import { ApiClient } from "@/api/http";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
-import { StructureViewTabs } from "@/components/admin/StructureViewTabs";
 import { PersonForm } from "@/components/admin/PersonForm";
 import { nameOf, roleLabel } from "@/components/admin/person-display";
 import { UnauthorizedRoleScreen } from "@/components/UnauthorizedRoleScreen";
@@ -314,8 +313,6 @@ export function AdminCoverageMapPage() {
         }
         onSignOut={logout}
       />
-
-      <StructureViewTabs />
 
       <section
         className="admin-page-toolbar coverage-map-toolbar"

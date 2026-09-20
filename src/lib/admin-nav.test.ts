@@ -11,7 +11,7 @@ describe("admin nav", () => {
   it("lists the three admin destinations", () => {
     assert.deepEqual(
       ADMIN_NAV_LINKS.map((link) => link.href),
-      ["/admin", "/admin/mapa", "/admin/personas"],
+      ["/admin", "/admin/personas", "/admin/mapa"],
     );
   });
 

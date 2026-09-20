@@ -88,39 +88,6 @@
   max-width: min(90rem, 100%);
 }
 
-/* Secondary nav (Personio-style): list vs spatial view under structure pages. */
-.admin-section-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem 1.25rem;
-  max-width: 60rem;
-  margin: 0 auto var(--md-sys-spacing-5, 1.25rem);
-  padding: 0 0 var(--md-sys-spacing-2, 0.5rem);
-  border-bottom: 1px solid var(--md-sys-color-outline-variant);
-}
-
-.admin-section-tabs__tab {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  min-height: 2.5rem;
-  padding: 0.35rem 0.15rem;
-  font: var(--md-sys-typescale-title-small, 600 0.875rem/1.4 inherit);
-  color: var(--md-sys-color-on-surface-variant);
-  text-decoration: none;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
-}
-
-.admin-section-tabs__tab:hover {
-  color: var(--md-sys-color-on-surface);
-}
-
-.admin-section-tabs__tab[aria-current="page"] {
-  color: var(--md-sys-color-primary);
-  border-bottom-color: var(--md-sys-color-primary);
-}
-
 .hierarchy-page.admin-page {
   background: var(--md-sys-color-surface-container-lowest, #f8fafc);
   min-height: calc(100vh - 2rem);
