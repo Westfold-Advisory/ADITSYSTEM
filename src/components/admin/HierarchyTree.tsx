@@ -36,7 +36,13 @@ export function HierarchyTreePanel({
 }) {
   return (
     <>
-      <h2 id="structure-title">Tu estructura</h2>
+      <h2 id="structure-title" className="hierarchy-panel-title">
+        Directorio
+      </h2>
+      <p className="hierarchy-panel-intro">
+        Explora tu alcance jerárquico. Selecciona una persona para ver detalle y
+        acciones permitidas.
+      </p>
       <HierarchyTreeRoot
         busy={loadingNode === self.id}
         filterBar={

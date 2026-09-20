@@ -21,6 +21,7 @@ import { capabilitiesFor } from "@/lib/capabilities";
 import { FormularioNuevoEvento } from "./FormularioNuevoEvento";
 import { AdminPageHeader } from "./admin/AdminPageHeader";
 import { roleLabel } from "./admin/person-display";
+import { adminPageTitle } from "@/lib/admin-nav";
 import { LoginPage } from "./LoginPage";
 import { PublicAppShell } from "./PublicAppShell";
 import { Button } from "./ui/button";
@@ -194,7 +195,7 @@ export function AdminEventsPage() {
     <main className="admin-page">
       <AdminPageHeader
         eyebrow={institution.productName}
-        title="Administración de eventos"
+        title={adminPageTitle("/admin")}
         subtitle={
           <>
             {session.user.email} · alcance {roleLabel(session.user.rol)}
@@ -210,7 +211,9 @@ export function AdminEventsPage() {
         />
       ) : (
         <>
-          <Button onClick={() => setEditing("new")}>Crear evento</Button>
+          <div className="admin-page-actions">
+            <Button onClick={() => setEditing("new")}>Crear evento</Button>
+          </div>
           {error && (
             <p className="request-message error" role="alert">
               {error}

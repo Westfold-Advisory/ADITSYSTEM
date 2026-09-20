@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 
 import type { LoginResponse } from "@/api/auth";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { StructureViewTabs } from "@/components/admin/StructureViewTabs";
 import { roleLabel } from "@/components/admin/person-display";
 import { DomainAdminPage } from "@/components/DomainAdminPage";
 import { LoginPage } from "@/components/LoginPage";
@@ -16,6 +17,7 @@ import {
   type AdminSession,
 } from "@/lib/admin-session";
 import { SESSION_EXPIRED_MESSAGE } from "@/lib/auth-messages";
+import { adminPageTitle } from "@/lib/admin-nav";
 import { capabilitiesFor } from "@/lib/capabilities";
 
 function loadAdminSession(): {
@@ -71,7 +73,7 @@ export function AdminStructurePage() {
     <main className="admin-page hierarchy-page">
       <AdminPageHeader
         eyebrow={institution.productName}
-        title="Estructura de personas"
+        title={adminPageTitle("/admin/personas")}
         subtitle={
           <>
             {session.user.email} · alcance {roleLabel(session.user.rol)}
@@ -79,6 +81,7 @@ export function AdminStructurePage() {
         }
         onSignOut={logout}
       />
+      <StructureViewTabs />
       <DomainAdminPage session={session} />
     </main>
   );

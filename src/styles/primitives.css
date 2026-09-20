@@ -406,12 +406,17 @@
   outline: var(--md-sys-focus-ring);
   outline-offset: 2px;
 }
-.ui-hierarchy-tree-person:hover,
+.ui-hierarchy-tree-person:hover {
+  background: var(--md-sys-color-surface-container-high);
+}
+
 [role="treeitem"][aria-selected="true"]
   > .ui-hierarchy-tree-node
   .ui-hierarchy-tree-person {
-  color: var(--md-sys-color-primary);
-  text-decoration: underline;
+  color: var(--md-sys-color-on-primary-container);
+  background: var(--md-sys-color-primary-container);
+  font-weight: 600;
+  text-decoration: none;
 }
 .ui-hierarchy-tree-person small {
   color: var(--md-sys-color-on-surface-variant);

@@ -17,17 +17,19 @@ export function AdminPageHeader({
 }) {
   return (
     <header className="admin-header">
-      <div>
-        <p className="eyebrow">{eyebrow}</p>
-        <h1>{title}</h1>
-        <p>{subtitle}</p>
-      </div>
-      <div className="flex flex-col items-end gap-2">
-        <AdminNav />
-        {actions}
-        <button type="button" onClick={onSignOut}>
-          Cerrar sesión
-        </button>
+      <div className="admin-header__band">
+        <div className="admin-header__lead">
+          <p className="eyebrow">{eyebrow}</p>
+          <h1>{title}</h1>
+          <p>{subtitle}</p>
+        </div>
+        <div className="admin-header__tools">
+          <AdminNav />
+          {actions}
+          <button type="button" onClick={onSignOut}>
+            Cerrar sesión
+          </button>
+        </div>
       </div>
     </header>
   );
