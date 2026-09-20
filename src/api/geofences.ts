@@ -79,10 +79,44 @@ export class GeofencesApi {
     this.client = client;
   }
 
-  async list(): Promise<Geofence[]> {
+  async list(options?: {
+    tipo?: GeofenceType;
+    page?: number;
+    pageSize?: number;
+    signal?: AbortSignal;
+  }): Promise<Geofence[]> {
+    const query = new URLSearchParams({
+      page_size: String(options?.pageSize ?? 200),
+      page: String(options?.page ?? 1),
+    });
+    if (options?.tipo) query.set("tipo", options.tipo);
     return (
-      await this.client.request<GeofenceResponse[]>("/geocercas?page_size=200")
+      await this.client.request<GeofenceResponse[]>(`/geocercas?${query}`, {
+        signal: options?.signal,
+      })
     ).map(mapGeofence);
+  }
+
+  /** Paginate until a tipo (or full catalog) is exhausted — list caps at 200/page. */
+  async listAll(options?: {
+    tipo?: GeofenceType;
+    signal?: AbortSignal;
+  }): Promise<Geofence[]> {
+    const pageSize = 200;
+    let page = 1;
+    const all: Geofence[] = [];
+    for (;;) {
+      const batch = await this.list({
+        tipo: options?.tipo,
+        page,
+        pageSize,
+        signal: options?.signal,
+      });
+      all.push(...batch);
+      if (batch.length < pageSize) break;
+      page += 1;
+    }
+    return all;
   }
 
   async contains(latitude: number, longitude: number): Promise<Geofence[]> {

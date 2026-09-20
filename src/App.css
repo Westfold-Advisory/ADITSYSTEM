@@ -280,7 +280,6 @@ a:focus-visible {
 .admin-page > button,
 .event-form-actions button,
 .admin-events button,
-.admin-header button,
 .login-form > button {
   min-height: 2.5rem;
   border: 1px solid var(--md-sys-color-primary);
@@ -298,7 +297,6 @@ a:focus-visible {
 .admin-page > button:hover,
 .event-form-actions button:hover,
 .admin-events button:hover,
-.admin-header button:hover,
 .login-form > button:hover {
   box-shadow: var(--md-sys-elevation-1);
   background: #174681;
