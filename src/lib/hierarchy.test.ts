@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { buildChildMap, directChildren } from "./hierarchy";
+import { treeKeyboardAction, buildVisibleTreeRows } from "./hierarchy-tree";
 import type { Person } from "@/types/domain";
 
 function person(overrides: Partial<Person>): Person {
@@ -88,4 +89,23 @@ test("buildChildMap indexes every parent from one descendants payload", () => {
   assert.deepEqual(map[admin.id], [general]);
   assert.deepEqual(map[general.id], [coordinator]);
   assert.deepEqual(map[coordinator.id], [link]);
+});
+
+test("tree interaction: ArrowLeft collapses expanded node", () => {
+  const root = person({
+    id: "root",
+    role: "COORDINADOR_GENERAL",
+    parentId: null,
+  });
+  const child = person({ id: "child", parentId: "root", role: "COORDINADOR" });
+  const rows = buildVisibleTreeRows(
+    root,
+    { root: [child] },
+    { root: true, child: true },
+  );
+
+  assert.deepEqual(treeKeyboardAction("ArrowLeft", rows, 0), {
+    nextIndex: 0,
+    toggleExpand: "collapse",
+  });
 });
