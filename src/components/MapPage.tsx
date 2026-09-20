@@ -30,6 +30,7 @@ import type { Event, UUID } from "@/types/events";
 
 import "./events/public/events-public.css";
 import {
+  GEOFENCE_TYPES,
   GeofencesApi,
   type Geofence,
   type GeofenceType,
@@ -192,12 +193,37 @@ export function MapPage() {
     setRequestError(null);
     setReload((value) => value + 1);
   }, []);
-  const toggleGeofenceType = useCallback((geofenceType: GeofenceType) => {
-    setGeofenceVisibility((current) => ({
-      ...current,
-      [geofenceType]: !current[geofenceType],
-    }));
-  }, []);
+  const geofenceCountsByType = useMemo(() => {
+    const counts = Object.fromEntries(
+      GEOFENCE_TYPES.map((type) => [type, 0]),
+    ) as Record<GeofenceType, number>;
+    for (const item of geofences) counts[item.type] += 1;
+    return counts;
+  }, [geofences]);
+
+  const toggleGeofenceType = useCallback(
+    (geofenceType: GeofenceType, visible?: boolean) => {
+      setGeofenceVisibility((current) => ({
+        ...current,
+        [geofenceType]: visible ?? !current[geofenceType],
+      }));
+    },
+    [],
+  );
+
+  const selectGeofence = useCallback(
+    (id: string) => {
+      const item = geofences.find((entry) => entry.id === id);
+      if (item) {
+        setGeofenceVisibility((current) => ({
+          ...current,
+          [item.type]: true,
+        }));
+      }
+      setSelectedGeofenceId(id);
+    },
+    [geofences],
+  );
 
   return (
     <div className="map-page">
@@ -372,7 +398,8 @@ export function MapPage() {
             geofenceVisibility={geofenceVisibility}
             selectedGeofenceId={selectedGeofenceId}
             onToggleGeofenceType={toggleGeofenceType}
-            onSelectGeofence={setSelectedGeofenceId}
+            onSelectGeofence={selectGeofence}
+            geofenceCountsByType={geofenceCountsByType}
             pointGeofences={pointGeofences}
             pointLookup={pointLookup}
             capasTriggerRef={capasTriggerRef}

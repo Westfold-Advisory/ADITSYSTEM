@@ -23,6 +23,9 @@ export function useGeofenceLayerCatalog(api: GeofencesApi) {
   );
   const [error, setError] = useState<string | null>(null);
   const loadedTypesRef = useRef<Set<GeofenceType>>(new Set());
+  const [loadedTypes, setLoadedTypes] = useState<Set<GeofenceType>>(
+    () => new Set(),
+  );
 
   const ensureTypeLoaded = useCallback(
     async (type: GeofenceType, signal?: AbortSignal) => {
@@ -32,6 +35,7 @@ export function useGeofenceLayerCatalog(api: GeofencesApi) {
       try {
         const items = await api.listAll({ tipo: type, signal });
         loadedTypesRef.current.add(type);
+        setLoadedTypes((current) => new Set(current).add(type));
         setGeofences((current) => [
           ...current.filter((item) => item.type !== type),
           ...items,
@@ -66,6 +70,7 @@ export function useGeofenceLayerCatalog(api: GeofencesApi) {
     error,
     countsByType,
     ensureTypeLoaded,
-    isTypeLoaded: (type: GeofenceType) => loadedTypesRef.current.has(type),
+    isTypeLoaded: (type: GeofenceType) => loadedTypes.has(type),
+    isTypeLoading: (type: GeofenceType) => loadingTypes.has(type),
   };
 }
