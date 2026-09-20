@@ -18,6 +18,22 @@ type FieldProps = ComponentProps<"div"> & {
   children: ReactNode;
 };
 
+type LabelledControlProps = ComponentProps<"input"> &
+  ComponentProps<"select"> &
+  ComponentProps<"textarea">;
+
+function isLabelledControl(
+  child: ReactNode,
+): child is React.ReactElement<LabelledControlProps> {
+  return (
+    isValidElement(child) &&
+    typeof child.type === "string" &&
+    (child.type === "input" ||
+      child.type === "select" ||
+      child.type === "textarea")
+  );
+}
+
 export function Field({
   label,
   hint,
@@ -32,7 +48,7 @@ export function Field({
   return (
     <div className={cn("ui-field", className)} {...props}>
       <label htmlFor={id}>{label}</label>
-      {isValidElement<ComponentProps<"input">>(children)
+      {isLabelledControl(children)
         ? cloneElement(children, {
             id: children.props.id ?? id,
             "aria-describedby":

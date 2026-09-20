@@ -81,6 +81,7 @@ export function MapaVista({
     >
       <Map
         theme={baseMap}
+        keyboard={false}
         viewport={{ center, zoom: selected ? 13 : viewport.zoom }}
         onViewportChange={setViewport}
       >
@@ -125,8 +126,8 @@ export function MapaVista({
               />
               <MarkerLabel position="bottom">
                 <span
-                  className="font-mono text-[9px]"
-                  style={{ color: "var(--cyber-cyan)" }}
+                  className="text-xs"
+                  style={{ color: "var(--md-sys-color-primary)" }}
                 >
                   {selected.name}
                 </span>

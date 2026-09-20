@@ -898,11 +898,11 @@ function MapControls({
     >
       {showZoom && (
         <ControlGroup>
-          <ControlButton onClick={handleZoomIn} label="Zoom in">
-            <Plus className="size-4" />
+          <ControlButton onClick={handleZoomIn} label="Acercar mapa">
+            <Plus className="size-4" aria-hidden="true" />
           </ControlButton>
-          <ControlButton onClick={handleZoomOut} label="Zoom out">
-            <Minus className="size-4" />
+          <ControlButton onClick={handleZoomOut} label="Alejar mapa">
+            <Minus className="size-4" aria-hidden="true" />
           </ControlButton>
         </ControlGroup>
       )}
@@ -915,21 +915,24 @@ function MapControls({
         <ControlGroup>
           <ControlButton
             onClick={handleLocate}
-            label="Find my location"
+            label="Usar mi ubicación"
             disabled={waitingForLocation}
           >
             {waitingForLocation ? (
-              <Loader2 className="size-4 animate-spin" />
+              <Loader2 className="size-4 animate-spin" aria-hidden="true" />
             ) : (
-              <Locate className="size-4" />
+              <Locate className="size-4" aria-hidden="true" />
             )}
           </ControlButton>
         </ControlGroup>
       )}
       {showFullscreen && (
         <ControlGroup>
-          <ControlButton onClick={handleFullscreen} label="Toggle fullscreen">
-            <Maximize className="size-4" />
+          <ControlButton
+            onClick={handleFullscreen}
+            label="Alternar pantalla completa"
+          >
+            <Maximize className="size-4" aria-hidden="true" />
           </ControlButton>
         </ControlGroup>
       )}
@@ -990,7 +993,7 @@ function CompassButton({ onClick }: { onClick: () => void }) {
   }, [map]);
 
   return (
-    <ControlButton onClick={onClick} label="Reset bearing to north">
+    <ControlButton onClick={onClick} label="Restablecer orientación al norte">
       <svg
         ref={compassRef}
         viewBox="0 0 24 24"
