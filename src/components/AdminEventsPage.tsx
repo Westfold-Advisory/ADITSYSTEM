@@ -209,6 +209,11 @@ export function AdminEventsPage() {
           </>
         }
         onSignOut={logout}
+        actions={
+          <Button size="sm" onClick={() => setEditing("new")}>
+            Crear evento
+          </Button>
+        }
       />
       {editing ? (
         <FormularioNuevoEvento
@@ -218,9 +223,6 @@ export function AdminEventsPage() {
         />
       ) : (
         <>
-          <div className="admin-page-actions">
-            <Button onClick={() => setEditing("new")}>Crear evento</Button>
-          </div>
           {error && (
             <p className="request-message error" role="alert">
               {error}
