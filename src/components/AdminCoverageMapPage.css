@@ -1,0 +1,39 @@
+.coverage-map-page.admin-page {
+  max-width: none;
+  width: 100%;
+  padding-bottom: 1.5rem;
+}
+
+.coverage-map-layout {
+  align-items: stretch;
+}
+
+.coverage-map-stage {
+  position: relative;
+  height: min(72vh, 720px);
+  min-height: 480px;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-radius-md, 8px);
+  background: var(--md-sys-color-surface-container-low);
+}
+
+.coverage-map-stage .maplibregl-map {
+  height: 100%;
+  width: 100%;
+}
+
+.coverage-map-empty-banner {
+  position: absolute;
+  top: var(--md-sys-spacing-3);
+  left: var(--md-sys-spacing-3);
+  z-index: 10;
+  max-width: min(24rem, calc(100% - 2rem));
+  padding: var(--md-sys-spacing-2) var(--md-sys-spacing-3);
+  border-radius: var(--md-sys-radius-md, 8px);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  background: color-mix(in srgb, var(--md-sys-color-surface) 92%, transparent);
+  font: var(--md-sys-typescale-body-small);
+  color: var(--md-sys-color-on-surface);
+}

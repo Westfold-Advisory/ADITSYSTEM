@@ -2,10 +2,20 @@ import { useEffect } from "react";
 import type { MapGeoJSONFeature } from "maplibre-gl";
 import { useMap } from "@/components/ui/map";
 import {
+  GEOFENCE_TYPES,
   toGeofenceFeatureCollection,
   type Geofence,
   type GeofenceType,
 } from "@/api/geofences";
+
+const fillColorByType: Record<GeofenceType, string> = {
+  ESTADO: "#4DEBFF",
+  MUNICIPIO: "#39FF5A",
+  DISTRITO: "#FF4DFF",
+  SECCION: "#F59E0B",
+  DISTRITO_LOCAL: "#A855F7",
+  DISTRITO_FEDERAL: "#EC4899",
+};
 
 export function Capa({
   items,
@@ -27,7 +37,7 @@ export function Capa({
       { setData?: (value: typeof data) => void } | undefined;
     if (source?.setData) source.setData(data);
     else map.addSource(sourceId, { type: "geojson", data });
-    for (const type of ["ESTADO", "MUNICIPIO", "DISTRITO"] as GeofenceType[]) {
+    for (const type of GEOFENCE_TYPES) {
       const fillId = `geocerca-${type}-fill`,
         lineId = `geocerca-${type}-line`;
       if (!map.getLayer(fillId))
@@ -37,12 +47,7 @@ export function Capa({
           source: sourceId,
           filter: ["==", ["get", "type"], type],
           paint: {
-            "fill-color":
-              type === "ESTADO"
-                ? "#4DEBFF"
-                : type === "MUNICIPIO"
-                  ? "#39FF5A"
-                  : "#FF4DFF",
+            "fill-color": fillColorByType[type],
             "fill-opacity": 0.18,
           },
         });
@@ -69,13 +74,13 @@ export function Capa({
       const id = event.features?.[0]?.properties?.id;
       if (typeof id === "string") onSelect(id);
     };
-    map.on("click", "geocerca-ESTADO-fill", click);
-    map.on("click", "geocerca-MUNICIPIO-fill", click);
-    map.on("click", "geocerca-DISTRITO-fill", click);
+    for (const type of GEOFENCE_TYPES) {
+      map.on("click", `geocerca-${type}-fill`, click);
+    }
     return () => {
-      map.off("click", "geocerca-ESTADO-fill", click);
-      map.off("click", "geocerca-MUNICIPIO-fill", click);
-      map.off("click", "geocerca-DISTRITO-fill", click);
+      for (const type of GEOFENCE_TYPES) {
+        map.off("click", `geocerca-${type}-fill`, click);
+      }
     };
   }, [map, isLoaded, items, visible, onSelect]);
   useEffect(() => {
