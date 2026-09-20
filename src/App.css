@@ -286,7 +286,6 @@ a:focus-visible {
 
 .admin-page > button,
 .event-form-actions button,
-.admin-events button,
 .login-form > button {
   min-height: 2.5rem;
   border: 1px solid var(--md-sys-color-primary);
@@ -303,7 +302,6 @@ a:focus-visible {
 
 .admin-page > button:hover,
 .event-form-actions button:hover,
-.admin-events button:hover,
 .login-form > button:hover {
   box-shadow: var(--md-sys-elevation-1);
   background: #174681;
@@ -370,8 +368,7 @@ a:focus-visible {
   border-color: var(--cyber-cyan);
 }
 
-.event-form-grid,
-.admin-events {
+.event-form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
   gap: 1rem;
@@ -381,28 +378,6 @@ a:focus-visible {
   display: flex !important;
   align-items: center;
   gap: 0.5rem;
-}
-
-.admin-events article {
-  border: 1px solid var(--cyber-border-subtle);
-  border-radius: var(--md-sys-radius-lg);
-  padding: 1rem;
-  background: var(--cyber-surface-1);
-  transition: border-color var(--cyber-duration-fast) var(--cyber-ease);
-}
-
-.admin-events article:hover {
-  box-shadow: var(--md-sys-elevation-1);
-}
-
-.admin-events article h2 {
-  color: var(--cyber-text-bright);
-  margin: 0.25rem 0 0.5rem;
-}
-
-.admin-events article p {
-  color: var(--cyber-text-secondary);
-  font-size: 0.875rem;
 }
 
 .hierarchy-layout,
@@ -665,37 +640,6 @@ a:focus-visible {
   }
 }
 
-.admin-event-card {
-  display: grid;
-  gap: 0.75rem;
-}
-
-.event-status {
-  width: fit-content;
-  border-radius: var(--md-sys-radius-full);
-  padding: 0.25rem 0.6rem;
-  color: var(--md-sys-color-on-secondary-container);
-  background: var(--md-sys-color-secondary-container);
-  font: var(--md-sys-typescale-label-small);
-}
-.event-status--publicado,
-.event-status--en_curso {
-  background: var(--md-sys-color-success-container);
-  color: #07351a;
-}
-.event-status--cancelado {
-  background: var(--md-sys-color-error-container);
-  color: var(--md-sys-color-on-error-container);
-}
-.event-status--finalizado {
-  background: var(--md-sys-color-surface-container-highest);
-}
-.event-card-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
 @media (max-width: 40rem) {
   .public-events-page {
     padding: 2rem 1rem;
@@ -703,8 +647,5 @@ a:focus-visible {
   .event-form-actions {
     align-items: stretch;
     flex-direction: column;
-  }
-  .event-card-actions > button {
-    flex: 1 1 8rem;
   }
 }

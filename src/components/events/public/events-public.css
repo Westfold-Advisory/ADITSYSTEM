@@ -88,10 +88,14 @@
   font: var(--md-sys-typescale-label-small);
 }
 
-.public-event-status--publicado,
-.public-event-status--en_curso {
+.public-event-status--publicado {
   background: var(--md-sys-color-success-container);
   color: var(--md-sys-color-on-success-container, #07351a);
+}
+
+.public-event-status--en_curso {
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
 }
 
 .public-event-status--cancelado {
