@@ -1,0 +1,111 @@
+.public-event-list {
+  display: grid;
+  gap: var(--md-sys-space-4, 1rem);
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.public-event-list > li {
+  margin: 0;
+  padding: 0;
+}
+
+.public-event-card,
+.public-event-detail {
+  display: grid;
+  align-content: start;
+  gap: var(--md-sys-space-3, 0.75rem);
+}
+
+.public-event-card__meta-row,
+.public-event-detail__meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
+.public-event-card__type,
+.public-event-detail__type {
+  margin: 0;
+  color: var(--md-sys-color-primary);
+  font: var(--md-sys-typescale-label-small);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.public-event-card__title {
+  margin: 0;
+  font: var(--md-sys-typescale-title-large);
+  color: var(--md-sys-color-on-surface);
+}
+
+.public-event-detail__title {
+  margin: 0;
+  font: var(--md-sys-typescale-headline-medium);
+  color: var(--md-sys-color-on-surface);
+}
+
+.public-event-card__description,
+.public-event-detail__description {
+  margin: 0;
+  font: var(--md-sys-typescale-body-medium);
+  line-height: 1.6;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.public-event-meta {
+  margin: 0;
+}
+
+.public-event-meta div {
+  margin-top: 0.75rem;
+}
+
+.public-event-meta dt {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+  font: var(--md-sys-typescale-label-small);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.public-event-meta dd {
+  margin: 0.2rem 0 0;
+  font: var(--md-sys-typescale-body-medium);
+  font-weight: 600;
+  color: var(--md-sys-color-on-surface);
+}
+
+.public-event-status {
+  width: fit-content;
+  border-radius: var(--md-sys-radius-full);
+  padding: 0.25rem 0.6rem;
+  color: var(--md-sys-color-on-secondary-container);
+  background: var(--md-sys-color-secondary-container);
+  font: var(--md-sys-typescale-label-small);
+}
+
+.public-event-status--publicado,
+.public-event-status--en_curso {
+  background: var(--md-sys-color-success-container);
+  color: var(--md-sys-color-on-success-container, #07351a);
+}
+
+.public-event-status--cancelado {
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+}
+
+.public-event-status--finalizado,
+.public-event-status--borrador {
+  background: var(--md-sys-color-surface-container-highest);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.public-event-detail__back {
+  justify-self: start;
+  padding-left: 0;
+}

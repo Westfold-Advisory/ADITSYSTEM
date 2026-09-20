@@ -67,3 +67,7 @@ Composición para el panel de estructura:
 - `HierarchyTreeRoot` — atajo que une filtros, `aria-busy` en carga y nodo raíz.
 
 Los módulos en `src/components/admin/` consumen estos primitivos (`HierarchyTreePanel`, `PersonDetailPanel`, `PersonForm`). En `App.css` ya no deben usarse `.person-metrics`, `.role-chip` ni clases de nodo del árbol (`.tree-*`); el layout master-detail (`.hierarchy-master-detail`) permanece como estilo de página.
+
+### Eventos públicos
+
+Patrón `EventList`, `EventCard`, `EventDetail` y `EventStatusBadge` en `src/components/events/public/`. Inventario: [`public-events-components.md`](design-system/public-events-components.md).

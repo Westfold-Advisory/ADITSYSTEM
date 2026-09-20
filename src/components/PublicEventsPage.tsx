@@ -1,13 +1,21 @@
-import { useCallback, useEffect, useReducer, useState } from "react";
+import { useCallback, useEffect, useReducer } from "react";
 
 import { EventsApi } from "@/api/events";
 import { ApiClient } from "@/api/http";
+import {
+  EventDetail,
+  EventList,
+  clearPublicEventDetailUrl,
+  pushPublicEventDetailUrl,
+  readPublicEventIdFromUrl,
+} from "@/components/events/public";
+import { getInstitutionConfig } from "@/config/institution";
 import { isPublishedEvent } from "@/lib/public-events";
 import type { Event, UUID } from "@/types/events";
-import { Card } from "./ui/Card";
-import { Button } from "./ui/button";
 import { EmptyState, ErrorState, LoadingState } from "./ui/AsyncState";
 import { EventDetailSkeleton, EventListSkeleton } from "./ui/Skeleton";
+
+import "./events/public/events-public.css";
 
 const eventsApi = new EventsApi(new ApiClient());
 
@@ -42,75 +50,8 @@ function messageFor(error: unknown): string {
     : "No fue posible obtener los eventos. Intenta nuevamente.";
 }
 
-function formatDate(date: Date): string {
-  return new Intl.DateTimeFormat("es-MX", {
-    dateStyle: "full",
-    timeStyle: "short",
-  }).format(date);
-}
-
-function EventCard({ event, onOpen }: { event: Event; onOpen: () => void }) {
-  return (
-    <Card className="event-card">
-      <p className="event-type">{event.type}</p>
-      <h2>{event.name}</h2>
-      <p>{event.description}</p>
-      <dl>
-        <div>
-          <dt>Fecha</dt>
-          <dd>{formatDate(event.startsAt)}</dd>
-        </div>
-        <div>
-          <dt>Lugar</dt>
-          <dd>{event.locationText}</dd>
-        </div>
-      </dl>
-      <Button type="button" onClick={onOpen} aria-label={`Ver ${event.name}`}>
-        Ver detalle
-      </Button>
-    </Card>
-  );
-}
-
-function EventDetail({ event, onBack }: { event: Event; onBack: () => void }) {
-  return (
-    <article className="event-detail" aria-labelledby="event-title">
-      <button type="button" className="back-link" onClick={onBack}>
-        ← Todos los eventos
-      </button>
-      <p className="event-type">{event.type}</p>
-      <h1 id="event-title">{event.name}</h1>
-      <p className="event-description">{event.description}</p>
-      <dl>
-        <div>
-          <dt>Inicio</dt>
-          <dd>{formatDate(event.startsAt)}</dd>
-        </div>
-        <div>
-          <dt>Fin</dt>
-          <dd>{formatDate(event.endsAt)}</dd>
-        </div>
-        <div>
-          <dt>Ubicación</dt>
-          <dd>{event.locationText}</dd>
-        </div>
-        {event.maximumCapacity !== null && (
-          <div>
-            <dt>Capacidad</dt>
-            <dd>{event.maximumCapacity} personas</dd>
-          </div>
-        )}
-      </dl>
-      {event.mapUrl && (
-        <a href={event.mapUrl} target="_blank" rel="noreferrer">
-          Abrir mapa
-        </a>
-      )}
-    </article>
-  );
-}
-
 export function PublicEventsPage() {
+  const institution = getInstitutionConfig();
   const [listState, dispatchList] = useReducer(requestReducer<Event[]>, {
     status: "loading",
     value: null,
@@ -126,10 +67,19 @@ export function PublicEventsPage() {
     (value: number) => value + 1,
     0,
   );
-  const [selectedEventId, setSelectedEventId] = useState<UUID | null>(
-    () =>
-      new URLSearchParams(window.location.search).get("evento") as UUID | null,
+  const [selectedEventId, setSelectedEventId] = useReducer(
+    (_: UUID | null, next: UUID | null) => next,
+    null,
+    () => readPublicEventIdFromUrl(),
   );
+
+  useEffect(() => {
+    const syncFromUrl = () => {
+      setSelectedEventId(readPublicEventIdFromUrl());
+    };
+    window.addEventListener("popstate", syncFromUrl);
+    return () => window.removeEventListener("popstate", syncFromUrl);
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -150,7 +100,10 @@ export function PublicEventsPage() {
   }, [reload]);
 
   useEffect(() => {
-    if (!selectedEventId) return;
+    if (!selectedEventId) {
+      dispatchDetail({ type: "loading" });
+      return;
+    }
     const controller = new AbortController();
     dispatchDetail({ type: "loading" });
     void eventsApi
@@ -168,17 +121,20 @@ export function PublicEventsPage() {
     return () => controller.abort();
   }, [detailReload, selectedEventId]);
 
-  const openEvent = useCallback((id: UUID) => setSelectedEventId(id), []);
+  const openEvent = useCallback((id: UUID) => {
+    pushPublicEventDetailUrl(id);
+    setSelectedEventId(id);
+  }, []);
 
-  const closeDetail = () => {
+  const closeDetail = useCallback(() => {
+    clearPublicEventDetailUrl();
     setSelectedEventId(null);
-    dispatchDetail({ type: "loading" });
-  };
+  }, []);
 
   return (
     <div className="public-events-page">
       <header className="public-events-header">
-        <p className="eyebrow">ADIT SYSTEM</p>
+        <p className="eyebrow">{institution.productName}</p>
         <h1>Eventos públicos</h1>
         <p>Consulta las actividades publicadas y su información actualizada.</p>
       </header>
@@ -216,15 +172,7 @@ export function PublicEventsPage() {
             </EmptyState>
           )}
           {listState.status === "success" && listState.value.length > 0 && (
-            <div className="event-grid">
-              {listState.value.map((event) => (
-                <EventCard
-                  event={event}
-                  key={event.id}
-                  onOpen={() => openEvent(event.id)}
-                />
-              ))}
-            </div>
+            <EventList events={listState.value} onSelectEvent={openEvent} />
           )}
         </section>
       )}
