@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type { DomainApi } from "@/api/domain";
 import { buildChildMap, mergePersonScope } from "@/lib/hierarchy";
-import type { Person } from "@/types/domain";
+import type { Person, PersonMetrics, ScopedMap } from "@/types/domain";
 
 import {
   DescendantsCache,
@@ -32,12 +32,11 @@ export function useHierarchyScope(api: DomainApi, rootPersonId: string) {
   );
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [loadingNode, setLoadingNode] = useState<string | null>(null);
-  const [metrics, setMetrics] = useState<Awaited<
-    ReturnType<DomainApi["metrics"]>
-  > | null>(null);
-  const [scopedMap, setScopedMap] = useState<Awaited<
-    ReturnType<DomainApi["scopedMap"]>
-  > | null>(null);
+  const [selectionDetails, setSelectionDetails] = useState<{
+    personId: string;
+    metrics: PersonMetrics;
+    scopedMap: ScopedMap;
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const loadChildren = useCallback(
@@ -100,20 +99,27 @@ export function useHierarchyScope(api: DomainApi, rootPersonId: string) {
 
   const selectedId = selected?.id ?? null;
 
+  const metrics = useMemo(() => {
+    if (!selectedId || selectionDetails?.personId !== selectedId) return null;
+    return selectionDetails.metrics;
+  }, [selectedId, selectionDetails]);
+
+  const scopedMap = useMemo(() => {
+    if (!selectedId || selectionDetails?.personId !== selectedId) return null;
+    return selectionDetails.scopedMap;
+  }, [selectedId, selectionDetails]);
+
   useEffect(() => {
-    if (!selectedId) {
-      setMetrics(null);
-      setScopedMap(null);
-      return;
-    }
+    if (!selectedId) return;
     const controller = new AbortController();
-    setMetrics(null);
-    setScopedMap(null);
     void loadPersonSelectionDetails(api, selectedId, controller.signal)
       .then(({ metrics: nextMetrics, scopedMap: nextMap }) => {
         if (controller.signal.aborted) return;
-        setMetrics(nextMetrics);
-        setScopedMap(nextMap);
+        setSelectionDetails({
+          personId: selectedId,
+          metrics: nextMetrics,
+          scopedMap: nextMap,
+        });
       })
       .catch((reason) => {
         if (controller.signal.aborted || isAbortError(reason)) return;
