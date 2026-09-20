@@ -1,27 +1,23 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-import { AuthApi, type LoginResponse } from "@/api/auth";
+import type { LoginResponse } from "@/api/auth";
 import { EventsApi } from "@/api/events";
 import { ApiClient, ApiError } from "@/api/http";
 import type { Event, EventInput } from "@/types/events";
+import { getInstitutionConfig } from "@/config/institution";
+import {
+  clearAdminSession,
+  persistAdminSession,
+  readAdminSession,
+} from "@/lib/admin-session";
+import { capabilitiesFor } from "@/lib/capabilities";
 import { FormularioNuevoEvento } from "./FormularioNuevoEvento";
 import { DomainAdminPage } from "./DomainAdminPage";
+import { LoginPage } from "./LoginPage";
+import { PublicAppShell } from "./PublicAppShell";
 import { Button } from "./ui/button";
-import { Field } from "./ui/Field";
 import { Card } from "./ui/Card";
 import { EmptyState, ErrorState, LoadingState } from "./ui/AsyncState";
-import { capabilitiesFor } from "@/lib/capabilities";
-
-const sessionKey = "adit.admin.session";
-
-function readSession(): LoginResponse | null {
-  try {
-    const value = sessionStorage.getItem(sessionKey);
-    return value ? (JSON.parse(value) as LoginResponse) : null;
-  } catch {
-    return null;
-  }
-}
 
 function errorMessage(error: unknown): string {
   if (error instanceof ApiError) return error.message;
@@ -69,71 +65,10 @@ function actionsFor(
   }
 }
 
-function Login({ onLogin }: { onLogin: (session: LoginResponse) => void }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const submit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setIsSubmitting(true);
-    setError(null);
-    try {
-      onLogin(await new AuthApi(new ApiClient()).login(email, password));
-    } catch (loginError) {
-      setError(errorMessage(loginError));
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  return (
-    <main className="admin-page">
-      <form className="login-form" onSubmit={submit}>
-        <p className="eyebrow">ADIT SYSTEM</p>
-        <h1>Acceso administrativo</h1>
-        <p className="request-message">
-          Esta aplicación requiere una cuenta autorizada por el backend.
-        </p>
-        <Field label="Correo">
-          <input
-            required
-            type="email"
-            autoComplete="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </Field>
-        <Field label="Contraseña">
-          <input
-            required
-            type="password"
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </Field>
-        {error && (
-          <p className="request-message error" role="alert">
-            {error}
-          </p>
-        )}
-        <Button status={isSubmitting ? "loading" : "idle"} type="submit">
-          Iniciar sesión
-        </Button>
-        <p className="login-legal">
-          Consulta el <a href="/privacidad">aviso de privacidad</a> antes de
-          acceder.
-        </p>
-      </form>
-    </main>
-  );
-}
-
 export function AdminEventsPage() {
+  const institution = getInstitutionConfig();
   const [session, setSession] = useState<LoginResponse | null>(() =>
-    readSession(),
+    readAdminSession(),
   );
   const [events, setEvents] = useState<Event[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -166,11 +101,11 @@ export function AdminEventsPage() {
   }, [api, canManage, session]);
 
   const login = (nextSession: LoginResponse) => {
-    sessionStorage.setItem(sessionKey, JSON.stringify(nextSession));
+    persistAdminSession(nextSession);
     setSession(nextSession);
   };
   const logout = () => {
-    sessionStorage.removeItem(sessionKey);
+    clearAdminSession();
     setSession(null);
     setEvents([]);
   };
@@ -215,7 +150,13 @@ export function AdminEventsPage() {
     }
   };
 
-  if (!session) return <Login onLogin={login} />;
+  if (!session) {
+    return (
+      <PublicAppShell brandLabel={institution.productName}>
+        <LoginPage onLogin={login} />
+      </PublicAppShell>
+    );
+  }
   if (!canManage)
     return (
       <main className="admin-page">

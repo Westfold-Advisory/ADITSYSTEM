@@ -3,11 +3,15 @@ import { useEffect, useState } from "react";
 import { MapPage } from "./components/MapPage";
 import { PublicEventsPage } from "./components/PublicEventsPage";
 import { AdminEventsPage } from "./components/AdminEventsPage";
+import { LoginPage } from "./components/LoginPage";
 import { PrivacyNoticePage } from "./components/PrivacyNoticePage";
 import { PublicAppShell } from "./components/PublicAppShell";
+import { getInstitutionConfig } from "./config/institution";
+import { persistAdminSession } from "./lib/admin-session";
 import { privacyNoticeKindFromPath } from "./lib/public-routes";
 import { normalizePathname } from "./lib/routing";
 import "./App.css";
+import "./components/LoginPage.css";
 import "./components/PublicAppShell.css";
 
 function pathname(): string {
@@ -41,6 +45,20 @@ export default function App() {
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
+  const institution = getInstitutionConfig();
+
+  if (currentPath === "/login") {
+    return (
+      <PublicAppShell brandLabel={institution.productName}>
+        <LoginPage
+          onLogin={(session) => {
+            persistAdminSession(session);
+            window.location.assign("/admin");
+          }}
+        />
+      </PublicAppShell>
+    );
+  }
   if (currentPath === "/admin") return <AdminEventsPage />;
   if (currentPath === "/" || currentPath === "/eventos") {
     return (
