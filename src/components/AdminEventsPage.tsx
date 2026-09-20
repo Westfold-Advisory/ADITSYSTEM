@@ -19,8 +19,8 @@ import {
 import { UnauthorizedRoleScreen } from "./UnauthorizedRoleScreen";
 import { capabilitiesFor } from "@/lib/capabilities";
 import { FormularioNuevoEvento } from "./FormularioNuevoEvento";
-import { DomainAdminPage } from "./DomainAdminPage";
-import { AdminNav } from "./admin/AdminNav";
+import { AdminPageHeader } from "./admin/AdminPageHeader";
+import { roleLabel } from "./admin/person-display";
 import { LoginPage } from "./LoginPage";
 import { PublicAppShell } from "./PublicAppShell";
 import { Button } from "./ui/button";
@@ -93,7 +93,6 @@ export function AdminEventsPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [activeAction, setActiveAction] = useState<string | null>(null);
   const [editing, setEditing] = useState<Event | null | "new">(null);
-  const [domainView, setDomainView] = useState(false);
   const handleUnauthorized = useCallback(() => {
     clearAdminSession();
     setSession(null);
@@ -191,28 +190,18 @@ export function AdminEventsPage() {
       <UnauthorizedRoleScreen roleLabel={session.user.rol} onSignOut={logout} />
     );
 
-  if (domainView)
-    return (
-      <DomainAdminPage session={session} onBack={() => setDomainView(false)} />
-    );
-
   return (
     <main className="admin-page">
-      <header className="admin-header">
-        <div>
-          <p className="eyebrow">{institution.productName}</p>
-          <h1>Administración de eventos</h1>
-          <p>
-            {session.user.email} · {session.user.rol}
-          </p>
-        </div>
-        <div className="flex flex-col items-end gap-2">
-          <AdminNav onOpenStructure={() => setDomainView(true)} />
-          <button type="button" onClick={logout}>
-            Cerrar sesión
-          </button>
-        </div>
-      </header>
+      <AdminPageHeader
+        eyebrow={institution.productName}
+        title="Administración de eventos"
+        subtitle={
+          <>
+            {session.user.email} · alcance {roleLabel(session.user.rol)}
+          </>
+        }
+        onSignOut={logout}
+      />
       {editing ? (
         <FormularioNuevoEvento
           event={editing === "new" ? undefined : editing}
@@ -222,9 +211,6 @@ export function AdminEventsPage() {
       ) : (
         <>
           <Button onClick={() => setEditing("new")}>Crear evento</Button>
-          <Button variant="outline" onClick={() => setDomainView(true)}>
-            Administrar perfiles
-          </Button>
           {error && (
             <p className="request-message error" role="alert">
               {error}

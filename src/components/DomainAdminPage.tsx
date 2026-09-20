@@ -3,14 +3,12 @@ import { useCallback, useMemo, useState } from "react";
 import { DomainApi } from "@/api/domain";
 import { ApiClient } from "@/api/http";
 import type { LoginResponse } from "@/api/auth";
-import { getInstitutionConfig } from "@/config/institution";
 import { HierarchyMasterDetail } from "@/components/admin/HierarchyMasterDetail";
 import { HierarchyTreePanel } from "@/components/admin/HierarchyTree";
 import { PersonDetailPanel } from "@/components/admin/PersonDetailPanel";
-import { apiErrorMessage, roleLabel } from "@/components/admin/person-display";
+import { apiErrorMessage } from "@/components/admin/person-display";
 import { capabilitiesFor } from "@/lib/capabilities";
 import { canRegisterDocuments } from "@/lib/document-access";
-import { Button } from "@/components/ui/button";
 import { ErrorState, LoadingState } from "@/components/ui/AsyncState";
 import { useHierarchyScope } from "@/hooks/useHierarchyScope";
 import {
@@ -21,14 +19,7 @@ import {
 } from "@/lib/person-filters";
 import type { Person, PersonInput } from "@/types/domain";
 
-export function DomainAdminPage({
-  session,
-  onBack,
-}: {
-  session: LoginResponse;
-  onBack: () => void;
-}) {
-  const institution = getInstitutionConfig();
+export function DomainAdminPage({ session }: { session: LoginResponse }) {
   const capabilities = capabilitiesFor(session.user.rol);
   const api = useMemo(
     () =>
@@ -180,19 +171,7 @@ export function DomainAdminPage({
   );
 
   return (
-    <main className="admin-page hierarchy-page">
-      <header className="admin-header">
-        <div>
-          <p className="eyebrow">{institution.productName}</p>
-          <h1>Estructura de personas</h1>
-          <p>
-            {session.user.email} · alcance {roleLabel(session.user.rol)}
-          </p>
-        </div>
-        <Button variant="outline" onClick={onBack}>
-          Eventos
-        </Button>
-      </header>
+    <>
       <p className="request-message">
         Las acciones disponibles dependen de tu alcance. El backend valida rol y
         pertenencia en cada solicitud.
@@ -242,6 +221,6 @@ export function DomainAdminPage({
           }
         />
       )}
-    </main>
+    </>
   );
 }

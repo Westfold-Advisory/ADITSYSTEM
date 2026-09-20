@@ -5,42 +5,33 @@ pantalla mostrar leyendo `window.location.pathname` (con un fallback a
 `#/...` por compatibilidad). Sólo existen las rutas listadas abajo — cualquier
 otra devuelve la página 404.
 
-| Ruta                       | Componente          | Auth    | Descripción                                                                                                                                                                                                     |
-| -------------------------- | ------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/` y `/login`             | `LoginPage`         | Ninguna | Vista de entrada institucional. Acceso administrativo; tras login redirige a `/admin`.                                                                                                                          |
-| `/eventos`                 | `PublicEventsPage`  | Ninguna | Listado público de eventos **publicados, en curso, o finalizados en los últimos 7 días**. Accesible solo desde el menú de navegación (no es la landing). Un evento en `BORRADOR` o `CANCELADO` no aparece aquí. |
-| `/mapa`                    | `MapPage`           | Ninguna | Explorador de mapa de eventos públicos (MapLibre), con capas territoriales y filtros por texto/tipo/fecha.                                                                                                      |
-| `/admin`                   | `AdminEventsPage`   | Login   | Consola administrativa. Sin sesión muestra el mismo login (compatibilidad; ver TRA-114).                                                                                                                        |
-| `/privacidad`              | `PrivacyNoticePage` | Ninguna | Aviso de privacidad integral.                                                                                                                                                                                   |
-| `/privacidad/simplificado` | `PrivacyNoticePage` | Ninguna | Resumen simplificado.                                                                                                                                                                                           |
-| cualquier otra             | `NotFoundPage`      | —       | 404 con link de regreso a `/eventos`.                                                                                                                                                                           |
+| Ruta                       | Componente             | Auth    | Descripción                                                                                                                                                                                                     |
+| -------------------------- | ---------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/` y `/login`             | `LoginPage`            | Ninguna | Vista de entrada institucional. Acceso administrativo; tras login redirige a `/admin`.                                                                                                                          |
+| `/eventos`                 | `PublicEventsPage`     | Ninguna | Listado público de eventos **publicados, en curso, o finalizados en los últimos 7 días**. Accesible solo desde el menú de navegación (no es la landing). Un evento en `BORRADOR` o `CANCELADO` no aparece aquí. |
+| `/mapa`                    | `MapPage`              | Ninguna | Explorador de mapa de eventos públicos (MapLibre), con capas territoriales y filtros por texto/tipo/fecha.                                                                                                      |
+| `/admin`                   | `AdminEventsPage`      | Login   | Consola administrativa. Sin sesión muestra el mismo login (compatibilidad; ver TRA-114).                                                                                                                        |
+| `/admin/mapa`              | `AdminCoverageMapPage` | Login   | Mapa de cobertura jerárquico (pines, capas, heatmap de necesidades).                                                                                                                                            |
+| `/admin/personas`          | `AdminStructurePage`   | Login   | Árbol y detalle de la estructura de personas (antes “Administrar perfiles” en `/admin`).                                                                                                                        |
+| `/privacidad`              | `PrivacyNoticePage`    | Ninguna | Aviso de privacidad integral.                                                                                                                                                                                   |
+| `/privacidad/simplificado` | `PrivacyNoticePage`    | Ninguna | Resumen simplificado.                                                                                                                                                                                           |
+| cualquier otra             | `NotFoundPage`         | —       | 404 con link de regreso a `/eventos`.                                                                                                                                                                           |
 
-### Dentro de `/admin`
+### Administración autenticada
 
-`/admin` no tiene sub-rutas propias; cambia de vista con estado de React, no
-con la URL. Un refresh del navegador siempre vuelve a la pantalla de login o
-al listado de eventos, nunca conserva la vista de estructura.
+Las rutas `/admin`, `/admin/mapa` y `/admin/personas` comparten el mismo
+menú (`AdminNav`: Eventos · Mapa de cobertura · Estructura de personas) y
+encabezado (`AdminPageHeader`).
 
 1. **Sin sesión** → `LoginPage` (`POST /auth/login`). Enlace preferido: `/login`. Sólo aceptan
    sesión los roles `ADMIN`, `COORDINADOR_GENERAL`, `COORDINADOR` y `ENLACE`;
    `AMIGO` no tiene credenciales (es una persona administrada, no un usuario).
-2. **Con sesión, sin `canManageEvents`** → mensaje "Acceso no autorizado" (no
-   debería ocurrir con los cuatro roles autenticables actuales, pero la UI lo
-   contempla).
-3. **Con sesión autorizada** → administración de eventos (crear, editar,
+2. **Con sesión, sin permisos** → mensaje "Acceso no autorizado" cuando aplica.
+3. **`/admin`** → administración de eventos (crear, editar,
    publicar/despublicar/iniciar/finalizar/cancelar/eliminar según el estado).
-4. Botón **"Administrar perfiles"** en esa misma pantalla → cambia a
-   `DomainAdminPage`: árbol expandible de la jerarquía
-   (Coordinador General → Coordinador → Enlace → Amigo), con:
-   - Filtro por nombre (sin distinguir mayúsculas/acentos) y por estado
-     (Activo/Inactivo/Baja).
-   - Alta contextual del siguiente rol permitido bajo tu propio nodo (botón
-     "Registrar …").
-   - "Editar datos" / "Dar de baja" sólo visibles sobre tu propio perfil o
-     sobre el nivel que administras directamente (p. ej. un Coordinador no ve
-     esas acciones sobre un Amigo, sólo sobre sus Enlaces).
-   - Botón **"Eventos"** en el encabezado regresa a la administración de
-     eventos (tampoco cambia la URL).
+4. **`/admin/personas`** → `DomainAdminPage`: árbol expandible de la jerarquía
+   (Coordinador General → Coordinador → Enlace → Amigo), con filtro por nombre
+   y estado, alta contextual y acciones acotadas al alcance del rol.
 
 ### Cómo probar
 
