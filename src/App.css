@@ -455,6 +455,50 @@ a:focus-visible {
   font-size: 0.8125rem;
   margin-top: 0.15rem;
 }
+.person-documents-tab {
+  display: grid;
+  gap: 1rem;
+}
+.document-section {
+  display: grid;
+  gap: 0.65rem;
+}
+.document-section h3 {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--cyber-text-bright);
+}
+.document-record h4 {
+  margin: 0 0 0.2rem;
+  font-size: 0.9375rem;
+}
+.document-register-form {
+  padding: 0.85rem;
+  border-radius: var(--md-sys-radius-sm);
+  background: var(--md-sys-color-surface-container-low);
+}
+.document-photo-slot {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-radius: var(--md-sys-radius-sm);
+  background: var(--md-sys-color-surface-container-low);
+}
+.document-photo-slot--empty {
+  color: var(--cyber-text-secondary);
+}
+.document-photo-placeholder {
+  display: grid;
+  place-items: center;
+  width: 5.5rem;
+  height: 5.5rem;
+  border-radius: var(--md-sys-radius-sm);
+  background: var(--md-sys-color-surface-container-highest);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--cyber-text-secondary);
+}
 .person-detail {
   display: grid;
   gap: 0.75rem;

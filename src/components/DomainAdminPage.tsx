@@ -8,6 +8,7 @@ import { HierarchyTreePanel } from "@/components/admin/HierarchyTree";
 import { PersonDetailPanel } from "@/components/admin/PersonDetailPanel";
 import { apiErrorMessage, roleLabel } from "@/components/admin/person-display";
 import { capabilitiesFor } from "@/lib/capabilities";
+import { canRegisterDocuments } from "@/lib/document-access";
 import { Button } from "@/components/ui/button";
 import { ErrorState, LoadingState } from "@/components/ui/AsyncState";
 import { useHierarchyScope } from "@/hooks/useHierarchyScope";
@@ -92,7 +93,7 @@ export function DomainAdminPage({
       setEditing(false);
       setTreeSheetOpen(false);
     },
-    [selectPerson],
+    [selectPerson, setCreating, setEditing, setTreeSheetOpen],
   );
 
   const createChild = async (input: PersonInput) => {
@@ -115,6 +116,25 @@ export function DomainAdminPage({
   const canManageSelected = (person: Person) =>
     person.id === self?.id ||
     (capabilities.canCreateChild && person.role === capabilities.childRole);
+  const knownPersons = useMemo(() => {
+    if (!self) return new Map<string, Person>();
+    return new Map(
+      [self, ...Object.values(children).flat()].map((person) => [
+        person.id,
+        person,
+      ]),
+    );
+  }, [children, self]);
+  const canRegisterDocumentsForSelected =
+    self && selected
+      ? canRegisterDocuments(
+          session.user.rol,
+          capabilities,
+          self,
+          selected,
+          knownPersons,
+        )
+      : false;
   const remove = async () => {
     if (
       !selected ||
@@ -202,6 +222,7 @@ export function DomainAdminPage({
                 self={self}
                 sessionPersonId={session.user.persona_id}
                 canManageSelected={canManageSelected}
+                canRegisterDocuments={canRegisterDocumentsForSelected}
                 creating={creating}
                 editing={editing}
                 onNavigateBreadcrumb={select}
