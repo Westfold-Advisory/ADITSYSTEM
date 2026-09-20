@@ -309,8 +309,7 @@ export function DomainAdminPage({
   }, [children, selected, self]);
 
   const loadChildren = useCallback(
-    async (person: Person, anchor?: Person) => {
-      const treeRoot = anchor ?? self ?? person;
+    async (person: Person, anchor: Person) => {
       setLoadingNode(person.id);
       setError(null);
       try {
@@ -318,8 +317,8 @@ export function DomainAdminPage({
         setChildren((current) => ({
           ...current,
           ...buildChildMap(
-            treeRoot,
-            mergePersonScope(treeRoot, current, descendants),
+            anchor,
+            mergePersonScope(anchor, current, descendants),
           ),
         }));
       } catch (reason) {
@@ -328,7 +327,7 @@ export function DomainAdminPage({
         setLoadingNode(null);
       }
     },
-    [api, self],
+    [api],
   );
   const select = useCallback((person: Person) => {
     setSelected(person);
@@ -339,9 +338,11 @@ export function DomainAdminPage({
     (person: Person) => {
       const next = !expanded[person.id];
       setExpanded((current) => ({ ...current, [person.id]: next }));
-      if (next && !children[person.id]) void loadChildren(person);
+      if (next && !children[person.id] && self) {
+        void loadChildren(person, self);
+      }
     },
-    [children, expanded, loadChildren],
+    [children, expanded, loadChildren, self],
   );
 
   useEffect(() => {
@@ -359,16 +360,25 @@ export function DomainAdminPage({
     })();
   }, [api, loadChildren, session.user.persona_id]);
   useEffect(() => {
-    if (!selected) return;
-    void api
-      .metrics(selected.id)
-      .then(setMetrics)
-      .catch((reason) => setError(message(reason)));
-    void api
-      .scopedMap(selected.id)
-      .then(setScopedMap)
-      .catch((reason) => setError(message(reason)));
-  }, [api, selected]);
+    const personId = selected?.id;
+    if (!personId) return;
+    let cancelled = false;
+    setMetrics(null);
+    setScopedMap(null);
+    void Promise.all([api.metrics(personId), api.scopedMap(personId)])
+      .then(([nextMetrics, nextMap]) => {
+        if (!cancelled) {
+          setMetrics(nextMetrics);
+          setScopedMap(nextMap);
+        }
+      })
+      .catch((reason) => {
+        if (!cancelled) setError(message(reason));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [api, selected?.id]);
 
   const createChild = async (input: PersonInput) => {
     if (!selected || !capabilities.childRole) return;
@@ -378,7 +388,7 @@ export function DomainAdminPage({
       capabilities.childRole === "COORDINADOR_GENERAL" ? null : selected.id,
     );
     setCreating(false);
-    await loadChildren(selected);
+    if (self) await loadChildren(selected, self);
     setExpanded((current) => ({ ...current, [selected.id]: true }));
   };
   const updatePerson = async (input: PersonInput) => {
@@ -451,7 +461,7 @@ export function DomainAdminPage({
       {error && (
         <ErrorState
           message={error}
-          onRetry={() => self && void loadChildren(self)}
+          onRetry={() => self && void loadChildren(self, self)}
         />
       )}
       {!self ? (
