@@ -34,11 +34,33 @@ test("directChildren narrows a recursive descendants response to one generation"
     role: "AMIGO",
   });
 
-  const result = directChildren([child, grandchild, greatGrandchild], "root");
+  const result = directChildren(
+    [child, grandchild, greatGrandchild],
+    { id: "root", role: "COORDINADOR_GENERAL" },
+  );
 
   assert.deepEqual(result, [child]);
 });
 
 test("returns an empty list for a leaf with no descendants", () => {
-  assert.deepEqual(directChildren([], "root"), []);
+  assert.deepEqual(directChildren([], { id: "root", role: "ENLACE" }), []);
+});
+
+test("admin tree includes root coordinadores generales as immediate children", () => {
+  const admin = person({ id: "admin", role: "ADMIN", parentId: null });
+  const general = person({
+    id: "general",
+    role: "COORDINADOR_GENERAL",
+    parentId: null,
+    nombre: "Beto",
+  });
+  const coordinator = person({
+    id: "coord",
+    role: "COORDINADOR",
+    parentId: "general",
+  });
+
+  const result = directChildren([general, coordinator], admin);
+
+  assert.deepEqual(result, [general]);
 });

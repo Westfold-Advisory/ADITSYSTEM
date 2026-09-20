@@ -316,7 +316,7 @@ export function DomainAdminPage({
         const descendants = await api.listDescendants(person.id);
         setChildren((current) => ({
           ...current,
-          [person.id]: directChildren(descendants, person.id),
+          [person.id]: directChildren(descendants, person),
         }));
       } catch (reason) {
         setError(message(reason));
