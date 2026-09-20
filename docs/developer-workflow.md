@@ -12,7 +12,7 @@ Por ahora ese es el endpoint para consumir el frontend. Cuando se compre un DNS,
 flowchart LR
   A[main actualizado] --> B[crear rama feature/*]
   B --> C[hacer cambios]
-  C --> D[format lint test build]
+  C --> D[npm run format lint test build]
   D --> E[git push]
   E --> F[Pull Request a main]
   F --> G[GitHub Actions en verde]
@@ -38,9 +38,10 @@ git checkout -b feature/nombre-del-cambio
 # 5. Instalar dependencias
 npm install
 
-# 6. Validar cambios localmente
-npm run format:check
+# 6. Validar cambios localmente (checklist: docs/frontend-definition-of-done.md)
+npm run format
 npm run lint
+npm run format:check
 npm test
 npm run build
 
@@ -79,3 +80,7 @@ git merge main
 ## Nota
 
 Evitar trabajar directamente sobre `main`. Todo cambio nuevo debe salir desde una rama `feature/*`.
+
+## Formato (Prettier)
+
+Siempre ejecutar `npm run format` antes del commit, también en tareas que solo agregan o editan Markdown. CI ejecuta `npm run format:check` y rechaza el PR si queda algún archivo sin formatear.
