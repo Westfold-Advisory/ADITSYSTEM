@@ -36,10 +36,27 @@ export interface Person extends PersonInput {
 
 export interface PersonMetrics {
   descendants: number;
+  coordinators: number;
+  links: number;
+  friends: number;
   documents: number;
   createdEvents: number;
   invitations: number;
   attendances: number;
+}
+
+export interface ScopedMapPerson {
+  personId: UUID;
+  role: PersonRole;
+  nombre: string;
+  apellidoPaterno: string;
+  apellidoMaterno: string;
+  geofences: Geofence[];
+}
+
+export interface ScopedMap {
+  rootPersonId: UUID;
+  people: ScopedMapPerson[];
 }
 
 export interface Documento {

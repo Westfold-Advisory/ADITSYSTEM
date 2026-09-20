@@ -8,6 +8,7 @@ import type {
   PersonMetrics,
   PersonRole,
   PersonStatus,
+  ScopedMap,
 } from "@/types/domain";
 import type { UUID } from "@/types/events";
 
@@ -37,10 +38,25 @@ interface DocumentResponse {
 }
 interface MetricsResponse {
   descendientes: number;
+  coordinadores: number;
+  enlaces: number;
+  amigos: number;
   documentos: number;
   eventos_creados: number;
   invitaciones: number;
   asistencias: number;
+}
+interface ScopedMapPersonResponse {
+  persona_id: UUID;
+  rol: PersonRole;
+  nombre: string;
+  apellido_paterno: string;
+  apellido_materno: string;
+  geocercas: GeofenceResponse[];
+}
+interface ScopedMapResponse {
+  root_persona_id: UUID;
+  personas: ScopedMapPersonResponse[];
 }
 interface GeofenceResponse {
   id: UUID;
@@ -146,10 +162,39 @@ export class DomainApi {
     );
     return {
       descendants: result.descendientes,
+      coordinators: result.coordinadores,
+      links: result.enlaces,
+      friends: result.amigos,
       documents: result.documentos,
       createdEvents: result.eventos_creados,
       invitations: result.invitaciones,
       attendances: result.asistencias,
+    };
+  }
+  async scopedMap(id: UUID): Promise<ScopedMap> {
+    const result = await this.client.request<ScopedMapResponse>(
+      `/personas/${id}/mapa`,
+      { access: "authenticated" },
+    );
+    return {
+      rootPersonId: result.root_persona_id,
+      people: result.personas.map((person) => ({
+        personId: person.persona_id,
+        role: person.rol,
+        nombre: person.nombre,
+        apellidoPaterno: person.apellido_paterno,
+        apellidoMaterno: person.apellido_materno,
+        geofences: person.geocercas.map((item) => ({
+          id: item.id,
+          type: item.tipo,
+          name: item.nombre,
+          code: item.codigo,
+          parentCode: item.codigo_padre,
+          source: item.fuente,
+          version: item.version,
+          current: item.vigente,
+        })),
+      })),
     };
   }
   async listDocuments(id: UUID): Promise<Documento[]> {
