@@ -41,7 +41,9 @@ function message(error: unknown): string {
     : "No fue posible completar la solicitud.";
 }
 
-function nameOf(person: Person): string {
+function nameOf(
+  person: Pick<Person, "nombre" | "apellidoPaterno" | "apellidoMaterno">,
+): string {
   return [person.nombre, person.apellidoPaterno, person.apellidoMaterno]
     .filter(Boolean)
     .join(" ");
@@ -270,6 +272,9 @@ export function DomainAdminPage({
   const [metrics, setMetrics] = useState<Awaited<
     ReturnType<DomainApi["metrics"]>
   > | null>(null);
+  const [scopedMap, setScopedMap] = useState<Awaited<
+    ReturnType<DomainApi["scopedMap"]>
+  > | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -354,6 +359,10 @@ export function DomainAdminPage({
     void api
       .metrics(selected.id)
       .then(setMetrics)
+      .catch((reason) => setError(message(reason)));
+    void api
+      .scopedMap(selected.id)
+      .then(setScopedMap)
       .catch((reason) => setError(message(reason)));
   }, [api, selected]);
 
@@ -531,6 +540,18 @@ export function DomainAdminPage({
                     <dd>{metrics?.descendants ?? "—"}</dd>
                   </div>
                   <div>
+                    <dt>Coordinadores</dt>
+                    <dd>{metrics?.coordinators ?? "—"}</dd>
+                  </div>
+                  <div>
+                    <dt>Enlaces</dt>
+                    <dd>{metrics?.links ?? "—"}</dd>
+                  </div>
+                  <div>
+                    <dt>Amigos</dt>
+                    <dd>{metrics?.friends ?? "—"}</dd>
+                  </div>
+                  <div>
                     <dt>Documentos</dt>
                     <dd>{metrics?.documents ?? "—"}</dd>
                   </div>
@@ -539,6 +560,47 @@ export function DomainAdminPage({
                     <dd>{metrics?.createdEvents ?? "—"}</dd>
                   </div>
                 </dl>
+                <section
+                  aria-labelledby="scoped-map-title"
+                  className="scoped-map"
+                >
+                  <h3 id="scoped-map-title">Territorio en tu alcance</h3>
+                  <p className="form-intro">
+                    Geocercas asignadas a personas dentro del subárbol
+                    seleccionado. No incluye coordenadas personales ni datos
+                    fuera de tu scope.
+                  </p>
+                  {!scopedMap ? (
+                    <LoadingState label="Cargando mapa scoped…" />
+                  ) : scopedMap.people.every(
+                      (person) => person.geofences.length === 0,
+                    ) ? (
+                    <EmptyState>
+                      No hay geocercas asignadas en este alcance.
+                    </EmptyState>
+                  ) : (
+                    <ul className="scoped-map-list">
+                      {scopedMap.people
+                        .filter((person) => person.geofences.length > 0)
+                        .map((person) => (
+                          <li key={person.personId}>
+                            <strong>{nameOf(person)}</strong>{" "}
+                            <span className="role-chip" data-role={person.role}>
+                              {roleLabel(person.role)}
+                            </span>
+                            <ul>
+                              {person.geofences.map((geofence) => (
+                                <li key={`${person.personId}-${geofence.id}`}>
+                                  {geofence.type}: {geofence.name}
+                                  {geofence.code ? ` (${geofence.code})` : ""}
+                                </li>
+                              ))}
+                            </ul>
+                          </li>
+                        ))}
+                    </ul>
+                  )}
+                </section>
                 <div className="event-card-actions">
                   {capabilities.canCreateChild &&
                     selected.id === self.id &&

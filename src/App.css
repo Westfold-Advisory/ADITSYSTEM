@@ -411,6 +411,24 @@ a:focus-visible {
   font-size: 1.25rem;
   font-weight: 700;
 }
+
+.scoped-map {
+  margin-top: 1.5rem;
+}
+
+.scoped-map-list {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.scoped-map-list ul {
+  margin: 0.35rem 0 0;
+  padding-left: 1rem;
+}
+
 .domain-form {
   display: grid;
   gap: 1rem;
