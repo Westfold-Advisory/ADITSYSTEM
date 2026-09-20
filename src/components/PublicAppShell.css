@@ -29,11 +29,36 @@
 
 .public-app-shell__app-bar.ui-app-bar {
   flex: 0 0 auto;
-  gap: var(--md-sys-spacing-4);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas: "brand nav actions";
+  align-items: center;
+  column-gap: var(--md-sys-spacing-4);
+  row-gap: var(--md-sys-spacing-2);
   min-height: 4rem;
   padding: var(--md-sys-spacing-2) var(--md-sys-spacing-4);
   border-bottom: 1px solid var(--md-sys-color-outline-variant);
   background: var(--md-sys-color-surface);
+}
+
+.public-app-shell__app-bar .ui-app-bar-brand {
+  grid-area: brand;
+}
+
+.public-app-shell__app-bar .public-app-shell__nav.ui-navigation {
+  grid-area: nav;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.public-app-shell__app-bar .ui-app-bar-actions {
+  grid-area: actions;
+  justify-self: end;
+}
+
+.public-app-shell__nav.ui-navigation a {
+  gap: var(--md-sys-spacing-1);
 }
 
 .public-app-shell__brand {
@@ -138,7 +163,8 @@
 
 /* Auth shell (/login): single-row bar, no public primary nav. */
 .public-app-shell--auth .public-app-shell__app-bar.ui-app-bar {
-  flex-wrap: nowrap;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: "brand actions";
 }
 
 .public-app-shell__public-return {
@@ -236,33 +262,27 @@
 }
 
 @media (max-width: 640px) {
-  .public-app-shell__app-bar.ui-app-bar {
-    flex-wrap: wrap;
-    align-items: flex-start;
+  .public-app-shell:not(.public-app-shell--auth) .public-app-shell__app-bar.ui-app-bar {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "brand actions"
+      "nav nav";
     padding: var(--md-sys-spacing-2) var(--md-sys-spacing-3);
   }
 
-  .public-app-shell .ui-navigation {
-    order: 2;
-    flex: 1 1 100%;
-    justify-content: flex-start;
-    flex-wrap: wrap;
-    gap: var(--md-sys-spacing-1);
+  .public-app-shell:not(.public-app-shell--auth) .public-app-shell__nav.ui-navigation {
+    width: 100%;
+    gap: var(--md-sys-spacing-2);
   }
 
-  .public-app-shell .ui-navigation a {
-    width: 100%;
+  .public-app-shell:not(.public-app-shell--auth) .public-app-shell__nav.ui-navigation a {
+    flex: 1 1 0;
     justify-content: center;
+    min-width: 0;
   }
 
-  .public-app-shell .ui-app-bar-actions {
-    order: 3;
-    flex: 1 1 100%;
-  }
-
-  .public-app-shell__secondary-actions {
-    width: 100%;
-    justify-content: flex-start;
-    gap: var(--md-sys-spacing-3);
+  .public-app-shell__auth-action {
+    max-width: 100%;
+    text-align: right;
   }
 }
