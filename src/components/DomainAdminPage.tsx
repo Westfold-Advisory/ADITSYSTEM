@@ -558,7 +558,10 @@ export function DomainAdminPage({
                     <dd>{metrics?.createdEvents ?? "—"}</dd>
                   </div>
                 </dl>
-                <section aria-labelledby="scoped-map-title" className="scoped-map">
+                <section
+                  aria-labelledby="scoped-map-title"
+                  className="scoped-map"
+                >
                   <h3 id="scoped-map-title">Territorio en tu alcance</h3>
                   <p className="form-intro">
                     Geocercas asignadas a personas dentro del subárbol
