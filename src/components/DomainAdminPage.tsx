@@ -1,247 +1,23 @@
-import { useCallback, useMemo, useState, type FormEvent } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import { DomainApi } from "@/api/domain";
-import { ApiClient, ApiError } from "@/api/http";
+import { ApiClient } from "@/api/http";
 import type { LoginResponse } from "@/api/auth";
+import { HierarchyMasterDetail } from "@/components/admin/HierarchyMasterDetail";
+import { HierarchyTreePanel } from "@/components/admin/HierarchyTree";
+import { PersonDetailPanel } from "@/components/admin/PersonDetailPanel";
+import { apiErrorMessage, roleLabel } from "@/components/admin/person-display";
 import { capabilitiesFor } from "@/lib/capabilities";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/Card";
-import {
-  EmptyState,
-  ErrorState,
-  LoadingState,
-} from "@/components/ui/AsyncState";
-import { Field } from "@/components/ui/Field";
+import { ErrorState, LoadingState } from "@/components/ui/AsyncState";
 import { useHierarchyScope } from "@/hooks/useHierarchyScope";
 import {
   emptyPersonFilter,
   filterPersonList,
   isPersonFilterActive,
   type PersonFilter,
-  type PersonStatusFilter,
 } from "@/lib/person-filters";
-import { PERSON_STATUSES, type Person, type PersonInput } from "@/types/domain";
-
-const empty: PersonInput = {
-  nombre: "",
-  apellidoPaterno: "",
-  apellidoMaterno: "",
-  telefono: "",
-};
-
-function message(error: unknown): string {
-  return error instanceof ApiError || error instanceof Error
-    ? error.message
-    : "No fue posible completar la solicitud.";
-}
-
-function nameOf(
-  person: Pick<Person, "nombre" | "apellidoPaterno" | "apellidoMaterno">,
-): string {
-  return [person.nombre, person.apellidoPaterno, person.apellidoMaterno]
-    .filter(Boolean)
-    .join(" ");
-}
-
-function roleLabel(role: Person["role"]): string {
-  return role.toLowerCase().replaceAll("_", " ");
-}
-
-function PersonForm({
-  role,
-  parent,
-  initialValues = empty,
-  submitLabel = "Guardar",
-  onSave,
-  onCancel,
-}: {
-  role: Person["role"];
-  parent: Person;
-  initialValues?: PersonInput;
-  submitLabel?: string;
-  onSave: (input: PersonInput) => Promise<void>;
-  onCancel: () => void;
-}) {
-  const [values, setValues] = useState<PersonInput>(initialValues);
-  const [error, setError] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
-  const submit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setSaving(true);
-    setError(null);
-    try {
-      await onSave(values);
-      setValues(empty);
-    } catch (reason) {
-      setError(message(reason));
-    } finally {
-      setSaving(false);
-    }
-  };
-  return (
-    <form
-      className="domain-form"
-      onSubmit={submit}
-      aria-label={`Registrar ${roleLabel(role)}`}
-    >
-      <div>
-        <h2>
-          {submitLabel === "Guardar" ? "Registrar" : "Editar"} {roleLabel(role)}
-        </h2>
-        <p className="form-intro">
-          Se agregará bajo {nameOf(parent)}. No necesitas capturar un
-          identificador.
-        </p>
-      </div>
-      <div className="form-section">
-        <p className="eyebrow">Tipo de registro</p>
-        <span className="role-chip" data-role={role}>
-          {roleLabel(role)}
-        </span>
-      </div>
-      <p className="eyebrow">Datos personales</p>
-      <div className="event-form-grid">
-        <Field label="Nombre">
-          <input
-            required
-            maxLength={120}
-            value={values.nombre}
-            onChange={(e) => setValues({ ...values, nombre: e.target.value })}
-          />
-        </Field>
-        <Field label="Apellido paterno">
-          <input
-            required
-            maxLength={120}
-            value={values.apellidoPaterno}
-            onChange={(e) =>
-              setValues({ ...values, apellidoPaterno: e.target.value })
-            }
-          />
-        </Field>
-        <Field label="Apellido materno">
-          <input
-            required
-            maxLength={120}
-            value={values.apellidoMaterno}
-            onChange={(e) =>
-              setValues({ ...values, apellidoMaterno: e.target.value })
-            }
-          />
-        </Field>
-        <Field label="Teléfono">
-          <input
-            required
-            maxLength={30}
-            value={values.telefono}
-            onChange={(e) => setValues({ ...values, telefono: e.target.value })}
-          />
-        </Field>
-      </div>
-      {error && (
-        <p className="request-message error" role="alert">
-          {error}
-        </p>
-      )}
-      <div className="event-form-actions">
-        <Button status={saving ? "loading" : "idle"} type="submit">
-          {submitLabel}
-        </Button>
-        <Button type="button" variant="outline" onClick={onCancel}>
-          Cancelar
-        </Button>
-      </div>
-    </form>
-  );
-}
-
-function TreeNode({
-  person,
-  selectedId,
-  expanded,
-  children,
-  totalChildren,
-  filterActive,
-  loading,
-  expandedById,
-  childrenById,
-  totalChildrenById,
-  loadingNode,
-  onSelect,
-  onToggle,
-}: {
-  person: Person;
-  selectedId: string | null;
-  expanded: boolean;
-  children: Person[] | undefined;
-  totalChildren: number | undefined;
-  filterActive: boolean;
-  loading: boolean;
-  expandedById: Record<string, boolean>;
-  childrenById: Record<string, Person[]>;
-  totalChildrenById: Record<string, Person[]>;
-  loadingNode: string | null;
-  onSelect: (person: Person) => void;
-  onToggle: (person: Person) => void;
-}) {
-  const hasChildren = person.role !== "AMIGO";
-  return (
-    <li
-      role="treeitem"
-      aria-expanded={hasChildren ? expanded : undefined}
-      aria-selected={selectedId === person.id}
-    >
-      <div className="tree-node">
-        {hasChildren ? (
-          <Button
-            size="icon-xs"
-            variant="ghost"
-            aria-label={`${expanded ? "Contraer" : "Expandir"} ${nameOf(person)}`}
-            aria-expanded={expanded}
-            status={loading ? "loading" : "idle"}
-            onClick={() => onToggle(person)}
-          >
-            {expanded ? "−" : "+"}
-          </Button>
-        ) : (
-          <span className="tree-spacer" aria-hidden="true" />
-        )}
-        <button className="tree-person" onClick={() => onSelect(person)}>
-          {nameOf(person)} <small>{roleLabel(person.role)}</small>
-        </button>
-      </div>
-      {expanded && (
-        <ul role="group">
-          {children?.map((child) => (
-            <TreeNode
-              key={child.id}
-              person={child}
-              selectedId={selectedId}
-              expanded={Boolean(expandedById[child.id])}
-              children={childrenById[child.id]}
-              totalChildren={totalChildrenById[child.id]?.length}
-              filterActive={filterActive}
-              loading={loadingNode === child.id}
-              expandedById={expandedById}
-              childrenById={childrenById}
-              totalChildrenById={totalChildrenById}
-              loadingNode={loadingNode}
-              onSelect={onSelect}
-              onToggle={onToggle}
-            />
-          ))}
-          {!loading && children?.length === 0 && (
-            <li className="tree-empty">
-              {filterActive && (totalChildren ?? 0) > 0
-                ? "Ningún descendiente coincide con el filtro."
-                : "Sin descendientes."}
-            </li>
-          )}
-        </ul>
-      )}
-    </li>
-  );
-}
+import type { Person, PersonInput } from "@/types/domain";
 
 export function DomainAdminPage({
   session,
@@ -278,6 +54,7 @@ export function DomainAdminPage({
   } = useHierarchyScope(api, session.user.persona_id);
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [treeSheetOpen, setTreeSheetOpen] = useState(false);
   const [filter, setFilter] = useState<PersonFilter>(emptyPersonFilter);
   const filterActive = isPersonFilterActive(filter);
   const filteredChildren = useMemo(
@@ -313,6 +90,7 @@ export function DomainAdminPage({
       selectPerson(person);
       setCreating(false);
       setEditing(false);
+      setTreeSheetOpen(false);
     },
     [selectPerson],
   );
@@ -342,7 +120,7 @@ export function DomainAdminPage({
       !selected ||
       selected.id === session.user.persona_id ||
       !window.confirm(
-        `Dar de baja a ${nameOf(selected)}? Esta operación es una baja lógica.`,
+        `Dar de baja a ${selected.nombre}? Esta operación es una baja lógica.`,
       )
     )
       return;
@@ -351,7 +129,7 @@ export function DomainAdminPage({
       removePersonFromTree(selected.id);
       resetSelectionToRoot();
     } catch (reason) {
-      setError(message(reason));
+      setError(apiErrorMessage(reason));
     }
   };
 
@@ -361,6 +139,26 @@ export function DomainAdminPage({
         <ErrorState message="Tu rol no tiene acceso a la estructura." />
       </main>
     );
+
+  const treePanel =
+    self &&
+    (
+      <HierarchyTreePanel
+        self={self}
+        selectedId={selected?.id ?? null}
+        filter={filter}
+        filterActive={filterActive}
+        filteredChildren={filteredChildren}
+        children={children}
+        expanded={expanded}
+        loadingNode={loadingNode}
+        onFilterChange={setFilter}
+        onClearFilter={() => setFilter(emptyPersonFilter)}
+        onSelect={select}
+        onToggle={toggle}
+      />
+    );
+
   return (
     <main className="admin-page hierarchy-page">
       <header className="admin-header">
@@ -388,207 +186,40 @@ export function DomainAdminPage({
       {!self ? (
         <LoadingState label="Cargando estructura…" />
       ) : (
-        <div className="hierarchy-layout">
-          <section
-            className="hierarchy-tree-panel"
-            aria-labelledby="structure-title"
-          >
-            <h2 id="structure-title">Tu estructura</h2>
-            <div className="tree-filter-bar">
-              <Field label="Buscar por nombre">
-                <input
-                  type="search"
-                  value={filter.text}
-                  placeholder="Nombre o apellido"
-                  onChange={(event) =>
-                    setFilter((current) => ({
-                      ...current,
-                      text: event.target.value,
-                    }))
-                  }
-                />
-              </Field>
-              <Field label="Estado">
-                <select
-                  value={filter.status}
-                  onChange={(event) =>
-                    setFilter((current) => ({
-                      ...current,
-                      status: event.target.value as PersonStatusFilter,
-                    }))
-                  }
-                >
-                  <option value="TODOS">Todos</option>
-                  {PERSON_STATUSES.map((status) => (
-                    <option key={status} value={status}>
-                      {status.charAt(0) + status.slice(1).toLowerCase()}
-                    </option>
-                  ))}
-                </select>
-              </Field>
-              {filterActive && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setFilter(emptyPersonFilter)}
-                >
-                  Limpiar filtro
-                </Button>
-              )}
-            </div>
-            <ul role="tree" aria-busy={loadingNode === self.id}>
-              <TreeNode
-                person={self}
-                selectedId={selected?.id ?? null}
-                expanded={Boolean(expanded[self.id])}
-                children={filteredChildren[self.id]}
-                totalChildren={children[self.id]?.length}
-                filterActive={filterActive}
-                loading={loadingNode === self.id}
-                expandedById={expanded}
-                childrenById={filteredChildren}
-                totalChildrenById={children}
-                loadingNode={loadingNode}
-                onSelect={select}
-                onToggle={toggle}
-              />
-            </ul>
-          </section>
-          <section aria-live="polite">
-            {selected ? (
-              <Card className="person-detail">
-                <nav aria-label="Ruta de la persona" className="breadcrumbs">
-                  {breadcrumb.map((person, index) => (
-                    <span key={person.id}>
-                      {index > 0 && <span aria-hidden="true">› </span>}
-                      {nameOf(person)}
-                    </span>
-                  ))}
-                </nav>
-                <p className="eyebrow">{selected.status}</p>
-                <h2>{nameOf(selected)}</h2>
-                <p>{selected.telefono}</p>
-                <dl className="person-metrics">
-                  <div>
-                    <dt>Descendientes</dt>
-                    <dd>{metrics?.descendants ?? "—"}</dd>
-                  </div>
-                  <div>
-                    <dt>Coordinadores</dt>
-                    <dd>{metrics?.coordinators ?? "—"}</dd>
-                  </div>
-                  <div>
-                    <dt>Enlaces</dt>
-                    <dd>{metrics?.links ?? "—"}</dd>
-                  </div>
-                  <div>
-                    <dt>Amigos</dt>
-                    <dd>{metrics?.friends ?? "—"}</dd>
-                  </div>
-                  <div>
-                    <dt>Documentos</dt>
-                    <dd>{metrics?.documents ?? "—"}</dd>
-                  </div>
-                  <div>
-                    <dt>Eventos</dt>
-                    <dd>{metrics?.createdEvents ?? "—"}</dd>
-                  </div>
-                </dl>
-                <section
-                  aria-labelledby="scoped-map-title"
-                  className="scoped-map"
-                >
-                  <h3 id="scoped-map-title">Territorio en tu alcance</h3>
-                  <p className="form-intro">
-                    Geocercas asignadas a personas dentro del subárbol
-                    seleccionado. No incluye coordenadas personales ni datos
-                    fuera de tu scope.
-                  </p>
-                  {!scopedMap ? (
-                    <LoadingState label="Cargando mapa scoped…" />
-                  ) : scopedMap.people.every(
-                      (person) => person.geofences.length === 0,
-                    ) ? (
-                    <EmptyState>
-                      No hay geocercas asignadas en este alcance.
-                    </EmptyState>
-                  ) : (
-                    <ul className="scoped-map-list">
-                      {scopedMap.people
-                        .filter((person) => person.geofences.length > 0)
-                        .map((person) => (
-                          <li key={person.personId}>
-                            <strong>{nameOf(person)}</strong>{" "}
-                            <span className="role-chip" data-role={person.role}>
-                              {roleLabel(person.role)}
-                            </span>
-                            <ul>
-                              {person.geofences.map((geofence) => (
-                                <li key={`${person.personId}-${geofence.id}`}>
-                                  {geofence.type}: {geofence.name}
-                                  {geofence.code ? ` (${geofence.code})` : ""}
-                                </li>
-                              ))}
-                            </ul>
-                          </li>
-                        ))}
-                    </ul>
-                  )}
-                </section>
-                <div className="event-card-actions">
-                  {capabilities.canCreateChild &&
-                    selected.id === self.id &&
-                    capabilities.childRole &&
-                    selected.role !== "AMIGO" && (
-                      <Button onClick={() => setCreating(true)}>
-                        Registrar {roleLabel(capabilities.childRole)}
-                      </Button>
-                    )}
-                  {canManageSelected(selected) && (
-                    <Button variant="outline" onClick={() => setEditing(true)}>
-                      Editar datos
-                    </Button>
-                  )}
-                  {selected.id !== session.user.persona_id &&
-                    canManageSelected(selected) && (
-                      <Button
-                        variant="destructive"
-                        onClick={() => void remove()}
-                      >
-                        Dar de baja
-                      </Button>
-                    )}
-                </div>
-              </Card>
-            ) : (
-              <EmptyState>Selecciona una persona de la estructura.</EmptyState>
-            )}
-            {creating && selected && capabilities.childRole && (
-              <PersonForm
-                role={capabilities.childRole}
-                parent={selected}
-                onSave={createChild}
-                onCancel={() => setCreating(false)}
-              />
-            )}
-            {editing && selected && (
-              <PersonForm
-                role={selected.role}
-                parent={selected}
-                initialValues={{
-                  nombre: selected.nombre,
-                  apellidoPaterno: selected.apellidoPaterno,
-                  apellidoMaterno: selected.apellidoMaterno,
-                  telefono: selected.telefono,
+        <HierarchyMasterDetail
+          treePanel={treePanel}
+          hasSelection={Boolean(selected)}
+          treeSheetOpen={treeSheetOpen}
+          onOpenTreeSheet={() => setTreeSheetOpen(true)}
+          onCloseTreeSheet={() => setTreeSheetOpen(false)}
+          detailPanel={
+            selected ? (
+              <PersonDetailPanel
+                selected={selected}
+                breadcrumb={breadcrumb}
+                metrics={metrics}
+                scopedMap={scopedMap}
+                api={api}
+                capabilities={capabilities}
+                self={self}
+                sessionPersonId={session.user.persona_id}
+                canManageSelected={canManageSelected}
+                creating={creating}
+                editing={editing}
+                onNavigateBreadcrumb={select}
+                onStartCreate={() => setCreating(true)}
+                onStartEdit={() => setEditing(true)}
+                onCancelForm={() => {
+                  setCreating(false);
+                  setEditing(false);
                 }}
-                submitLabel="Actualizar"
-                onSave={updatePerson}
-                onCancel={() => setEditing(false)}
+                onCreate={createChild}
+                onUpdate={updatePerson}
+                onRemove={() => void remove()}
               />
-            )}
-          </section>
-        </div>
+            ) : null
+          }
+        />
       )}
     </main>
   );
