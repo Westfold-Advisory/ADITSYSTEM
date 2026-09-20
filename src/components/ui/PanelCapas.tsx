@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Layers, Search, X } from "lucide-react";
 import type { Geofence, GeofenceType } from "@/api/geofences";
 import { MapControlsSkeleton } from "./Skeleton";
@@ -33,6 +33,25 @@ export function PanelCapas({
   onClose: () => void;
 }) {
   const [search, setSearch] = useState("");
+  const dialogRef = useRef<HTMLElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    closeButtonRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose();
+      }
+    };
+    const node = dialogRef.current;
+    node?.addEventListener("keydown", handleKeyDown);
+    return () => node?.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
   const filtered = useMemo(() => {
     const term = search.trim().toLocaleLowerCase();
     return term
@@ -44,7 +63,9 @@ export function PanelCapas({
   const selected = items.find((item) => item.id === selectedId);
   return (
     <section
+      ref={dialogRef}
       role="dialog"
+      aria-modal="true"
       aria-label="Capas territoriales"
       className="absolute top-3 right-3 z-20 flex max-h-[calc(100%-1.5rem)] w-72 flex-col overflow-hidden rounded border max-sm:inset-x-0 max-sm:top-auto max-sm:bottom-0 max-sm:w-full max-sm:max-h-[70%] max-sm:rounded-b-none"
       style={{
@@ -64,8 +85,15 @@ export function PanelCapas({
           <Layers size={13} />
           Capas territoriales
         </span>
-        <button type="button" onClick={onClose} aria-label="Cerrar capas">
-          <X size={14} />
+        <button
+          ref={closeButtonRef}
+          type="button"
+          onClick={onClose}
+          aria-label="Cerrar capas"
+          className="rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+          style={{ outlineColor: "var(--md-sys-color-primary)" }}
+        >
+          <X size={14} aria-hidden="true" />
         </button>
       </header>
       <div
@@ -145,8 +173,10 @@ export function PanelCapas({
             key={item.id}
             type="button"
             onClick={() => onSelect(item.id)}
-            className="w-full text-left p-2 border text-xs"
+            aria-pressed={item.id === selectedId}
+            className="w-full text-left p-2 border text-xs focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1"
             style={{
+              outlineColor: "var(--md-sys-color-primary)",
               borderColor:
                 item.id === selectedId
                   ? "var(--cyber-cyan)"

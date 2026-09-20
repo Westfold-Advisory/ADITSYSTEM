@@ -165,6 +165,7 @@ export function MapPage() {
     <div className="map-page">
       <div className="map-page__layout">
         <aside
+          id="map-explorer"
           className={cn(
             "map-page__explorer",
             !sidebarVisible && "map-page__explorer--hidden",
@@ -303,7 +304,16 @@ export function MapPage() {
             </section>
           )}
         </aside>
-        <section className="map-page__map" aria-label="Mapa de eventos">
+        <section
+          className="map-page__map"
+          aria-label="Mapa de eventos"
+          aria-describedby="map-canvas-hint"
+        >
+          <p id="map-canvas-hint" className="sr-only">
+            El mapa interactivo complementa la lista de eventos. Para buscar,
+            filtrar y abrir un evento sin puntero, use el explorador de eventos
+            (botón «Mostrar explorador» si está oculto).
+          </p>
           <div className="map-page__map-toolbar">
             <Button
               type="button"
@@ -314,7 +324,7 @@ export function MapPage() {
                 sidebarVisible ? "Ocultar explorador" : "Mostrar explorador"
               }
               aria-expanded={sidebarVisible}
-              aria-controls="map-event-results"
+              aria-controls="map-explorer"
             >
               {sidebarVisible ? (
                 <PanelLeftClose aria-hidden="true" />
