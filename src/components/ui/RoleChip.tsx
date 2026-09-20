@@ -3,12 +3,9 @@ import type { ComponentProps } from "react";
 
 void React;
 
+import { roleLabel } from "@/lib/role-label";
 import { cn } from "@/lib/utils";
 import type { PersonRole } from "@/types/domain";
-
-export function roleLabel(role: PersonRole): string {
-  return role.toLowerCase().replaceAll("_", " ");
-}
 
 export function RoleChip({
   role,

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { Person } from "@/types/domain";
 
-import { roleLabel } from "./RoleChip";
+import { roleLabel } from "@/lib/role-label";
 
 function personName(
   person: Pick<Person, "nombre" | "apellidoPaterno" | "apellidoMaterno">,

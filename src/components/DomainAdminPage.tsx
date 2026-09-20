@@ -19,7 +19,8 @@ import {
   HierarchyTreeRoot,
 } from "@/components/ui/HierarchyTree";
 import { MetricGrid } from "@/components/ui/MetricGrid";
-import { RoleChip, roleLabel } from "@/components/ui/RoleChip";
+import { RoleChip } from "@/components/ui/RoleChip";
+import { roleLabel } from "@/lib/role-label";
 import { useHierarchyScope } from "@/hooks/useHierarchyScope";
 import {
   emptyPersonFilter,
