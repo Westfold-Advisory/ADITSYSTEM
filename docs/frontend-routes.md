@@ -20,7 +20,7 @@ otra devuelve la página 404.
 ### Administración autenticada
 
 Las rutas `/admin`, `/admin/mapa` y `/admin/personas` comparten el mismo
-menú (`AdminNav`: Eventos · Mapa de cobertura · Estructura de personas) y
+menú (`AdminNav`: Eventos · Personas · Mapa de cobertura) y
 encabezado (`AdminPageHeader`).
 
 1. **Sin sesión** → `LoginPage` (`POST /auth/login`). Enlace preferido: `/login`. Sólo aceptan
