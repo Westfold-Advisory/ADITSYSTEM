@@ -1,17 +1,12 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Tabs } from "radix-ui";
 
 import type { DomainApi } from "@/api/domain";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/Card";
-import {
-  EmptyState,
-  ErrorState,
-  LoadingState,
-} from "@/components/ui/AsyncState";
+import { EmptyState, LoadingState } from "@/components/ui/AsyncState";
 import type { Capabilities } from "@/lib/capabilities";
 import type {
-  Documento,
   Person,
   PersonInput,
   PersonMetrics,
@@ -23,8 +18,9 @@ import { MetricGrid } from "@/components/ui/MetricGrid";
 import { RoleChip } from "@/components/ui/RoleChip";
 
 import { HierarchyBreadcrumbs } from "./HierarchyBreadcrumbs";
+import { PersonDocumentsTab } from "./PersonDocumentsTab";
 import { PersonForm } from "./PersonForm";
-import { apiErrorMessage, nameOf, roleLabel } from "./person-display";
+import { nameOf, roleLabel } from "./person-display";
 
 type DetailTab = "resumen" | "persona" | "territorio" | "documentos";
 
@@ -107,63 +103,6 @@ function TerritoryTab({
   );
 }
 
-function DocumentsTab({ api, personId }: { api: DomainApi; personId: string }) {
-  const [documents, setDocuments] = useState<Documento[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [attempt, setAttempt] = useState(0);
-
-  useEffect(() => {
-    let cancelled = false;
-    void api
-      .listDocuments(personId)
-      .then((items) => {
-        if (!cancelled) setDocuments(items);
-      })
-      .catch((reason) => {
-        if (!cancelled) setError(apiErrorMessage(reason));
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [api, personId, attempt]);
-
-  if (documents === null && !error) {
-    return <LoadingState label="Cargando documentos…" />;
-  }
-  if (error) {
-    return (
-      <ErrorState
-        message={error}
-        onRetry={() => {
-          setDocuments(null);
-          setError(null);
-          setAttempt((value) => value + 1);
-        }}
-      />
-    );
-  }
-  if (!documents || documents.length === 0) {
-    return (
-      <EmptyState>
-        Esta persona aún no tiene documentos registrados en el sistema.
-      </EmptyState>
-    );
-  }
-  return (
-    <ul className="document-list">
-      {documents.map((doc) => (
-        <li key={doc.id}>
-          <strong>{doc.title}</strong>
-          <span className="document-meta">
-            {doc.type} · v{doc.version} · {(doc.sizeBytes / 1024).toFixed(1)} KB
-            {doc.isCurrent ? " · vigente" : ""}
-          </span>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
 function PersonDetailTabs({
   selected,
   metrics,
@@ -172,6 +111,7 @@ function PersonDetailTabs({
   canRegisterChild,
   childRole,
   canEdit,
+  canRegisterDocuments,
   showRemove,
   onStartCreate,
   onStartEdit,
@@ -184,12 +124,14 @@ function PersonDetailTabs({
   canRegisterChild: boolean;
   childRole: PersonRole | null;
   canEdit: boolean;
+  canRegisterDocuments: boolean;
   showRemove: boolean;
   onStartCreate: () => void;
   onStartEdit: () => void;
   onRemove: () => void;
 }) {
   const [tab, setTab] = useState<DetailTab>("resumen");
+  const [registerDocumentOpen, setRegisterDocumentOpen] = useState(false);
 
   const primaryAction = (() => {
     if (tab === "resumen" && canRegisterChild && childRole) {
@@ -201,6 +143,13 @@ function PersonDetailTabs({
     }
     if (tab === "persona" && canEdit) {
       return <Button onClick={onStartEdit}>Editar datos</Button>;
+    }
+    if (tab === "documentos" && canRegisterDocuments && !registerDocumentOpen) {
+      return (
+        <Button onClick={() => setRegisterDocumentOpen(true)}>
+          Registrar documento
+        </Button>
+      );
     }
     return null;
   })();
@@ -228,7 +177,10 @@ function PersonDetailTabs({
       <Tabs.Root
         className="hierarchy-tabs"
         value={tab}
-        onValueChange={(value) => setTab(value as DetailTab)}
+        onValueChange={(value) => {
+          setTab(value as DetailTab);
+          setRegisterDocumentOpen(false);
+        }}
       >
         <Tabs.List aria-label="Detalle de persona">
           <Tabs.Trigger value="resumen">Resumen</Tabs.Trigger>
@@ -251,7 +203,14 @@ function PersonDetailTabs({
         </Tabs.Content>
         <Tabs.Content value="documentos" className="hierarchy-tab-panel">
           {tab === "documentos" ? (
-            <DocumentsTab key={selected.id} api={api} personId={selected.id} />
+            <PersonDocumentsTab
+              key={selected.id}
+              api={api}
+              personId={selected.id}
+              canRegister={canRegisterDocuments}
+              registerOpen={registerDocumentOpen}
+              onRegisterOpenChange={setRegisterDocumentOpen}
+            />
           ) : null}
         </Tabs.Content>
       </Tabs.Root>
@@ -269,6 +228,7 @@ export function PersonDetailPanel({
   self,
   sessionPersonId,
   canManageSelected,
+  canRegisterDocuments,
   creating,
   editing,
   onNavigateBreadcrumb,
@@ -288,6 +248,7 @@ export function PersonDetailPanel({
   self: Person;
   sessionPersonId: string;
   canManageSelected: (person: Person) => boolean;
+  canRegisterDocuments: boolean;
   creating: boolean;
   editing: boolean;
   onNavigateBreadcrumb: (person: Person) => void;
@@ -352,6 +313,7 @@ export function PersonDetailPanel({
           canRegisterChild={Boolean(canRegisterChild)}
           childRole={capabilities.childRole}
           canEdit={canManageSelected(selected)}
+          canRegisterDocuments={canRegisterDocuments}
           showRemove={
             selected.id !== sessionPersonId && canManageSelected(selected)
           }
