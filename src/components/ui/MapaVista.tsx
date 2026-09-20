@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type RefObject } from "react";
 import { Navigation } from "lucide-react";
 import { Capa } from "./Capa";
 import { PanelCapas } from "./PanelCapas";
@@ -29,12 +29,14 @@ export function MapaVista({
   onSelectGeofence,
   pointGeofences,
   pointLookup,
+  capasTriggerRef,
 }: {
   events: Event[];
   selectedEventId: UUID | null;
   onSelectEvent: (id: UUID) => void;
   panelAbierto: boolean;
   onCerrarPanel: () => void;
+  capasTriggerRef?: RefObject<HTMLElement | null>;
   geofences: Geofence[];
   geofencesLoading: boolean;
   geofencesError: string | null;
@@ -170,6 +172,7 @@ export function MapaVista({
             pointGeofences={pointGeofences}
             pointLookup={pointLookup}
             onClose={onCerrarPanel}
+            returnFocusRef={capasTriggerRef}
           />
         )}
       </Map>
