@@ -59,13 +59,30 @@ export function PublicAppShell({
       <AppBar
         className="public-app-shell__app-bar"
         brand={
-          <a className="public-app-shell__brand" href={brandHref}>
+          <a
+            className="public-app-shell__brand"
+            href={brandHref}
+            aria-label={institution.productName}
+          >
             <InstitutionBrandMark
               institution={institution}
               className="public-app-shell__brand-mark"
               logoClassName="public-app-shell__brand-logo"
               productClassName="public-app-shell__brand-label"
+              showProductName={false}
             />
+            <span
+              className="public-app-shell__brand-label public-app-shell__brand-label--full"
+              aria-hidden="true"
+            >
+              {institution.productName}
+            </span>
+            <span
+              className="public-app-shell__brand-label public-app-shell__brand-label--short"
+              aria-hidden="true"
+            >
+              {institution.productShortName}
+            </span>
           </a>
         }
         actions={
@@ -78,18 +95,27 @@ export function PublicAppShell({
               Eventos públicos
             </a>
           ) : (
-            <a className="public-app-shell__auth-action" href="/login">
+            <a
+              className="public-app-shell__auth-action"
+              href="/login"
+              aria-label="Personal autorizado"
+            >
               <ShieldCheck
                 aria-hidden="true"
                 className="public-app-shell__icon"
               />
-              Personal autorizado
+              <span
+                className="public-app-shell__auth-action-label"
+                aria-hidden="true"
+              >
+                Personal autorizado
+              </span>
             </a>
           )
         }
       >
         {!isAuthShell && (
-          <Navigation className="public-app-shell__nav">
+          <Navigation className="public-app-shell__nav public-app-shell__nav-segment">
             <a
               href="/eventos"
               aria-current={currentPath === "/eventos" ? "page" : undefined}
