@@ -34,18 +34,18 @@ Regla del proyecto: pasar axe en el shell HTML **no** implica accesibilidad del 
 
 ## Hallazgos (clasificación DS)
 
-| ID          | Severidad    | Categoría        | Hallazgo                                                                      | Evidencia                                                         | Impacto                                                     | Estado TRA-110                                                    |
-| ----------- | ------------ | ---------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------- | ----------------------------------------------------------------- |
-| A11Y-MAP-01 | **CRITICAL** | ACCESSIBILITY    | Puntos y clusters en canvas sin equivalente teclado/SR                        | `MapClusterLayer` en `map.tsx`; clicks en capas `circle`/`symbol` | Usuario solo teclado/SR no puede “pulsar” un punto del mapa | **Mitigado** (lista + hint); gap documentado                      |
-| A11Y-MAP-02 | HIGH         | ACCESSIBILITY    | Controles de mapa en inglés                                                   | `MapControls` labels previos                                      | SR anuncia idioma incorrecto                                | **Resuelto** (español)                                            |
-| A11Y-MAP-03 | HIGH         | ACCESSIBILITY    | `Field` no enlazaba `<select>` con `<label>`                                  | `Field.tsx` solo clonaba `input`                                  | Filtros Tipo/Fecha sin nombre accesible                     | **Resuelto** (`select`/`textarea`)                                |
-| A11Y-MAP-04 | HIGH         | ACCESSIBILITY    | `aria-controls` apuntaba a `#map-event-results` en lugar del panel explorador | `MapPage.tsx` toggle sidebar                                      | Relación control/región incorrecta para SR                  | **Resuelto** (`#map-explorer`)                                    |
-| A11Y-MAP-05 | MEDIUM       | ACCESSIBILITY    | MapLibre capturaba flechas cuando el canvas tenía foco                        | Opción por defecto `keyboard: true`                               | Trampa de teclado al tabular                                | **Resuelto** (`keyboard={false}` en `MapaVista`)                  |
-| A11Y-MAP-06 | MEDIUM       | ACCESSIBILITY    | Diálogo capas sin `aria-modal`, Escape ni foco inicial                        | `PanelCapas.tsx`                                                  | Modal difícil de cerrar con teclado                         | **Parcial** (Escape + foco en cerrar); falta trap + devolver foco |
-| A11Y-MAP-07 | MEDIUM       | ACCESSIBILITY    | Ítems geocerca sin estado seleccionado                                        | Lista en `PanelCapas`                                             | SR no distingue selección                                   | **Resuelto** (`aria-pressed`)                                     |
-| A11Y-MAP-08 | MEDIUM       | UX / CONSISTENCY | Chrome mapa/capas aún estilo cyber (mono 9–10px)                              | `PanelCapas.tsx`, inline en `MapaVista`                           | Legibilidad / zoom 200%                                     | **Abierto** → TRA-106                                             |
-| A11Y-MAP-09 | LOW          | ACCESSIBILITY    | Popup marcador sin botón cerrar; depende de mapa                              | `MarkerPopup`                                                     | Menor; lista alternativa                                    | **Abierto** (mejora opcional)                                     |
-| A11Y-MAP-10 | LOW          | ACCESSIBILITY    | Popups/cierres en inglés en primitivo                                         | `map.tsx` “Close popup”                                           | Copy SR                                                     | **Abierto** (i18n primitivo map)                                  |
+| ID          | Severidad    | Categoría        | Hallazgo                                                                      | Evidencia                                                         | Impacto                                                     | Estado TRA-110                                           |
+| ----------- | ------------ | ---------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------- | -------------------------------------------------------- |
+| A11Y-MAP-01 | **CRITICAL** | ACCESSIBILITY    | Puntos y clusters en canvas sin equivalente teclado/SR                        | `MapClusterLayer` en `map.tsx`; clicks en capas `circle`/`symbol` | Usuario solo teclado/SR no puede “pulsar” un punto del mapa | **Mitigado** (lista + hint); gap documentado             |
+| A11Y-MAP-02 | HIGH         | ACCESSIBILITY    | Controles de mapa en inglés                                                   | `MapControls` labels previos                                      | SR anuncia idioma incorrecto                                | **Resuelto** (español)                                   |
+| A11Y-MAP-03 | HIGH         | ACCESSIBILITY    | `Field` no enlazaba `<select>` con `<label>`                                  | `Field.tsx` solo clonaba `input`                                  | Filtros Tipo/Fecha sin nombre accesible                     | **Resuelto** (`select`/`textarea`)                       |
+| A11Y-MAP-04 | HIGH         | ACCESSIBILITY    | `aria-controls` apuntaba a `#map-event-results` en lugar del panel explorador | `MapPage.tsx` toggle sidebar                                      | Relación control/región incorrecta para SR                  | **Resuelto** (`#map-explorer`)                           |
+| A11Y-MAP-05 | MEDIUM       | ACCESSIBILITY    | MapLibre capturaba flechas cuando el canvas tenía foco                        | Opción por defecto `keyboard: true`                               | Trampa de teclado al tabular                                | **Resuelto** (`keyboard={false}` en `MapaVista`)         |
+| A11Y-MAP-06 | MEDIUM       | ACCESSIBILITY    | Diálogo capas sin trap de tabulación ni devolución de foco al disparador      | `PanelCapas.tsx`, `MapPage.tsx`, `useModalFocus`                  | Modal difícil de cerrar con teclado                         | **Resuelto** (TRA-116: trap + `returnFocus` botón Capas) |
+| A11Y-MAP-07 | MEDIUM       | ACCESSIBILITY    | Ítems geocerca sin estado seleccionado                                        | Lista en `PanelCapas`                                             | SR no distingue selección                                   | **Resuelto** (`aria-pressed`)                            |
+| A11Y-MAP-08 | MEDIUM       | UX / CONSISTENCY | Chrome mapa/capas aún estilo cyber (mono 9–10px)                              | `PanelCapas.tsx`, inline en `MapaVista`                           | Legibilidad / zoom 200%                                     | **Abierto** → TRA-106                                    |
+| A11Y-MAP-09 | LOW          | ACCESSIBILITY    | Popup marcador sin botón cerrar; depende de mapa                              | `MarkerPopup`                                                     | Menor; lista alternativa                                    | **Abierto** (mejora opcional)                            |
+| A11Y-MAP-10 | LOW          | ACCESSIBILITY    | Popups/cierres en inglés en primitivo                                         | `map.tsx` “Close popup”                                           | Copy SR                                                     | **Abierto** (i18n primitivo map)                         |
 
 ## Lista usable sin puntero (criterio de aceptación)
 
@@ -84,7 +84,7 @@ Flujo verificado por diseño e implementación:
 | ID informe  | Acción                                             | Issue destino               |
 | ----------- | -------------------------------------------------- | --------------------------- |
 | A11Y-MAP-01 | Aceptar mitigación + copy en docs usuario          | TRA-110 (este doc)          |
-| A11Y-MAP-06 | Focus trap completo + devolver foco al botón Capas | Backlog hijo TRA-103        |
+| A11Y-MAP-06 | Focus trap completo + devolver foco al botón Capas | TRA-116                     |
 | A11Y-MAP-08 | Migrar `PanelCapas` / chrome mapa a M3             | TRA-106                     |
 | A11Y-MAP-10 | i18n primitivos `map.tsx`                          | TRA-106 o issue técnico map |
 
@@ -94,7 +94,7 @@ Flujo verificado por diseño e implementación:
 - `MapPage.tsx`: `#map-explorer`, hint `sr-only`, `aria-controls` corregido.
 - `MapaVista.tsx`: `keyboard={false}`; etiqueta marcador legible.
 - `map.tsx`: `aria-label` de controles en español; iconos decorativos `aria-hidden`.
-- `PanelCapas.tsx`: `aria-modal`, Escape, foco inicial, `aria-pressed` en geocercas.
+- `PanelCapas.tsx`: `aria-modal`, Escape, foco inicial, `aria-pressed` en geocercas; TRA-116 añade trap de tabulación y devolución de foco.
 
 ## Pruebas recomendadas antes de merge
 
