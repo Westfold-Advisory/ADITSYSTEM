@@ -11,7 +11,10 @@ export function HierarchyBreadcrumbs({
 }) {
   if (path.length === 0) return null;
   return (
-    <nav aria-label="Ruta de la persona" className="breadcrumbs breadcrumbs--interactive">
+    <nav
+      aria-label="Ruta de la persona"
+      className="breadcrumbs breadcrumbs--interactive"
+    >
       <ol>
         {path.map((person, index) => {
           const isLast = index === path.length - 1;

@@ -192,8 +192,7 @@ function DocumentsTab({
         <li key={doc.id}>
           <strong>{doc.title}</strong>
           <span className="document-meta">
-            {doc.type} · v{doc.version} ·{" "}
-            {(doc.sizeBytes / 1024).toFixed(1)} KB
+            {doc.type} · v{doc.version} · {(doc.sizeBytes / 1024).toFixed(1)} KB
             {doc.isCurrent ? " · vigente" : ""}
           </span>
         </li>
@@ -264,9 +263,7 @@ export function PersonDetailPanel({
       );
     }
     if (tab === "persona" && canManageSelected(selected)) {
-      return (
-        <Button onClick={onStartEdit}>Editar datos</Button>
-      );
+      return <Button onClick={onStartEdit}>Editar datos</Button>;
     }
     return null;
   })();
@@ -282,7 +279,10 @@ export function PersonDetailPanel({
 
   return (
     <Card className="person-detail hierarchy-detail-panel">
-      <HierarchyBreadcrumbs path={breadcrumb} onNavigate={onNavigateBreadcrumb} />
+      <HierarchyBreadcrumbs
+        path={breadcrumb}
+        onNavigate={onNavigateBreadcrumb}
+      />
       <div className="person-detail-heading">
         <div>
           <p className="eyebrow">{selected.status}</p>
@@ -298,7 +298,11 @@ export function PersonDetailPanel({
 
       {showForm ? (
         <PersonForm
-          role={creating && capabilities.childRole ? capabilities.childRole : selected.role}
+          role={
+            creating && capabilities.childRole
+              ? capabilities.childRole
+              : selected.role
+          }
           parent={selected}
           initialValues={
             editing

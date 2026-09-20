@@ -140,24 +140,22 @@ export function DomainAdminPage({
       </main>
     );
 
-  const treePanel =
-    self &&
-    (
-      <HierarchyTreePanel
-        self={self}
-        selectedId={selected?.id ?? null}
-        filter={filter}
-        filterActive={filterActive}
-        filteredChildren={filteredChildren}
-        children={children}
-        expanded={expanded}
-        loadingNode={loadingNode}
-        onFilterChange={setFilter}
-        onClearFilter={() => setFilter(emptyPersonFilter)}
-        onSelect={select}
-        onToggle={toggle}
-      />
-    );
+  const treePanel = self && (
+    <HierarchyTreePanel
+      self={self}
+      selectedId={selected?.id ?? null}
+      filter={filter}
+      filterActive={filterActive}
+      filteredChildren={filteredChildren}
+      children={children}
+      expanded={expanded}
+      loadingNode={loadingNode}
+      onFilterChange={setFilter}
+      onClearFilter={() => setFilter(emptyPersonFilter)}
+      onSelect={select}
+      onToggle={toggle}
+    />
+  );
 
   return (
     <main className="admin-page hierarchy-page">

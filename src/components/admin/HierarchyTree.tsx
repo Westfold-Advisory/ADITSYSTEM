@@ -161,7 +161,12 @@ export function HierarchyTreePanel({
           </select>
         </Field>
         {filterActive && (
-          <Button type="button" variant="ghost" size="sm" onClick={onClearFilter}>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={onClearFilter}
+          >
             Limpiar filtro
           </Button>
         )}
