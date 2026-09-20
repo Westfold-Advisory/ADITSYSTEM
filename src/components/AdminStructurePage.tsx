@@ -2,7 +2,6 @@ import { useCallback, useState } from "react";
 
 import type { LoginResponse } from "@/api/auth";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
-import { StructureViewTabs } from "@/components/admin/StructureViewTabs";
 import { roleLabel } from "@/components/admin/person-display";
 import { DomainAdminPage } from "@/components/DomainAdminPage";
 import { LoginPage } from "@/components/LoginPage";
@@ -81,7 +80,6 @@ export function AdminStructurePage() {
         }
         onSignOut={logout}
       />
-      <StructureViewTabs />
       <DomainAdminPage session={session} />
     </main>
   );

@@ -19,17 +19,34 @@ export function AdminPageHeader({
   return (
     <header className="admin-header">
       <div className="admin-header__band">
-        <div className="admin-header__lead">
-          <p className="eyebrow">{eyebrow}</p>
-          <h1>{title}</h1>
-          <p>{subtitle}</p>
+        <div className="admin-header__identity">
+          <p className="eyebrow admin-header__eyebrow">{eyebrow}</p>
+          <h1 className="admin-header__title">{title}</h1>
+          <p className="admin-header__meta">{subtitle}</p>
         </div>
-        <div className="admin-header__tools">
-          <AdminNav />
-          {actions}
-          <Button type="button" variant="outline" size="sm" onClick={onSignOut}>
-            Cerrar sesión
+        <div className="admin-header__session">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="admin-header__sign-out"
+            onClick={onSignOut}
+            aria-label="Cerrar sesión"
+          >
+            <span className="admin-header__sign-out-label">Cerrar sesión</span>
+            <span
+              className="admin-header__sign-out-label--short"
+              aria-hidden="true"
+            >
+              Salir
+            </span>
           </Button>
+        </div>
+        <div className="admin-header__nav-row">
+          <AdminNav />
+          {actions ? (
+            <div className="admin-header__page-actions">{actions}</div>
+          ) : null}
         </div>
       </div>
     </header>
