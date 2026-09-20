@@ -138,4 +138,4 @@ export function useGeofenceLayerCatalog(api: GeofencesApi) {
     isTypeLoaded: (type: GeofenceType) => loadedTypes.has(type),
     isTypeLoading: (type: GeofenceType) => loadingTypes.has(type),
   };
-};
+}
