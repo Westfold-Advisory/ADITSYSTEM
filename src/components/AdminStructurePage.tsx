@@ -16,6 +16,7 @@ import {
   type AdminSession,
 } from "@/lib/admin-session";
 import { SESSION_EXPIRED_MESSAGE } from "@/lib/auth-messages";
+import { adminPageTitle } from "@/lib/admin-nav";
 import { capabilitiesFor } from "@/lib/capabilities";
 
 function loadAdminSession(): {
@@ -71,7 +72,7 @@ export function AdminStructurePage() {
     <main className="admin-page hierarchy-page">
       <AdminPageHeader
         eyebrow={institution.productName}
-        title="Estructura de personas"
+        title={adminPageTitle("/admin/personas")}
         subtitle={
           <>
             {session.user.email} · alcance {roleLabel(session.user.rol)}

@@ -223,17 +223,11 @@ a:focus-visible {
   padding: 2rem 1rem;
 }
 
-.admin-header,
 .event-form-actions {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
   align-items: center;
-}
-
-.admin-header h1 {
-  color: var(--cyber-text-bright);
-  letter-spacing: -0.02em;
 }
 
 .admin-page > button,
@@ -641,7 +635,6 @@ a:focus-visible {
   .public-events-page {
     padding: 2rem 1rem;
   }
-  .admin-header,
   .event-form-actions {
     align-items: stretch;
     flex-direction: column;

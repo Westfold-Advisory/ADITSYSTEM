@@ -40,6 +40,7 @@ import {
 } from "@/lib/auth-messages";
 import { capabilitiesFor } from "@/lib/capabilities";
 import { communityNeedOptions } from "@/lib/community-needs";
+import { adminPageTitle } from "@/lib/admin-nav";
 import {
   COVERAGE_ROLE_FILTERS,
   coverageRoleFilterLabel,
@@ -283,7 +284,7 @@ export function AdminCoverageMapPage() {
     <main className="admin-page coverage-map-page">
       <AdminPageHeader
         eyebrow={institution.productName}
-        title="Mapa de cobertura"
+        title={adminPageTitle("/admin/mapa")}
         subtitle={
           <>
             {session.user.email} · alcance {roleLabel(session.user.rol)}
@@ -293,7 +294,7 @@ export function AdminCoverageMapPage() {
       />
 
       <section
-        className="coverage-map-toolbar flex flex-wrap items-center gap-2"
+        className="admin-page-toolbar coverage-map-toolbar"
         aria-label="Filtros del mapa"
       >
         <label className="flex items-center gap-2">

@@ -12,6 +12,7 @@ import { persistAdminSession } from "./lib/admin-session";
 import { privacyNoticeKindFromPath } from "./lib/public-routes";
 import { normalizePathname } from "./lib/routing";
 import "./App.css";
+import "./styles/admin-layout.css";
 import "./components/MapPage.css";
 import "./components/LoginPage.css";
 import "./components/PublicAppShell.css";
