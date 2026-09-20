@@ -37,6 +37,25 @@ despliegue y 40 s/56 s para ejecuciones de PR/push, respectivamente.
 No se aplicaron filtros por rutas: un cambio de configuración, dependencia,
 workflow o código debe continuar validando el resultado completo.
 
+## Push a `main` sin repetir quality gates de la PR
+
+Tras merge, el commit en `main` tiene SHA distinto al head de la PR, por lo que
+GitHub Actions no puede “reutilizar” el workflow de la PR. Para no duplicar
+~30 s de `format:check`, `lint`, `test` y `npm audit` en cada deploy:
+
+| Evento          | Jobs                                                                   |
+| --------------- | ---------------------------------------------------------------------- |
+| `pull_request`  | Secret scan ∥ Quality gates (completo) ∥ Semgrep                       |
+| `push` → `main` | Secret scan → Production build (`npm ci` + build + artefacto) → Deploy |
+
+**Requisito:** `main` protegida exige que la PR haya pasado **Quality gates** (y
+Semgrep si aplica) antes del merge. El push a `main` confía en esa barrera y
+solo reconstruye con `VITE_API_BASE_URL` de producción y publica el artefacto
+validado por SHA en `build-info.json`.
+
+`workflow_dispatch` sigue ejecutando **Quality gates** completos (sin deploy salvo
+push a `main`).
+
 ## Resultado de validación y concurrencia
 
 La [ejecución de esta PR](https://github.com/Westfold-Advisory/ADITSYSTEM/actions/runs/35440768070)
