@@ -223,10 +223,10 @@ export function PersonDocumentsTab({
     };
   }, [api, personId, attempt]);
 
-  useEffect(() => {
-    if (!registerOpen) return;
+  const openRegister = () => {
     setSuccessMessage(null);
-  }, [registerOpen]);
+    onRegisterOpenChange(true);
+  };
 
   if (documents === null && !error) {
     return <LoadingState label="Cargando documentos…" />;
@@ -280,7 +280,7 @@ export function PersonDocumentsTab({
         la interfaz.
       </p>
 
-      {successMessage && (
+      {successMessage && !registerOpen && (
         <Alert tone="success" title="Documento registrado">
           {successMessage}
         </Alert>
@@ -300,7 +300,7 @@ export function PersonDocumentsTab({
         <h3 id="doc-photo-heading">Fotografía vigente</h3>
         <PhotoSlot photo={currentPhoto} />
         {canRegister && !currentPhoto && !registerOpen && (
-          <Button variant="outline" onClick={() => onRegisterOpenChange(true)}>
+          <Button variant="outline" onClick={openRegister}>
             Registrar fotografía
           </Button>
         )}
@@ -313,9 +313,7 @@ export function PersonDocumentsTab({
         ) : (
           <EmptyState
             actionLabel={canRegister ? "Registrar currículum" : undefined}
-            onAction={
-              canRegister ? () => onRegisterOpenChange(true) : undefined
-            }
+            onAction={canRegister ? openRegister : undefined}
           >
             No hay currículum vigente para esta persona.
           </EmptyState>

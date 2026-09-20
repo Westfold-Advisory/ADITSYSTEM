@@ -93,7 +93,7 @@ export function DomainAdminPage({
       setEditing(false);
       setTreeSheetOpen(false);
     },
-    [selectPerson],
+    [selectPerson, setCreating, setEditing, setTreeSheetOpen],
   );
 
   const createChild = async (input: PersonInput) => {
