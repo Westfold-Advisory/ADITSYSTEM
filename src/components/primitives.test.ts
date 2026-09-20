@@ -8,10 +8,7 @@ import { Alert } from "./ui/Alert";
 import { LoadingState } from "./ui/AsyncState";
 import { Button } from "./ui/button";
 import { Field } from "./ui/Field";
-import {
-  HierarchyTree,
-  HierarchyTreeNode,
-} from "./ui/HierarchyTree";
+import { HierarchyTree, HierarchyTreeNode } from "./ui/HierarchyTree";
 import { MetricGrid } from "./ui/MetricGrid";
 import { RoleChip } from "./ui/RoleChip";
 import type { Person } from "@/types/domain";

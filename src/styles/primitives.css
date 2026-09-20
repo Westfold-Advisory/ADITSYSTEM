@@ -366,7 +366,9 @@
   outline-offset: 2px;
 }
 .ui-hierarchy-tree-person:hover,
-[role="treeitem"][aria-selected="true"] > .ui-hierarchy-tree-node .ui-hierarchy-tree-person {
+[role="treeitem"][aria-selected="true"]
+  > .ui-hierarchy-tree-node
+  .ui-hierarchy-tree-person {
   color: var(--md-sys-color-primary);
   text-decoration: underline;
 }

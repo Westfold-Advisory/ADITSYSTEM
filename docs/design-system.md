@@ -39,20 +39,20 @@ Estilos en `src/styles/primitives.css` con prefijo `ui-` y tokens `--md-sys-*` �
 
 Cuadrícula de indicadores (`<dl>`) para métricas de una persona.
 
-| Prop | Valores | Uso |
-| ---- | ------- | --- |
-| `columns` | `2`, `3` (default), `4` | Densidad en escritorio; en viewport estrecho baja a 2 columnas. |
-| `items` | `{ label, value, id? }[]` | Etiqueta visible + valor (número o «—» si falta dato). |
+| Prop      | Valores                   | Uso                                                             |
+| --------- | ------------------------- | --------------------------------------------------------------- |
+| `columns` | `2`, `3` (default), `4`   | Densidad en escritorio; en viewport estrecho baja a 2 columnas. |
+| `items`   | `{ label, value, id? }[]` | Etiqueta visible + valor (número o «—» si falta dato).          |
 
 ### `RoleChip`
 
 Etiqueta compacta del rol jerárquico. Variante por `data-role`:
 
-| Rol | Superficie |
-| --- | ---------- |
-| `AMIGO` | `tertiary-container` |
+| Rol     | Superficie            |
+| ------- | --------------------- |
+| `AMIGO` | `tertiary-container`  |
 | `ADMIN` | `secondary-container` |
-| Resto | `primary-container` |
+| Resto   | `primary-container`   |
 
 Texto en minúsculas legibles (sin guiones bajos). No usar color como único indicador: el texto del rol siempre está presente.
 

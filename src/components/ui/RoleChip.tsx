@@ -16,11 +16,7 @@ export function RoleChip({
   ...props
 }: Omit<ComponentProps<"span">, "children"> & { role: PersonRole }) {
   return (
-    <span
-      className={cn("ui-role-chip", className)}
-      data-role={role}
-      {...props}
-    >
+    <span className={cn("ui-role-chip", className)} data-role={role} {...props}>
       {roleLabel(role)}
     </span>
   );
