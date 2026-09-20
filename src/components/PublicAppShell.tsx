@@ -1,6 +1,6 @@
 import * as React from "react";
 import type { ReactNode } from "react";
-import { MapPin, ShieldCheck } from "lucide-react";
+import { ArrowLeft, MapPin, ShieldCheck } from "lucide-react";
 
 void React;
 
@@ -14,9 +14,16 @@ import { AppBar, Navigation } from "./ui/AppBar";
 
 export type PublicNavPath = "/eventos" | "/mapa";
 
+export type PublicAppShellVariant = "public" | "auth";
+
 export type PublicAppShellProps = {
   /** Ruta pública activa para `aria-current` en la navegación. */
   currentPath?: PublicNavPath;
+  /**
+   * `public`: navegación de visitante (eventos, mapa, login).
+   * `auth`: barra mínima en `/login` — marca + enlace a eventos públicos.
+   */
+  variant?: PublicAppShellVariant;
   /** Override de tema (p. ej. pruebas); por defecto `getInstitutionConfig()`. */
   institution?: InstitutionTheme;
   /** Destino del enlace de marca. */
@@ -29,15 +36,23 @@ const MAIN_CONTENT_ID = "public-main-content";
 
 export function PublicAppShell({
   currentPath,
+  variant = "public",
   institution: institutionOverride,
   brandHref = "/eventos",
   footer,
   children,
 }: PublicAppShellProps) {
   const institution = institutionOverride ?? getInstitutionConfig();
+  const isAuthShell = variant === "auth";
 
   return (
-    <div className="public-app-shell">
+    <div
+      className={
+        isAuthShell
+          ? "public-app-shell public-app-shell--auth"
+          : "public-app-shell"
+      }
+    >
       <a className="public-app-shell__skip-link" href={`#${MAIN_CONTENT_ID}`}>
         Saltar al contenido principal
       </a>
@@ -54,33 +69,45 @@ export function PublicAppShell({
           </a>
         }
         actions={
-          <div className="public-app-shell__secondary-actions">
-            <a
-              className="public-app-shell__map-link"
-              href="/mapa"
-              aria-current={currentPath === "/mapa" ? "page" : undefined}
-            >
-              <MapPin aria-hidden="true" className="public-app-shell__icon" />
-              Ver mapa
-            </a>
-            <a className="public-app-shell__auth-action" href="/login">
-              <ShieldCheck
+          isAuthShell ? (
+            <a className="public-app-shell__public-return" href="/eventos">
+              <ArrowLeft
                 aria-hidden="true"
                 className="public-app-shell__icon"
               />
-              Personal autorizado
+              Eventos públicos
             </a>
-          </div>
+          ) : (
+            <div className="public-app-shell__secondary-actions">
+              <a
+                className="public-app-shell__map-link"
+                href="/mapa"
+                aria-current={currentPath === "/mapa" ? "page" : undefined}
+              >
+                <MapPin aria-hidden="true" className="public-app-shell__icon" />
+                Ver mapa
+              </a>
+              <a className="public-app-shell__auth-action" href="/login">
+                <ShieldCheck
+                  aria-hidden="true"
+                  className="public-app-shell__icon"
+                />
+                Personal autorizado
+              </a>
+            </div>
+          )
         }
       >
-        <Navigation>
-          <a
-            href="/eventos"
-            aria-current={currentPath === "/eventos" ? "page" : undefined}
-          >
-            Eventos
-          </a>
-        </Navigation>
+        {!isAuthShell && (
+          <Navigation>
+            <a
+              href="/eventos"
+              aria-current={currentPath === "/eventos" ? "page" : undefined}
+            >
+              Eventos
+            </a>
+          </Navigation>
+        )}
       </AppBar>
       <main
         id={MAIN_CONTENT_ID}

@@ -181,7 +181,7 @@ export function AdminEventsPage() {
 
   if (!session) {
     return (
-      <PublicAppShell>
+      <PublicAppShell variant="auth">
         <LoginPage initialNotice={loginNotice} onLogin={login} />
       </PublicAppShell>
     );

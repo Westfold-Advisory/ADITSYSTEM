@@ -46,3 +46,22 @@ test("Eventos is the only primary nav destination; Mapa and login are secondary/
   assert.match(markup, /Ver mapa/);
   assert.match(markup, /Personal autorizado/);
 });
+
+test("PublicAppShell auth variant omits public nav and offers return to eventos", () => {
+  const markup = renderToStaticMarkup(
+    createElement(
+      PublicAppShell,
+      { variant: "auth" },
+      createElement("p", null, "Login"),
+    ),
+  );
+
+  assert.match(markup, /public-app-shell--auth/);
+  assert.match(markup, /Eventos públicos/);
+  assert.match(markup, /href="\/eventos"/);
+  assert.doesNotMatch(markup, /Personal autorizado/);
+  assert.doesNotMatch(markup, /Ver mapa/);
+  assert.doesNotMatch(markup, /<nav class="ui-navigation"/);
+  assert.match(markup, /Saltar al contenido principal/);
+  assert.match(markup, /<main id="public-main-content"/);
+});

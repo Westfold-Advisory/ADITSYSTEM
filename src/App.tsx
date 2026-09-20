@@ -51,7 +51,7 @@ export default function App() {
 
   if (currentPath === "/" || currentPath === "/login") {
     return (
-      <PublicAppShell>
+      <PublicAppShell variant="auth">
         <LoginPage
           onLogin={(session) => {
             persistAdminSession(session);
