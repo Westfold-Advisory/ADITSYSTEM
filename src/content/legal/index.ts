@@ -1,5 +1,5 @@
-import { privacyNoticeIntegral } from "./privacy-notice-integral";
-import { privacyNoticeSimplificado } from "./privacy-notice-simplificado";
+import { getInstitutionConfig } from "@/config/institution";
+import { buildPrivacyNotice } from "./build-privacy-notice";
 import type { PrivacyNoticeContent, PrivacyNoticeKind } from "./types";
 
 export type {
@@ -8,15 +8,15 @@ export type {
   PrivacyNoticeSection,
 } from "./types";
 
-const byKind: Record<PrivacyNoticeKind, PrivacyNoticeContent> = {
-  integral: privacyNoticeIntegral,
-  simplificado: privacyNoticeSimplificado,
-};
+export { buildPrivacyNotice } from "./build-privacy-notice";
+export { buildLegalNotice } from "./build-legal-notice";
+export type { LegalNoticeContent } from "./build-legal-notice";
 
 export function getPrivacyNotice(
   kind: PrivacyNoticeKind,
+  institution = getInstitutionConfig(),
 ): PrivacyNoticeContent {
-  return byKind[kind];
+  return buildPrivacyNotice(kind, institution);
 }
 
 export function formatPrivacyEffectiveDate(isoDate: string): string {

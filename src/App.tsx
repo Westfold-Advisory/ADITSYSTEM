@@ -6,6 +6,7 @@ import { AdminEventsPage } from "./components/AdminEventsPage";
 import { AdminCoverageMapPage } from "./components/AdminCoverageMapPage";
 import { AdminStructurePage } from "./components/AdminStructurePage";
 import { LoginPage } from "./components/LoginPage";
+import { LegalNoticePage } from "./components/LegalNoticePage";
 import { PrivacyNoticePage } from "./components/PrivacyNoticePage";
 import { PublicAppShell } from "./components/PublicAppShell";
 import { persistAdminSession } from "./lib/admin-session";
@@ -82,6 +83,13 @@ export default function App() {
     return (
       <PublicAppShell>
         <PrivacyNoticePage kind={privacyKind} />
+      </PublicAppShell>
+    );
+  }
+  if (currentPath === "/aviso-legal") {
+    return (
+      <PublicAppShell>
+        <LegalNoticePage />
       </PublicAppShell>
     );
   }
