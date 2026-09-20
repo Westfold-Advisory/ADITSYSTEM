@@ -7,12 +7,101 @@
 .public-shell > .ui-app-bar {
   flex: 0 0 auto;
 }
+.public-shell > .flex,
+.public-shell > .privacy-notice-page,
 .public-shell > .public-events-page {
   flex: 1;
 }
 .public-shell > .flex {
-  flex: 1;
   min-height: 0;
+}
+
+.public-legal-footer {
+  flex: 0 0 auto;
+  border-top: 1px solid var(--cyber-border-subtle);
+  padding: 1rem 1.5rem 1.25rem;
+  font: var(--md-sys-typescale-body-small);
+  color: var(--md-sys-color-on-surface-variant);
+}
+.public-legal-footer nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  max-width: 72rem;
+  margin: 0 auto;
+}
+.public-legal-footer a {
+  color: var(--md-sys-color-primary);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+.public-legal-footer a:focus-visible {
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
+
+.privacy-notice-page {
+  box-sizing: border-box;
+  margin: 0 auto;
+  max-width: 48rem;
+  width: 100%;
+  padding: 2rem 1.5rem 3rem;
+}
+.privacy-notice-banner {
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: var(--md-sys-radius-md);
+  background: var(--md-sys-color-surface-container-high);
+  padding: 1rem 1.25rem;
+  margin-bottom: 2rem;
+  font: var(--md-sys-typescale-body-medium);
+}
+.privacy-notice-header h1 {
+  margin: 0.25rem 0 0.75rem;
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  color: var(--cyber-text-bright);
+}
+.privacy-notice-meta {
+  margin: 0 0 1rem;
+  color: var(--md-sys-color-on-surface-variant);
+  font: var(--md-sys-typescale-body-small);
+}
+.privacy-notice-summary {
+  margin: 0 0 0.75rem;
+  max-width: 42rem;
+  line-height: 1.6;
+}
+.privacy-notice-alt a {
+  color: var(--md-sys-color-primary);
+}
+.privacy-notice-section {
+  margin-top: 2rem;
+}
+.privacy-notice-section h2 {
+  font-size: 1.125rem;
+  margin: 0 0 0.75rem;
+  color: var(--cyber-text-bright);
+}
+.privacy-notice-section p {
+  margin: 0 0 0.75rem;
+  line-height: 1.65;
+  max-width: 65ch;
+}
+.privacy-placeholder-tag {
+  font-weight: 400;
+  font-size: 0.875rem;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.login-legal {
+  margin: 1.25rem 0 0;
+  font: var(--md-sys-typescale-body-small);
+  color: var(--md-sys-color-on-surface-variant);
+  text-align: center;
+  max-width: 28rem;
+}
+.login-legal a {
+  color: var(--md-sys-color-primary);
 }
 .public-events-page {
   box-sizing: border-box;

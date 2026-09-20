@@ -3,7 +3,10 @@ import { useEffect, useState, type ReactNode } from "react";
 import { MapPage } from "./components/MapPage";
 import { PublicEventsPage } from "./components/PublicEventsPage";
 import { AdminEventsPage } from "./components/AdminEventsPage";
+import { PrivacyNoticePage } from "./components/PrivacyNoticePage";
+import { PublicLegalFooter } from "./components/PublicLegalFooter";
 import { AppBar, Navigation } from "./components/ui/AppBar";
+import { privacyNoticeKindFromPath } from "./lib/public-routes";
 import { normalizePathname } from "./lib/routing";
 import "./App.css";
 
@@ -17,7 +20,7 @@ function PublicShell({
   currentPath,
   children,
 }: {
-  currentPath: "/eventos" | "/mapa";
+  currentPath?: "/eventos" | "/mapa";
   children: ReactNode;
 }) {
   return (
@@ -50,6 +53,7 @@ function PublicShell({
         </Navigation>
       </AppBar>
       {children}
+      <PublicLegalFooter />
     </div>
   );
 }
@@ -91,6 +95,14 @@ export default function App() {
     return (
       <PublicShell currentPath="/mapa">
         <MapPage />
+      </PublicShell>
+    );
+  }
+  const privacyKind = privacyNoticeKindFromPath(currentPath);
+  if (privacyKind) {
+    return (
+      <PublicShell>
+        <PrivacyNoticePage kind={privacyKind} />
       </PublicShell>
     );
   }

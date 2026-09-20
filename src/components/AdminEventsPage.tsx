@@ -122,6 +122,10 @@ function Login({ onLogin }: { onLogin: (session: LoginResponse) => void }) {
         <Button status={isSubmitting ? "loading" : "idle"} type="submit">
           Iniciar sesión
         </Button>
+        <p className="login-legal">
+          Consulta el <a href="/privacidad">aviso de privacidad</a> antes de
+          acceder.
+        </p>
       </form>
     </main>
   );
