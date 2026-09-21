@@ -24,6 +24,7 @@ import type {
 import { MetricGrid } from "@/components/ui/MetricGrid";
 import { RoleChip } from "@/components/ui/RoleChip";
 
+import { AdminActionBar } from "./AdminActionBar";
 import { HierarchyBreadcrumbs } from "./HierarchyBreadcrumbs";
 import { PersonSummary } from "./PersonSummary";
 import { PersonChangePasswordForm } from "./PersonChangePasswordForm";
@@ -204,10 +205,13 @@ function PersonDetailTabs({
         <>
           <PersonSummary person={selected} metrics={metrics} />
           {(primaryAction || secondaryActions) && (
-            <div className="person-drawer__actions">
+            <AdminActionBar
+              className="person-drawer__actions"
+              ariaLabel="Acciones sobre la persona"
+            >
               {primaryAction}
               {secondaryActions}
-            </div>
+            </AdminActionBar>
           )}
         </>
       ) : (
@@ -217,10 +221,10 @@ function PersonDetailTabs({
             <h2>{nameOf(selected)}</h2>
           </div>
           {(primaryAction || secondaryActions) && (
-            <div className="detail-primary-actions">
+            <AdminActionBar ariaLabel="Acciones sobre la persona">
               {primaryAction}
               {secondaryActions}
-            </div>
+            </AdminActionBar>
           )}
         </div>
       )}

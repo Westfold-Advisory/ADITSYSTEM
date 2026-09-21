@@ -19,6 +19,7 @@ import {
 import { UnauthorizedRoleScreen } from "./UnauthorizedRoleScreen";
 import { capabilitiesFor } from "@/lib/capabilities";
 import { FormularioNuevoEvento } from "./FormularioNuevoEvento";
+import { AdminActionBar } from "./admin/AdminActionBar";
 import { AdminPageHeader } from "./admin/AdminPageHeader";
 import { AdminWorkspaceShell } from "./admin/AdminWorkspaceShell";
 import { roleLabel } from "./admin/person-display";
@@ -78,14 +79,12 @@ function actionsFor(
 
 function actionButtonVariant(
   action: EventAction,
-  sensitive?: boolean,
-): "default" | "outline" | "secondary" | "destructive" {
+): "default" | "outline" | "destructive" {
   if (action === "delete") return "destructive";
-  if (sensitive) return "outline";
   if (action === "publish" || action === "start" || action === "finish") {
     return "default";
   }
-  return "secondary";
+  return "outline";
 }
 
 export function AdminEventsPage() {
@@ -251,7 +250,10 @@ export function AdminEventsPage() {
                     <p className="admin-event-card__meta">
                       {event.type} · {event.locationText}
                     </p>
-                    <div className="admin-event-card__actions">
+                    <AdminActionBar
+                      className="admin-event-card__actions"
+                      ariaLabel={`Acciones para ${event.name}`}
+                    >
                       <Button
                         size="sm"
                         variant="outline"
@@ -259,13 +261,13 @@ export function AdminEventsPage() {
                       >
                         Editar
                       </Button>
-                      {actionsFor(event).map(({ action, label, sensitive }) => {
+                      {actionsFor(event).map(({ action, label }) => {
                         const busy = activeAction === `${event.id}:${action}`;
                         return (
                           <Button
                             key={action}
                             size="sm"
-                            variant={actionButtonVariant(action, sensitive)}
+                            variant={actionButtonVariant(action)}
                             status={busy ? "loading" : "idle"}
                             onClick={() => void runAction(event, action)}
                           >
@@ -273,7 +275,7 @@ export function AdminEventsPage() {
                           </Button>
                         );
                       })}
-                    </div>
+                    </AdminActionBar>
                   </Card>
                 ))}
               </section>

@@ -126,6 +126,12 @@
   margin-inline: 0;
 }
 
+.admin-header--workspace .admin-header__nav-row {
+  justify-content: flex-end;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
 /* ─── Admin workspace shell (sidebar + canvas) ─── */
 .admin-workspace-shell {
   display: grid;
@@ -265,19 +271,29 @@
   box-shadow: none;
 }
 
-.admin-workspace
-  .detail-primary-actions
-  [data-slot="button"][data-variant="default"] {
-  background: var(--md-sys-color-secondary-container);
-  color: var(--md-sys-color-on-secondary-container);
-  border-color: var(--md-sys-color-outline-variant);
+.admin-workspace .admin-action-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--md-sys-spacing-2, 0.5rem);
+}
+
+.admin-workspace .admin-action-bar [data-slot="button"] {
   box-shadow: none;
 }
 
 .admin-workspace
-  .detail-primary-actions
+  .admin-action-bar
+  [data-slot="button"][data-variant="default"] {
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  border-color: var(--md-sys-color-primary);
+}
+
+.admin-workspace
+  .admin-action-bar
   [data-slot="button"][data-variant="default"]:hover {
-  filter: brightness(0.97);
+  filter: brightness(0.96);
 }
 
 .admin-workspace .hierarchy-master-detail {

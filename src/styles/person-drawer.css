@@ -128,16 +128,9 @@
   word-break: break-word;
 }
 
-.person-drawer__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+.person-drawer__actions.admin-action-bar {
   padding-bottom: var(--md-sys-spacing-2, 0.5rem);
   border-bottom: 1px solid var(--md-sys-color-outline-variant);
-}
-
-.person-drawer__actions [data-slot="button"] {
-  box-shadow: none;
 }
 
 .person-drawer-tabs.hierarchy-tabs {

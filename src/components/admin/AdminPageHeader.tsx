@@ -20,7 +20,11 @@ export function AdminPageHeader({
   showModuleNav?: boolean;
 }) {
   return (
-    <header className="admin-header">
+    <header
+      className={
+        showModuleNav ? "admin-header" : "admin-header admin-header--workspace"
+      }
+    >
       <div className="admin-header__band">
         <div className="admin-header__identity">
           <p className="eyebrow admin-header__eyebrow">{eyebrow}</p>
