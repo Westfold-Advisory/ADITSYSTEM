@@ -334,7 +334,9 @@ export function DomainAdminPage({ session }: { session: LoginResponse }) {
               detailPanel={detailPanel}
             />
           ) : (
-            <div className="hierarchy-alt-layout">
+            <div
+              className={`hierarchy-alt-layout hierarchy-alt-layout--${structureView}`}
+            >
               <div className="hierarchy-alt-primary">
                 {structureView === "listado" ? (
                   <PersonDirectoryTable
