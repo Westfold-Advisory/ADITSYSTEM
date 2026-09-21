@@ -164,13 +164,7 @@ export function usePersonDetailForPanel({
       activePerson,
       knownPersons,
     );
-  }, [
-    activeAncestors,
-    activePerson,
-    capabilities,
-    self,
-    session.user.rol,
-  ]);
+  }, [activeAncestors, activePerson, capabilities, self, session.user.rol]);
 
   const refresh = useCallback(() => {
     setReloadToken((value) => value + 1);
