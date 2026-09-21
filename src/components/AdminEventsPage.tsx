@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import type { LoginResponse } from "@/api/auth";
+import { DomainApi } from "@/api/domain";
 import { EventsApi } from "@/api/events";
 import { ApiClient } from "@/api/http";
 import type { Event, EventInput } from "@/types/events";
 import { getInstitutionConfig } from "@/config/institution";
+import { adminUiCopy } from "@/content/admin-ui-es";
 import {
   clearAdminSession,
   isAdminSessionExpired,
@@ -21,7 +23,7 @@ import { capabilitiesFor } from "@/lib/capabilities";
 import { FormularioNuevoEvento } from "./FormularioNuevoEvento";
 import { AdminActionBar } from "./admin/AdminActionBar";
 import { AdminPageHeader } from "./admin/AdminPageHeader";
-import { adminUserDisplayName } from "@/lib/admin-user-display";
+import { useOwnPersonDisplayName } from "@/hooks/useOwnPersonDisplayName";
 import { AdminWorkspaceShell } from "./admin/AdminWorkspaceShell";
 import { adminPageTitle } from "@/lib/admin-nav";
 import { LoginPage } from "./LoginPage";
@@ -52,26 +54,27 @@ type EventAction =
 function actionsFor(
   event: Event,
 ): Array<{ action: EventAction; label: string; sensitive?: boolean }> {
+  const labels = adminUiCopy.eventos.actions;
   switch (event.status) {
     case "BORRADOR":
       return [
-        { action: "publish", label: "Publicar" },
-        { action: "cancel", label: "Cancelar", sensitive: true },
-        { action: "delete", label: "Eliminar", sensitive: true },
+        { action: "publish", label: labels.publish },
+        { action: "cancel", label: labels.cancel, sensitive: true },
+        { action: "delete", label: labels.delete, sensitive: true },
       ];
     case "PUBLICADO":
       return [
-        { action: "unpublish", label: "Despublicar", sensitive: true },
-        { action: "start", label: "Iniciar" },
-        { action: "cancel", label: "Cancelar", sensitive: true },
+        { action: "unpublish", label: labels.unpublish, sensitive: true },
+        { action: "start", label: labels.start },
+        { action: "cancel", label: labels.cancel, sensitive: true },
       ];
     case "EN_CURSO":
       return [
-        { action: "finish", label: "Finalizar" },
-        { action: "cancel", label: "Cancelar", sensitive: true },
+        { action: "finish", label: labels.finish },
+        { action: "cancel", label: labels.cancel, sensitive: true },
       ];
     case "CANCELADO":
-      return [{ action: "delete", label: "Eliminar", sensitive: true }];
+      return [{ action: "delete", label: labels.delete, sensitive: true }];
     case "FINALIZADO":
       return [];
   }
@@ -117,6 +120,17 @@ export function AdminEventsPage() {
       ),
     [handleUnauthorized, session?.access_token],
   );
+  const domainApi = useMemo(
+    () =>
+      new DomainApi(
+        new ApiClient({
+          getAccessToken: () => session?.access_token,
+          onUnauthorized: handleUnauthorized,
+        }),
+      ),
+    [handleUnauthorized, session?.access_token],
+  );
+  const userDisplayName = useOwnPersonDisplayName(domainApi, session);
   const canManage = session
     ? capabilitiesFor(session.user.rol).canManageEvents
     : false;
@@ -160,11 +174,11 @@ export function AdminEventsPage() {
   const runAction = async (event: Event, action: EventAction) => {
     const confirmation =
       action === "delete"
-        ? `Eliminar el evento “${event.name}”? Esta es una baja lógica y solo se permite para borradores o cancelados.`
+        ? adminUiCopy.eventos.confirmDelete(event.name)
         : action === "cancel"
-          ? `Cancelar el evento “${event.name}”? Esta acción cambia su estado y deja de estar disponible públicamente.`
+          ? adminUiCopy.eventos.confirmCancel(event.name)
           : action === "unpublish"
-            ? `Despublicar el evento “${event.name}”? Volverá a borrador y dejará de verse públicamente.`
+            ? adminUiCopy.eventos.confirmUnpublish(event.name)
             : null;
     if (confirmation && !window.confirm(confirmation)) return;
     setActiveAction(`${event.id}:${action}`);
@@ -195,7 +209,7 @@ export function AdminEventsPage() {
   }
   if (!canManage)
     return (
-      <UnauthorizedRoleScreen roleLabel={session.user.rol} onSignOut={logout} />
+      <UnauthorizedRoleScreen role={session.user.rol} onSignOut={logout} />
     );
 
   return (
@@ -205,7 +219,7 @@ export function AdminEventsPage() {
           <AdminPageHeader
             eyebrow={institution.productName}
             title={adminPageTitle("/admin")}
-            subtitle="Borradores, publicación y ciclo de vida de eventos."
+            subtitle={adminUiCopy.eventos.pageSubtitle}
             onSignOut={logout}
             showModuleNav={false}
             showSignOut={false}
@@ -216,12 +230,12 @@ export function AdminEventsPage() {
                 variant="outline"
                 onClick={() => setEditing("new")}
               >
-                Crear evento
+                {adminUiCopy.eventos.createButton}
               </Button>
             }
           />
         }
-        userDisplayName={adminUserDisplayName(session.user.email)}
+        userDisplayName={userDisplayName}
         userEmail={session.user.email}
         userRole={session.user.rol}
         onSignOut={logout}
@@ -240,14 +254,11 @@ export function AdminEventsPage() {
               </p>
             )}
             {isLoading ? (
-              <LoadingState label="Cargando eventos…" />
+              <LoadingState label={adminUiCopy.eventos.loadingList} />
             ) : error ? (
               <ErrorState message={error} />
             ) : events.length === 0 ? (
-              <EmptyState>
-                No hay eventos administrativos todavía. Crea un borrador para
-                comenzar.
-              </EmptyState>
+              <EmptyState>{adminUiCopy.eventos.emptyList}</EmptyState>
             ) : (
               <section className="admin-events" aria-live="polite">
                 {events.map((event) => (
