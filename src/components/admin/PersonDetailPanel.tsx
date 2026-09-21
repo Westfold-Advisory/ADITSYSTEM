@@ -152,12 +152,20 @@ function PersonDetailTabs({
         createOptions.length === 1
           ? `Registrar ${roleLabel(createOptions[0]!.role)}`
           : "Registrar persona";
-      return <Button onClick={onStartCreate}>{label}</Button>;
+      return (
+        <Button variant="outline" onClick={onStartCreate}>
+          {label}
+        </Button>
+      );
     }
     if (tab === "persona" && (canEdit || canChangePassword)) {
       return (
         <>
-          {canEdit ? <Button onClick={onStartEdit}>Editar datos</Button> : null}
+          {canEdit ? (
+            <Button variant="outline" onClick={onStartEdit}>
+              Editar datos
+            </Button>
+          ) : null}
           {canChangePassword ? (
             <Button variant="outline" onClick={onStartChangePassword}>
               Cambiar contraseña
@@ -168,7 +176,7 @@ function PersonDetailTabs({
     }
     if (tab === "documentos" && canRegisterDocuments && !registerDocumentOpen) {
       return (
-        <Button onClick={() => setRegisterDocumentOpen(true)}>
+        <Button variant="outline" onClick={() => setRegisterDocumentOpen(true)}>
           Registrar documento
         </Button>
       );

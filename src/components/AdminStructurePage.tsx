@@ -69,7 +69,7 @@ export function AdminStructurePage() {
   }
 
   return (
-    <main className="admin-page hierarchy-page">
+    <main className="admin-page admin-workspace hierarchy-page">
       <AdminPageHeader
         eyebrow={institution.productName}
         title={adminPageTitle("/admin/personas")}
@@ -79,6 +79,7 @@ export function AdminStructurePage() {
           </>
         }
         onSignOut={logout}
+        showModuleNav={false}
       />
       <DomainAdminPage session={session} />
     </main>

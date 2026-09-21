@@ -277,7 +277,7 @@ a:focus-visible {
   padding: 2rem 1rem;
 }
 
-.admin-page.hierarchy-page {
+.admin-page.admin-workspace {
   max-width: none;
   width: 100%;
   margin-inline: 0;

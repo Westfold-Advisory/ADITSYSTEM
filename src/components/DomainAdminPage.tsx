@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Tabs } from "radix-ui";
 
 import { DomainApi } from "@/api/domain";
 import { ApiClient } from "@/api/http";
@@ -9,6 +8,11 @@ import { HierarchyTreePanel } from "@/components/admin/HierarchyTree";
 import { PersonDetailPanel } from "@/components/admin/PersonDetailPanel";
 import { PersonDirectoryTable } from "@/components/admin/PersonDirectoryTable";
 import { PersonOrgChartView } from "@/components/admin/PersonOrgChartView";
+import {
+  PersonasViewNav,
+  type PersonasStructureView,
+} from "@/components/admin/PersonasViewNav";
+import { AdminWorkspaceShell } from "@/components/admin/AdminWorkspaceShell";
 import { apiErrorMessage } from "@/components/admin/person-display";
 import { capabilitiesFor } from "@/lib/capabilities";
 import { canRegisterDocuments } from "@/lib/document-access";
@@ -25,8 +29,6 @@ import {
 } from "@/lib/person-filters";
 import { collectPeopleInScope } from "@/lib/person-scope";
 import type { Person, PersonInput, PersonProvisionInput } from "@/types/domain";
-
-type StructureView = "arbol" | "listado" | "organigrama";
 
 export function DomainAdminPage({ session }: { session: LoginResponse }) {
   const capabilities = capabilitiesFor(session.user.rol);
@@ -57,8 +59,8 @@ export function DomainAdminPage({ session }: { session: LoginResponse }) {
     clearSelection,
   } = useHierarchyScope(api, session.user.persona_id);
   const isAdmin = session.user.rol === "ADMIN";
-  const [structureView, setStructureView] = useState<StructureView>(() =>
-    isAdmin ? "listado" : "arbol",
+  const [structureView, setStructureView] = useState<PersonasStructureView>(
+    () => (isAdmin ? "listado" : "arbol"),
   );
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -147,6 +149,22 @@ export function DomainAdminPage({ session }: { session: LoginResponse }) {
       }
     },
     [applyTreeFilter, structureView, setFilter],
+  );
+
+  const changeStructureView = useCallback(
+    (next: PersonasStructureView) => {
+      setStructureView(next);
+      if (next === "listado" || next === "organigrama") {
+        dismissAltDetail();
+      }
+      if (next === "arbol") {
+        if (self) resetSelectionToRoot();
+        if (isPersonFilterActive(filter)) {
+          applyTreeFilter(filter);
+        }
+      }
+    },
+    [applyTreeFilter, dismissAltDetail, filter, resetSelectionToRoot, self],
   );
 
   useEffect(() => {
@@ -301,7 +319,7 @@ export function DomainAdminPage({ session }: { session: LoginResponse }) {
     />
   ) : null;
 
-  return (
+  const personasContent = (
     <>
       <p className="request-message">
         Las acciones disponibles dependen de tu alcance. El backend valida rol y
@@ -317,30 +335,6 @@ export function DomainAdminPage({ session }: { session: LoginResponse }) {
         <LoadingState label="Cargando estructura…" />
       ) : (
         <>
-          <Tabs.Root
-            className="hierarchy-tabs hierarchy-view-tabs"
-            value={structureView}
-            onValueChange={(value) => {
-              const next = value as StructureView;
-              setStructureView(next);
-              if (next === "listado" || next === "organigrama") {
-                dismissAltDetail();
-              }
-              if (next === "arbol") {
-                if (self) resetSelectionToRoot();
-                if (isPersonFilterActive(filter)) {
-                  applyTreeFilter(filter);
-                }
-              }
-            }}
-          >
-            <Tabs.List aria-label="Formato de personas">
-              <Tabs.Trigger value="listado">Listado</Tabs.Trigger>
-              <Tabs.Trigger value="arbol">Árbol y detalle</Tabs.Trigger>
-              <Tabs.Trigger value="organigrama">Organigrama</Tabs.Trigger>
-            </Tabs.List>
-          </Tabs.Root>
-
           {structureView === "arbol" ? (
             <HierarchyMasterDetail
               treePanel={treePanel}
@@ -427,5 +421,15 @@ export function DomainAdminPage({ session }: { session: LoginResponse }) {
         </>
       )}
     </>
+  );
+
+  return (
+    <AdminWorkspaceShell
+      subNav={
+        <PersonasViewNav value={structureView} onChange={changeStructureView} />
+      }
+    >
+      {personasContent}
+    </AdminWorkspaceShell>
   );
 }
