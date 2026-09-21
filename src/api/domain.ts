@@ -3,6 +3,7 @@ import type {
   CommunityNeed,
   CoverageMap,
   DocumentRegistrationInput,
+  DocumentUploadInput,
   Documento,
   Geofence,
   Person,
@@ -38,6 +39,12 @@ interface DocumentResponse {
   size_bytes: number;
   is_current: boolean;
   created_at: string;
+}
+interface DocumentUploadPresignResponse {
+  url: string;
+  s3_key: string;
+  expires_at: string;
+  mime_type: string;
 }
 interface MetricsResponse {
   descendientes: number;
@@ -314,6 +321,62 @@ export class DomainApi {
       fileName: item.file_name,
     };
   }
+  async prepareDocumentUpload(
+    id: UUID,
+    input: {
+      type: DocumentUploadInput["type"];
+      file: File;
+    },
+  ): Promise<{ url: string; s3Key: string; mimeType: string }> {
+    const mimeType = input.file.type || "application/octet-stream";
+    const presign = await this.client.request<DocumentUploadPresignResponse>(
+      `/personas/${id}/documentos/carga`,
+      {
+        access: "authenticated",
+        method: "POST",
+        body: {
+          tipo: input.type,
+          mime_type: mimeType,
+          size_bytes: input.file.size,
+          file_name: input.file.name || "archivo",
+        },
+      },
+    );
+    return {
+      url: presign.url,
+      s3Key: presign.s3_key,
+      mimeType: presign.mime_type,
+    };
+  }
+
+  async uploadDocument(
+    id: UUID,
+    input: DocumentUploadInput,
+  ): Promise<Documento> {
+    const { url, s3Key, mimeType } = await this.prepareDocumentUpload(id, {
+      type: input.type,
+      file: input.file,
+    });
+    const upload = await this.client.fetchExternal(url, {
+      method: "PUT",
+      body: input.file,
+      headers: { "Content-Type": mimeType },
+    });
+    if (!upload.ok) {
+      throw new Error(
+        "No pudimos guardar el archivo en almacenamiento privado. Intenta de nuevo.",
+      );
+    }
+    return this.registerDocument(id, {
+      type: input.type,
+      title: input.title,
+      description: input.description,
+      s3Key,
+      mimeType,
+      sizeBytes: input.file.size,
+    });
+  }
+
   async registerDocument(
     id: UUID,
     input: DocumentRegistrationInput,

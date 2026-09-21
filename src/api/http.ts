@@ -123,6 +123,11 @@ export class ApiClient {
     this.onUnauthorized = onUnauthorized;
   }
 
+  /** Presigned URLs (p. ej. S3) fuera de `baseUrl`; reutiliza `fetchFn` inyectable en tests. */
+  fetchExternal(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+    return this.fetchFn(input, init);
+  }
+
   async request<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
     const {
       access = "public",

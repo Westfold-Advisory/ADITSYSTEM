@@ -130,7 +130,7 @@ export const adminUiCopy = {
   },
   documentos: {
     registerIntro:
-      "Captura los datos del documento. El archivo se guarda en almacenamiento privado y no se muestra en pantalla; la carga completa del archivo estará disponible próximamente.",
+      "Captura los datos del documento. El archivo se guarda en almacenamiento privado y no se muestra en pantalla.",
     downloadCv: "Descargar currículum",
     downloadCvLoading: "Preparando descarga…",
     downloadCvError:

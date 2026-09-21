@@ -135,6 +135,13 @@ export interface DocumentRegistrationInput {
   sizeBytes: number;
 }
 
+export interface DocumentUploadInput {
+  type: DocumentType;
+  title: string;
+  description?: string | null;
+  file: File;
+}
+
 export interface Geofence {
   id: UUID;
   type: GeofenceType;
