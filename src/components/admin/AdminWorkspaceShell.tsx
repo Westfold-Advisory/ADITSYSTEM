@@ -16,6 +16,12 @@ export function AdminWorkspaceShell({
         className="admin-workspace-sidebar"
         aria-label="Navegación de administración"
       >
+        <div className="admin-workspace-sidebar__intro">
+          <p className="admin-workspace-sidebar__kicker">Consola admin</p>
+          <p className="admin-workspace-sidebar__hint">
+            Personas, territorio y eventos
+          </p>
+        </div>
         <AdminNav orientation="vertical" />
         {subNav ? (
           <div className="admin-workspace-sidebar__sub">{subNav}</div>
