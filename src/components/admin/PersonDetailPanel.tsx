@@ -25,6 +25,7 @@ import { MetricGrid } from "@/components/ui/MetricGrid";
 import { RoleChip } from "@/components/ui/RoleChip";
 
 import { HierarchyBreadcrumbs } from "./HierarchyBreadcrumbs";
+import { PersonSummary } from "./PersonSummary";
 import { PersonChangePasswordForm } from "./PersonChangePasswordForm";
 import { PersonDocumentsTab } from "./PersonDocumentsTab";
 import { PersonForm } from "./PersonForm";
@@ -128,6 +129,7 @@ function PersonDetailTabs({
   onStartEdit,
   onStartChangePassword,
   onRemove,
+  layout = "embedded",
 }: {
   selected: Person;
   metrics: PersonMetrics | null;
@@ -142,6 +144,7 @@ function PersonDetailTabs({
   onStartEdit: () => void;
   onStartChangePassword: () => void;
   onRemove: () => void;
+  layout?: "drawer" | "embedded";
 }) {
   const [tab, setTab] = useState<DetailTab>("resumen");
   const [registerDocumentOpen, setRegisterDocumentOpen] = useState(false);
@@ -190,22 +193,39 @@ function PersonDetailTabs({
     </Button>
   ) : null;
 
+  const tabsClassName =
+    layout === "drawer"
+      ? "person-drawer-tabs hierarchy-tabs"
+      : "hierarchy-tabs";
+
   return (
     <>
-      <div className="person-detail-heading">
-        <div className="person-detail-heading__title">
-          <PersonStatusBadge status={selected.status} />
-          <h2>{nameOf(selected)}</h2>
-        </div>
-        {(primaryAction || secondaryActions) && (
-          <div className="detail-primary-actions">
-            {primaryAction}
-            {secondaryActions}
+      {layout === "drawer" ? (
+        <>
+          <PersonSummary person={selected} metrics={metrics} />
+          {(primaryAction || secondaryActions) && (
+            <div className="person-drawer__actions">
+              {primaryAction}
+              {secondaryActions}
+            </div>
+          )}
+        </>
+      ) : (
+        <div className="person-detail-heading">
+          <div className="person-detail-heading__title">
+            <PersonStatusBadge status={selected.status} />
+            <h2>{nameOf(selected)}</h2>
           </div>
-        )}
-      </div>
+          {(primaryAction || secondaryActions) && (
+            <div className="detail-primary-actions">
+              {primaryAction}
+              {secondaryActions}
+            </div>
+          )}
+        </div>
+      )}
       <Tabs.Root
-        className="hierarchy-tabs"
+        className={tabsClassName}
         value={tab}
         onValueChange={(value) => {
           setTab(value as DetailTab);
@@ -308,85 +328,103 @@ export function PersonDetailPanel({
     canChangeCredentials(actorRole) &&
     isAuthenticatableRole(selected.role) &&
     canManageSelected(selected);
+  const isDrawer = Boolean(onDismiss);
 
-  return (
-    <Card className="person-detail hierarchy-detail-panel">
-      {onDismiss ? (
-        <div className="hierarchy-detail-panel__toolbar">
+  const formBlock = (
+    <>
+      {!isDrawer ? (
+        <div className="person-detail-heading">
+          <div className="person-detail-heading__title">
+            <PersonStatusBadge status={selected.status} />
+            <h2>{nameOf(selected)}</h2>
+          </div>
+        </div>
+      ) : (
+        <PersonSummary person={selected} metrics={metrics} />
+      )}
+      {changingPassword ? (
+        <PersonChangePasswordForm
+          personName={nameOf(selected)}
+          onSubmit={onChangePassword}
+          onCancel={onCancelForm}
+        />
+      ) : (
+        <PersonForm
+          mode={editing ? "edit" : "create"}
+          createOptions={createOptions}
+          initialCreateOption={createOptions[0]}
+          parent={selected}
+          initialValues={
+            editing
+              ? {
+                  nombre: selected.nombre,
+                  apellidoPaterno: selected.apellidoPaterno,
+                  apellidoMaterno: selected.apellidoMaterno,
+                  telefono: selected.telefono,
+                }
+              : undefined
+          }
+          submitLabel={editing ? "Actualizar" : "Guardar"}
+          onSaveCreate={onCreate}
+          onSaveUpdate={onUpdate}
+          onCancel={onCancelForm}
+        />
+      )}
+    </>
+  );
+
+  const tabsBlock = (
+    <PersonDetailTabs
+      key={selected.id}
+      layout={isDrawer ? "drawer" : "embedded"}
+      selected={selected}
+      metrics={metrics}
+      scopedMap={scopedMap}
+      api={api}
+      createOptions={createOptions}
+      canEdit={canManageSelected(selected)}
+      canChangePassword={canChangePassword}
+      canRegisterDocuments={canRegisterDocuments}
+      showRemove={
+        selected.id !== sessionPersonId && canManageSelected(selected)
+      }
+      onStartCreate={onStartCreate}
+      onStartEdit={onStartEdit}
+      onStartChangePassword={onStartChangePassword}
+      onRemove={onRemove}
+    />
+  );
+
+  if (isDrawer) {
+    return (
+      <div
+        className="person-drawer"
+        aria-label={`Detalle de ${nameOf(selected)}`}
+      >
+        <div className="person-drawer__top">
           <Button
             type="button"
             variant="ghost"
             size="sm"
-            className="hierarchy-detail-panel__close"
+            className="person-drawer__close"
             onClick={onDismiss}
             aria-label="Cerrar detalle"
           >
             <X size={18} aria-hidden="true" />
           </Button>
         </div>
-      ) : null}
+        {showForm ? formBlock : tabsBlock}
+      </div>
+    );
+  }
+
+  return (
+    <Card className="person-detail hierarchy-detail-panel">
       <HierarchyBreadcrumbs
         path={breadcrumb}
         onNavigate={onNavigateBreadcrumb}
       />
-
-      {showForm ? (
-        <>
-          <div className="person-detail-heading">
-            <div className="person-detail-heading__title">
-              <PersonStatusBadge status={selected.status} />
-              <h2>{nameOf(selected)}</h2>
-            </div>
-          </div>
-          {changingPassword ? (
-            <PersonChangePasswordForm
-              personName={nameOf(selected)}
-              onSubmit={onChangePassword}
-              onCancel={onCancelForm}
-            />
-          ) : (
-            <PersonForm
-              mode={editing ? "edit" : "create"}
-              createOptions={createOptions}
-              initialCreateOption={createOptions[0]}
-              parent={selected}
-              initialValues={
-                editing
-                  ? {
-                      nombre: selected.nombre,
-                      apellidoPaterno: selected.apellidoPaterno,
-                      apellidoMaterno: selected.apellidoMaterno,
-                      telefono: selected.telefono,
-                    }
-                  : undefined
-              }
-              submitLabel={editing ? "Actualizar" : "Guardar"}
-              onSaveCreate={onCreate}
-              onSaveUpdate={onUpdate}
-              onCancel={onCancelForm}
-            />
-          )}
-        </>
-      ) : (
-        <PersonDetailTabs
-          key={selected.id}
-          selected={selected}
-          metrics={metrics}
-          scopedMap={scopedMap}
-          api={api}
-          createOptions={createOptions}
-          canEdit={canManageSelected(selected)}
-          canChangePassword={canChangePassword}
-          canRegisterDocuments={canRegisterDocuments}
-          showRemove={
-            selected.id !== sessionPersonId && canManageSelected(selected)
-          }
-          onStartCreate={onStartCreate}
-          onStartEdit={onStartEdit}
-          onStartChangePassword={onStartChangePassword}
-          onRemove={onRemove}
-        />
-      )}
+      {showForm ? formBlock : tabsBlock}
     </Card>
   );
 }
