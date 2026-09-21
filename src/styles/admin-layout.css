@@ -126,6 +126,193 @@
   margin-inline: auto;
 }
 
+.hierarchy-view-tabs {
+  max-width: 60rem;
+  margin-inline: auto;
+  margin-bottom: var(--md-sys-spacing-3, 0.75rem);
+}
+
+.hierarchy-alt-layout {
+  display: grid;
+  gap: var(--md-sys-spacing-4, 1rem);
+  max-width: min(90rem, 100%);
+  margin-inline: auto;
+}
+
+@media (min-width: 56rem) {
+  .hierarchy-alt-layout {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.hierarchy-alt-primary {
+  min-width: 0;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-radius-md, 8px);
+  background: var(--md-sys-color-surface);
+  padding: var(--md-sys-spacing-4, 1rem);
+}
+
+.person-directory__table-wrap {
+  overflow-x: auto;
+  margin-top: var(--md-sys-spacing-3, 0.75rem);
+}
+
+.person-directory__table {
+  width: 100%;
+  border-collapse: collapse;
+  font: var(--md-sys-typescale-body-small);
+}
+
+.person-directory__table th,
+.person-directory__table td {
+  padding: 0.55rem 0.65rem;
+  text-align: left;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  vertical-align: middle;
+}
+
+.person-directory__table th {
+  font: var(--md-sys-typescale-label-large);
+  color: var(--md-sys-color-on-surface-variant);
+  background: var(--md-sys-color-surface-container-low);
+  position: sticky;
+  top: 0;
+}
+
+.person-directory__row--selected td {
+  background: var(--md-sys-color-primary-container, #e8f0fe);
+}
+
+.person-directory__empty {
+  text-align: center;
+  color: var(--md-sys-color-on-surface-variant);
+  padding: 1.5rem;
+}
+
+.person-directory__count {
+  margin: var(--md-sys-spacing-2, 0.5rem) 0 0;
+  font: var(--md-sys-typescale-label-small);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.person-org-chart__header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--md-sys-spacing-3, 0.75rem);
+  margin-bottom: var(--md-sys-spacing-3, 0.75rem);
+}
+
+.person-org-chart__zoom {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.person-org-chart__zoom-label {
+  min-width: 3rem;
+  text-align: center;
+  font: var(--md-sys-typescale-label-large);
+}
+
+.person-org-chart__viewport {
+  overflow: auto;
+  max-height: min(28rem, 60vh);
+  padding: var(--md-sys-spacing-2, 0.5rem);
+  border: 1px dashed var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-radius-md, 8px);
+  background: var(--md-sys-color-surface-container-lowest);
+}
+
+.org-chart {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--md-sys-spacing-4, 1rem);
+  list-style: none;
+  margin: 0;
+  padding: var(--md-sys-spacing-4, 1rem);
+  transform-origin: top center;
+}
+
+.org-chart__node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  list-style: none;
+}
+
+.org-chart__children {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--md-sys-spacing-3, 0.75rem);
+  list-style: none;
+  margin: var(--md-sys-spacing-3, 0.75rem) 0 0;
+  padding: var(--md-sys-spacing-3, 0.75rem) 0 0;
+  border-top: 2px solid var(--md-sys-color-outline-variant);
+  position: relative;
+}
+
+.org-chart__card {
+  appearance: none;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-radius-md, 8px);
+  background: var(--md-sys-color-surface);
+  min-width: 9rem;
+  max-width: 12rem;
+  padding: 0.65rem 0.75rem;
+  text-align: center;
+  cursor: pointer;
+  display: grid;
+  gap: 0.25rem;
+  box-shadow: var(--md-sys-elevation-1, 0 1px 2px rgb(0 0 0 / 0.06));
+}
+
+.org-chart__card:hover {
+  border-color: var(--md-sys-color-primary);
+}
+
+.org-chart__card[data-selected] {
+  border-color: var(--md-sys-color-primary);
+  background: var(--md-sys-color-primary-container, #e8f0fe);
+}
+
+.org-chart__card:focus-visible {
+  outline: 3px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
+
+.org-chart__avatar {
+  width: 2rem;
+  height: 2rem;
+  margin-inline: auto;
+  border-radius: 50%;
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+  display: grid;
+  place-items: center;
+  font-weight: 600;
+}
+
+.org-chart__name {
+  font: var(--md-sys-typescale-label-large);
+  color: var(--md-sys-color-on-surface);
+}
+
+.org-chart__role {
+  font: var(--md-sys-typescale-label-small);
+  color: var(--md-sys-color-on-surface-variant);
+  text-transform: capitalize;
+}
+
+.org-chart__empty {
+  color: var(--md-sys-color-on-surface-variant);
+  padding: 1rem;
+}
+
 .hierarchy-page .request-message {
   max-width: 60rem;
   margin-inline: auto;

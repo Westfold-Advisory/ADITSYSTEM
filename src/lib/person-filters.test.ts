@@ -2,8 +2,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  collectAncestorIds,
   emptyPersonFilter,
+  filterChildMapForTree,
   filterPersonList,
+  filterTreeSelectionTarget,
   isPersonFilterActive,
 } from "./person-filters";
 import type { Person } from "@/types/domain";
@@ -68,5 +71,76 @@ test("person filters", async (t) => {
     assert.equal(isPersonFilterActive({ text: "  ", status: "TODOS" }), false);
     assert.equal(isPersonFilterActive({ text: "ana", status: "TODOS" }), true);
     assert.equal(isPersonFilterActive({ text: "", status: "ACTIVO" }), true);
+  });
+
+  await t.test(
+    "filterChildMapForTree keeps branches that lead to matches",
+    () => {
+      const root = person({
+        id: "root",
+        nombre: "Raíz",
+        role: "COORDINADOR_GENERAL",
+      });
+      const coord = person({
+        id: "coord",
+        nombre: "Coord",
+        role: "COORDINADOR",
+        parentId: "root",
+      });
+      const enlace = person({
+        id: "enlace",
+        nombre: "Target",
+        role: "ENLACE",
+        parentId: "coord",
+      });
+      const childrenById = {
+        [root.id]: [coord],
+        [coord.id]: [enlace],
+      };
+      const filtered = filterChildMapForTree(root, childrenById, {
+        text: "target",
+        status: "TODOS",
+      });
+      assert.deepEqual(filtered[root.id], [coord]);
+      assert.deepEqual(filtered[coord.id], [enlace]);
+    },
+  );
+
+  await t.test(
+    "filterTreeSelectionTarget picks a direct match, not an ancestor",
+    () => {
+      const root = person({
+        id: "root",
+        nombre: "Raíz",
+        role: "COORDINADOR_GENERAL",
+      });
+      const target = person({
+        id: "enlace",
+        nombre: "Target",
+        role: "ENLACE",
+        parentId: "root",
+      });
+      const childrenById = { [root.id]: [target] };
+      const next = filterTreeSelectionTarget(
+        root,
+        childrenById,
+        {
+          text: "target",
+          status: "TODOS",
+        },
+        root,
+      );
+      assert.equal(next?.id, target.id);
+    },
+  );
+
+  await t.test("collectAncestorIds walks up the tree", () => {
+    const root = person({ id: "root", parentId: null });
+    const child = person({ id: "child", parentId: "root" });
+    const byId = new Map([
+      [root.id.toLowerCase(), root],
+      [child.id.toLowerCase(), child],
+    ]);
+    assert.deepEqual(collectAncestorIds(child, byId), ["root"]);
   });
 });

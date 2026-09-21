@@ -283,12 +283,15 @@ export function HierarchyTreeFilterBar({
 export type HierarchyTreeRootProps = {
   filterBar?: ReactNode;
   busy?: boolean;
+  /** Oculta la fila raíz (p. ej. ADMIN global sin hijos bajo su cuenta). */
+  omitRoot?: boolean;
   root: HierarchyTreeNodeProps;
 };
 
 export function HierarchyTreeRoot({
   filterBar,
   busy,
+  omitRoot = false,
   root,
 }: HierarchyTreeRootProps) {
   const {
@@ -318,8 +321,11 @@ export function HierarchyTreeRoot({
   const virtualized = scopeSize >= VIRTUALIZATION_SCOPE_THRESHOLD;
 
   const rows = useMemo(
-    () => buildVisibleTreeRows(self, childrenById, expandedById),
-    [self, childrenById, expandedById],
+    () =>
+      buildVisibleTreeRows(self, childrenById, expandedById, {
+        omitRoot,
+      }),
+    [self, childrenById, expandedById, omitRoot],
   );
 
   const virtualWindow = useMemo(() => {
