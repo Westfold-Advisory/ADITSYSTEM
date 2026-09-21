@@ -63,3 +63,52 @@ test("registers a private document below its persona route", async () => {
   assert.equal(request?.url.endsWith("/personas/person-1/documentos"), true);
   assert.equal(request?.headers.get("authorization"), "Bearer token");
 });
+
+test("createPerson sends TRA-137 credential fields", async () => {
+  let body: Record<string, unknown> | undefined;
+  const api = new DomainApi(
+    new ApiClient({
+      getAccessToken: () => "token",
+      fetchFn: async (_input, init) => {
+        body = JSON.parse(String(init?.body)) as Record<string, unknown>;
+        return new Response(JSON.stringify(person), {
+          headers: { "content-type": "application/json" },
+        });
+      },
+    }),
+  );
+  await api.createPerson(
+    {
+      nombre: "Ada",
+      apellidoPaterno: "Lovelace",
+      apellidoMaterno: "Byron",
+      telefono: "5550101",
+      email: "ada@example.com",
+      password: "12345678",
+    },
+    "ENLACE",
+    "parent-1",
+  );
+  assert.equal(body?.email, "ada@example.com");
+  assert.equal(body?.password, "12345678");
+  assert.equal(body?.rol, "ENLACE");
+});
+
+test("changePersonPassword uses credenciales route", async () => {
+  let request: Request | undefined;
+  const api = new DomainApi(
+    new ApiClient({
+      getAccessToken: () => "token",
+      fetchFn: async (input, init) => {
+        request = new Request(input, init);
+        return new Response(null, { status: 204 });
+      },
+    }),
+  );
+  await api.changePersonPassword("person-1", "12345678");
+  assert.match(
+    request?.url ?? "",
+    /\/personas\/person-1\/credenciales\/contrasena$/,
+  );
+  assert.equal(request?.method, "PUT");
+});

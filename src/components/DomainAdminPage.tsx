@@ -9,6 +9,7 @@ import { PersonDetailPanel } from "@/components/admin/PersonDetailPanel";
 import { apiErrorMessage } from "@/components/admin/person-display";
 import { capabilitiesFor } from "@/lib/capabilities";
 import { canRegisterDocuments } from "@/lib/document-access";
+import type { PersonCreateOption } from "@/lib/person-provisioning";
 import { ErrorState, LoadingState } from "@/components/ui/AsyncState";
 import { useHierarchyScope } from "@/hooks/useHierarchyScope";
 import {
@@ -17,7 +18,7 @@ import {
   isPersonFilterActive,
   type PersonFilter,
 } from "@/lib/person-filters";
-import type { Person, PersonInput } from "@/types/domain";
+import type { Person, PersonInput, PersonProvisionInput } from "@/types/domain";
 
 export function DomainAdminPage({ session }: { session: LoginResponse }) {
   const capabilities = capabilitiesFor(session.user.rol);
@@ -48,6 +49,7 @@ export function DomainAdminPage({ session }: { session: LoginResponse }) {
   } = useHierarchyScope(api, session.user.persona_id);
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
   const [treeSheetOpen, setTreeSheetOpen] = useState(false);
   const [filter, setFilter] = useState<PersonFilter>(emptyPersonFilter);
   const filterActive = isPersonFilterActive(filter);
@@ -84,31 +86,48 @@ export function DomainAdminPage({ session }: { session: LoginResponse }) {
       selectPerson(person);
       setCreating(false);
       setEditing(false);
+      setChangingPassword(false);
       setTreeSheetOpen(false);
     },
-    [selectPerson, setCreating, setEditing, setTreeSheetOpen],
+    [
+      selectPerson,
+      setCreating,
+      setEditing,
+      setChangingPassword,
+      setTreeSheetOpen,
+    ],
   );
 
-  const createChild = async (input: PersonInput) => {
-    if (!selected || !capabilities.childRole) return;
-    await api.createPerson(
-      input,
-      capabilities.childRole,
-      capabilities.childRole === "COORDINADOR_GENERAL" ? null : selected.id,
-    );
+  const createChild = async (
+    input: PersonProvisionInput,
+    option: PersonCreateOption,
+  ) => {
+    if (!selected) return;
+    const parentForRefresh = option.parentPerson ?? selected;
+    await api.createPerson(input, option.role, option.parentId);
     setCreating(false);
-    await refreshDescendants(selected);
-    expandNode(selected.id);
+    await refreshDescendants(parentForRefresh);
+    if (option.parentId) expandNode(option.parentId);
+    else if (self) expandNode(self.id);
   };
+
   const updatePerson = async (input: PersonInput) => {
     if (!selected) return;
     const updated = await api.updatePerson(selected.id, input);
     applyPersonUpdate(updated);
     setEditing(false);
   };
+
+  const changePassword = async (newPassword: string) => {
+    if (!selected) return;
+    await api.changePersonPassword(selected.id, newPassword);
+    setChangingPassword(false);
+  };
+
   const canManageSelected = (person: Person) =>
     person.id === self?.id ||
     (capabilities.canCreateChild && person.role === capabilities.childRole);
+
   const knownPersons = useMemo(() => {
     if (!self) return new Map<string, Person>();
     return new Map(
@@ -199,22 +218,37 @@ export function DomainAdminPage({ session }: { session: LoginResponse }) {
                 metrics={metrics}
                 scopedMap={scopedMap}
                 api={api}
-                capabilities={capabilities}
-                self={self}
+                actorRole={session.user.rol}
                 sessionPersonId={session.user.persona_id}
                 canManageSelected={canManageSelected}
                 canRegisterDocuments={canRegisterDocumentsForSelected}
                 creating={creating}
                 editing={editing}
+                changingPassword={changingPassword}
                 onNavigateBreadcrumb={select}
-                onStartCreate={() => setCreating(true)}
-                onStartEdit={() => setEditing(true)}
-                onCancelForm={() => {
+                onStartCreate={() => {
+                  setCreating(true);
+                  setEditing(false);
+                  setChangingPassword(false);
+                }}
+                onStartEdit={() => {
+                  setEditing(true);
+                  setCreating(false);
+                  setChangingPassword(false);
+                }}
+                onStartChangePassword={() => {
+                  setChangingPassword(true);
                   setCreating(false);
                   setEditing(false);
                 }}
+                onCancelForm={() => {
+                  setCreating(false);
+                  setEditing(false);
+                  setChangingPassword(false);
+                }}
                 onCreate={createChild}
                 onUpdate={updatePerson}
+                onChangePassword={changePassword}
                 onRemove={() => void remove()}
               />
             ) : null

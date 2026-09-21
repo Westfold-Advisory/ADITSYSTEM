@@ -1,16 +1,22 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Tabs } from "radix-ui";
 
 import type { DomainApi } from "@/api/domain";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/Card";
 import { EmptyState, LoadingState } from "@/components/ui/AsyncState";
-import type { Capabilities } from "@/lib/capabilities";
+import {
+  canChangeCredentials,
+  createOptionsForSelection,
+  isAuthenticatableRole,
+  type PersonCreateOption,
+} from "@/lib/person-provisioning";
 import type {
+  AuthenticatedRole,
   Person,
   PersonInput,
   PersonMetrics,
-  PersonRole,
+  PersonProvisionInput,
   ScopedMap,
 } from "@/types/domain";
 
@@ -18,6 +24,7 @@ import { MetricGrid } from "@/components/ui/MetricGrid";
 import { RoleChip } from "@/components/ui/RoleChip";
 
 import { HierarchyBreadcrumbs } from "./HierarchyBreadcrumbs";
+import { PersonChangePasswordForm } from "./PersonChangePasswordForm";
 import { PersonDocumentsTab } from "./PersonDocumentsTab";
 import { PersonForm } from "./PersonForm";
 import { nameOf, roleLabel } from "./person-display";
@@ -111,41 +118,52 @@ function PersonDetailTabs({
   metrics,
   scopedMap,
   api,
-  canRegisterChild,
-  childRole,
+  createOptions,
   canEdit,
+  canChangePassword,
   canRegisterDocuments,
   showRemove,
   onStartCreate,
   onStartEdit,
+  onStartChangePassword,
   onRemove,
 }: {
   selected: Person;
   metrics: PersonMetrics | null;
   scopedMap: ScopedMap | null;
   api: DomainApi;
-  canRegisterChild: boolean;
-  childRole: PersonRole | null;
+  createOptions: PersonCreateOption[];
   canEdit: boolean;
+  canChangePassword: boolean;
   canRegisterDocuments: boolean;
   showRemove: boolean;
   onStartCreate: () => void;
   onStartEdit: () => void;
+  onStartChangePassword: () => void;
   onRemove: () => void;
 }) {
   const [tab, setTab] = useState<DetailTab>("resumen");
   const [registerDocumentOpen, setRegisterDocumentOpen] = useState(false);
 
   const primaryAction = (() => {
-    if (tab === "resumen" && canRegisterChild && childRole) {
-      return (
-        <Button onClick={onStartCreate}>
-          Registrar {roleLabel(childRole)}
-        </Button>
-      );
+    if (tab === "resumen" && createOptions.length > 0) {
+      const label =
+        createOptions.length === 1
+          ? `Registrar ${roleLabel(createOptions[0]!.role)}`
+          : "Registrar persona";
+      return <Button onClick={onStartCreate}>{label}</Button>;
     }
-    if (tab === "persona" && canEdit) {
-      return <Button onClick={onStartEdit}>Editar datos</Button>;
+    if (tab === "persona" && (canEdit || canChangePassword)) {
+      return (
+        <>
+          {canEdit ? <Button onClick={onStartEdit}>Editar datos</Button> : null}
+          {canChangePassword ? (
+            <Button variant="outline" onClick={onStartChangePassword}>
+              Cambiar contraseña
+            </Button>
+          ) : null}
+        </>
+      );
     }
     if (tab === "documentos" && canRegisterDocuments && !registerDocumentOpen) {
       return (
@@ -227,19 +245,21 @@ export function PersonDetailPanel({
   metrics,
   scopedMap,
   api,
-  capabilities,
-  self,
+  actorRole,
   sessionPersonId,
   canManageSelected,
   canRegisterDocuments,
   creating,
   editing,
+  changingPassword,
   onNavigateBreadcrumb,
   onStartCreate,
   onStartEdit,
+  onStartChangePassword,
   onCancelForm,
   onCreate,
   onUpdate,
+  onChangePassword,
   onRemove,
 }: {
   selected: Person;
@@ -247,27 +267,36 @@ export function PersonDetailPanel({
   metrics: PersonMetrics | null;
   scopedMap: ScopedMap | null;
   api: DomainApi;
-  capabilities: Capabilities;
-  self: Person;
+  actorRole: AuthenticatedRole;
   sessionPersonId: string;
   canManageSelected: (person: Person) => boolean;
   canRegisterDocuments: boolean;
   creating: boolean;
   editing: boolean;
+  changingPassword: boolean;
   onNavigateBreadcrumb: (person: Person) => void;
   onStartCreate: () => void;
   onStartEdit: () => void;
+  onStartChangePassword: () => void;
   onCancelForm: () => void;
-  onCreate: (input: PersonInput) => Promise<void>;
+  onCreate: (
+    input: PersonProvisionInput,
+    option: PersonCreateOption,
+  ) => Promise<void>;
   onUpdate: (input: PersonInput) => Promise<void>;
+  onChangePassword: (newPassword: string) => Promise<void>;
   onRemove: () => void;
 }) {
-  const showForm = creating || editing;
-  const canRegisterChild =
-    capabilities.canCreateChild &&
-    selected.id === self.id &&
-    capabilities.childRole &&
-    selected.role !== "AMIGO";
+  const createOptions = useMemo(
+    () => createOptionsForSelection(actorRole, selected, sessionPersonId),
+    [actorRole, selected, sessionPersonId],
+  );
+
+  const showForm = creating || editing || changingPassword;
+  const canChangePassword =
+    canChangeCredentials(actorRole) &&
+    isAuthenticatableRole(selected.role) &&
+    canManageSelected(selected);
 
   return (
     <Card className="person-detail hierarchy-detail-panel">
@@ -284,27 +313,34 @@ export function PersonDetailPanel({
               <h2>{nameOf(selected)}</h2>
             </div>
           </div>
-          <PersonForm
-            role={
-              creating && capabilities.childRole
-                ? capabilities.childRole
-                : selected.role
-            }
-            parent={selected}
-            initialValues={
-              editing
-                ? {
-                    nombre: selected.nombre,
-                    apellidoPaterno: selected.apellidoPaterno,
-                    apellidoMaterno: selected.apellidoMaterno,
-                    telefono: selected.telefono,
-                  }
-                : undefined
-            }
-            submitLabel={editing ? "Actualizar" : "Guardar"}
-            onSave={editing ? onUpdate : onCreate}
-            onCancel={onCancelForm}
-          />
+          {changingPassword ? (
+            <PersonChangePasswordForm
+              personName={nameOf(selected)}
+              onSubmit={onChangePassword}
+              onCancel={onCancelForm}
+            />
+          ) : (
+            <PersonForm
+              mode={editing ? "edit" : "create"}
+              createOptions={createOptions}
+              initialCreateOption={createOptions[0]}
+              parent={selected}
+              initialValues={
+                editing
+                  ? {
+                      nombre: selected.nombre,
+                      apellidoPaterno: selected.apellidoPaterno,
+                      apellidoMaterno: selected.apellidoMaterno,
+                      telefono: selected.telefono,
+                    }
+                  : undefined
+              }
+              submitLabel={editing ? "Actualizar" : "Guardar"}
+              onSaveCreate={onCreate}
+              onSaveUpdate={onUpdate}
+              onCancel={onCancelForm}
+            />
+          )}
         </>
       ) : (
         <PersonDetailTabs
@@ -313,15 +349,16 @@ export function PersonDetailPanel({
           metrics={metrics}
           scopedMap={scopedMap}
           api={api}
-          canRegisterChild={Boolean(canRegisterChild)}
-          childRole={capabilities.childRole}
+          createOptions={createOptions}
           canEdit={canManageSelected(selected)}
+          canChangePassword={canChangePassword}
           canRegisterDocuments={canRegisterDocuments}
           showRemove={
             selected.id !== sessionPersonId && canManageSelected(selected)
           }
           onStartCreate={onStartCreate}
           onStartEdit={onStartEdit}
+          onStartChangePassword={onStartChangePassword}
           onRemove={onRemove}
         />
       )}

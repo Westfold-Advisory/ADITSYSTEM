@@ -374,6 +374,22 @@ a:focus-visible {
   gap: 1rem;
 }
 
+.password-field-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.password-field-row .ui-control {
+  width: 100%;
+}
+
+.password-field-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 .checkbox {
   display: flex !important;
   align-items: center;

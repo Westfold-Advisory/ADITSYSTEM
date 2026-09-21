@@ -496,7 +496,7 @@ export function AdminCoverageMapPage() {
                   </Button>
                 ) : parentPerson ? (
                   <PersonForm
-                    role={selectedPerson.role}
+                    mode="edit"
                     parent={parentPerson}
                     initialValues={{
                       nombre: selectedPerson.nombre,
@@ -506,7 +506,7 @@ export function AdminCoverageMapPage() {
                     }}
                     submitLabel="Guardar cambios"
                     onCancel={() => setEditing(false)}
-                    onSave={async (input) => {
+                    onSaveUpdate={async (input) => {
                       await api.updatePerson(selectedPerson.id, input);
                       setEditing(false);
                       setReloadToken((value) => value + 1);
