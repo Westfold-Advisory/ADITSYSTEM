@@ -6,6 +6,7 @@ import {
   emptyPersonFilter,
   filterChildMapForTree,
   filterPersonList,
+  filterTreeSelectionTarget,
   isPersonFilterActive,
 } from "./person-filters";
 import type { Person } from "@/types/domain";
@@ -102,6 +103,34 @@ test("person filters", async (t) => {
       });
       assert.deepEqual(filtered[root.id], [coord]);
       assert.deepEqual(filtered[coord.id], [enlace]);
+    },
+  );
+
+  await t.test(
+    "filterTreeSelectionTarget picks a direct match, not an ancestor",
+    () => {
+      const root = person({
+        id: "root",
+        nombre: "Raíz",
+        role: "COORDINADOR_GENERAL",
+      });
+      const target = person({
+        id: "enlace",
+        nombre: "Target",
+        role: "ENLACE",
+        parentId: "root",
+      });
+      const childrenById = { [root.id]: [target] };
+      const next = filterTreeSelectionTarget(
+        root,
+        childrenById,
+        {
+          text: "target",
+          status: "TODOS",
+        },
+        root,
+      );
+      assert.equal(next?.id, target.id);
     },
   );
 

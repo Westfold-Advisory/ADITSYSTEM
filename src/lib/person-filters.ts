@@ -81,6 +81,59 @@ export function filterChildMapForTree(
   return next;
 }
 
+export function peopleInHierarchyScope(
+  root: Person,
+  childrenById: Record<string, Person[]>,
+): Person[] {
+  const all = [root, ...Object.values(childrenById).flat()];
+  const byId = new Map<string, Person>();
+  for (const person of all) {
+    byId.set(person.id.toLowerCase(), person);
+  }
+  return [...byId.values()];
+}
+
+/** IDs de ancestros a expandir para mostrar todas las coincidencias del filtro. */
+export function ancestorIdsToExpandForFilter(
+  root: Person,
+  childrenById: Record<string, Person[]>,
+  filter: PersonFilter,
+): string[] {
+  if (!isPersonFilterActive(filter)) return [];
+  const people = peopleInHierarchyScope(root, childrenById);
+  const byId = new Map(
+    people.map((person) => [person.id.toLowerCase(), person]),
+  );
+  const matches = filterPersonList(people, filter);
+  const ids = new Set<string>();
+  for (const match of matches) {
+    for (const ancestorId of collectAncestorIds(match, byId)) {
+      ids.add(ancestorId);
+    }
+  }
+  return [...ids];
+}
+
+/**
+ * Con filtro activo en el árbol, la ficha debe ser una coincidencia directa,
+ * no un ancestro lejano (p. ej. ADMIN/CG) que ocultaba al match real.
+ */
+export function filterTreeSelectionTarget(
+  root: Person,
+  childrenById: Record<string, Person[]>,
+  filter: PersonFilter,
+  selected: Person | null,
+): Person | null {
+  if (!isPersonFilterActive(filter)) return selected;
+  const people = peopleInHierarchyScope(root, childrenById);
+  const matches = filterPersonList(people, filter);
+  if (matches.length === 0) return selected;
+  if (selected && matches.some((person) => person.id === selected.id)) {
+    return selected;
+  }
+  return matches[0];
+}
+
 export function collectAncestorIds(
   person: Person,
   byId: Map<string, Person>,

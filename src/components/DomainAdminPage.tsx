@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Tabs } from "radix-ui";
 
 import { DomainApi } from "@/api/domain";
@@ -20,10 +20,10 @@ import {
 } from "@/components/ui/AsyncState";
 import { useHierarchyScope } from "@/hooks/useHierarchyScope";
 import {
-  collectAncestorIds,
+  ancestorIdsToExpandForFilter,
   emptyPersonFilter,
   filterChildMapForTree,
-  filterPersonList,
+  filterTreeSelectionTarget,
   isPersonFilterActive,
   type PersonFilter,
 } from "@/lib/person-filters";
@@ -79,15 +79,6 @@ export function DomainAdminPage({ session }: { session: LoginResponse }) {
     [children, self],
   );
 
-  const adminListBootRef = useRef(false);
-  useEffect(() => {
-    if (!self || !isAdmin || adminListBootRef.current) return;
-    if (structureView === "listado") {
-      clearSelection();
-      adminListBootRef.current = true;
-    }
-  }, [clearSelection, isAdmin, self, structureView]);
-
   const breadcrumb = useMemo(() => {
     if (!self || !selected) return [];
     const byId = new Map(
@@ -123,39 +114,44 @@ export function DomainAdminPage({ session }: { session: LoginResponse }) {
     ],
   );
 
-  const filterSyncRef = useRef<string>("");
-  useEffect(() => {
-    if (!self || !filterActive) {
-      filterSyncRef.current = "";
-      return;
-    }
-    const key = `${filter.text}|${filter.status}`;
-    if (filterSyncRef.current === key) return;
-    filterSyncRef.current = key;
-
-    const all = [self, ...Object.values(children).flat()];
-    const byId = new Map(
-      all.map((person) => [person.id.toLowerCase(), person]),
-    );
-    const matches = filterPersonList(all, filter);
-    if (matches.length === 0) return;
-
-    for (const match of matches) {
-      for (const ancestorId of collectAncestorIds(match, byId)) {
+  const applyTreeFilter = useCallback(
+    (next: PersonFilter) => {
+      if (!self) return;
+      for (const ancestorId of ancestorIdsToExpandForFilter(
+        self,
+        children,
+        next,
+      )) {
         expandNode(ancestorId);
       }
-    }
+      const target = filterTreeSelectionTarget(self, children, next, selected);
+      if (target && target.id !== selected?.id) {
+        select(target);
+      }
+    },
+    [children, expandNode, select, selected, self],
+  );
 
-    const selectedStillVisible =
-      selected &&
-      (matches.some((person) => person.id === selected.id) ||
-        matches.some((person) =>
-          collectAncestorIds(person, byId).includes(selected.id),
-        ));
-    if (!selectedStillVisible) {
-      select(matches[0]);
+  const handleFilterChange = useCallback(
+    (next: PersonFilter) => {
+      setFilter(next);
+      if (structureView === "arbol") {
+        applyTreeFilter(next);
+      }
+    },
+    [applyTreeFilter, structureView, setFilter],
+  );
+
+  useEffect(() => {
+    if (!self || !filterActive || structureView !== "arbol") return;
+    for (const ancestorId of ancestorIdsToExpandForFilter(
+      self,
+      children,
+      filter,
+    )) {
+      expandNode(ancestorId);
     }
-  }, [children, expandNode, filter, filterActive, select, selected, self]);
+  }, [children, expandNode, filter, filterActive, self, structureView]);
 
   const createChild = async (
     input: PersonProvisionInput,
@@ -241,8 +237,8 @@ export function DomainAdminPage({ session }: { session: LoginResponse }) {
       children={children}
       expanded={expanded}
       loadingNode={loadingNode}
-      onFilterChange={setFilter}
-      onClearFilter={() => setFilter(emptyPersonFilter)}
+      onFilterChange={handleFilterChange}
+      onClearFilter={() => handleFilterChange(emptyPersonFilter)}
       onSelect={select}
       onToggle={toggle}
       hideRoot={isAdmin}
@@ -313,7 +309,12 @@ export function DomainAdminPage({ session }: { session: LoginResponse }) {
             onValueChange={(value) => {
               const next = value as StructureView;
               setStructureView(next);
-              if (next === "listado" && isAdmin) clearSelection();
+              if (next === "listado" && isAdmin) {
+                clearSelection();
+              }
+              if (next === "arbol" && isPersonFilterActive(filter)) {
+                applyTreeFilter(filter);
+              }
             }}
           >
             <Tabs.List aria-label="Formato de personas">
