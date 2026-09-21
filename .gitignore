@@ -23,6 +23,9 @@ dist-ssr
 *.sln
 *.sw?
 
+# QA preview local (scripts/run-etapa1-qa-preview.sh)
+.qa-preview-etapa1.pid
+
 # Playwright
 /test-results/
 /playwright-report/
