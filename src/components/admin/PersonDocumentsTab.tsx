@@ -39,6 +39,53 @@ function DocumentRecord({ doc }: { doc: Documento }) {
   );
 }
 
+function CvDownloadAction({
+  api,
+  personId,
+  document,
+}: {
+  api: DomainApi;
+  personId: string;
+  document: Documento;
+}) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const download = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { url } = await api.getDocumentDownloadUrl(personId, document.id);
+      window.open(url, "_blank", "noopener,noreferrer");
+    } catch {
+      setError(adminUiCopy.documentos.downloadCvError);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="document-record-actions">
+      <Button
+        type="button"
+        variant="outline"
+        onClick={() => void download()}
+        disabled={loading}
+        aria-busy={loading}
+      >
+        {loading
+          ? adminUiCopy.documentos.downloadCvLoading
+          : adminUiCopy.documentos.downloadCv}
+      </Button>
+      {error ? (
+        <Alert tone="error" title="Descarga no disponible">
+          {error}
+        </Alert>
+      ) : null}
+    </div>
+  );
+}
+
 function PhotoSlot({ photo }: { photo: Documento | undefined }) {
   if (!photo) {
     return (
@@ -308,7 +355,14 @@ export function PersonDocumentsTab({
       <section className="document-section" aria-labelledby="doc-cv-heading">
         <h3 id="doc-cv-heading">Currículum vigente</h3>
         {currentCv ? (
-          <DocumentRecord doc={currentCv} />
+          <>
+            <DocumentRecord doc={currentCv} />
+            <CvDownloadAction
+              api={api}
+              personId={personId}
+              document={currentCv}
+            />
+          </>
         ) : (
           <EmptyState
             actionLabel={canRegister ? "Registrar currículum" : undefined}
