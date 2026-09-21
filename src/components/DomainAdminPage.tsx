@@ -247,7 +247,11 @@ export function DomainAdminPage({ session }: { session: LoginResponse }) {
     try {
       await api.deletePerson(selected.id);
       removePersonFromTree(selected.id);
-      resetSelectionToRoot();
+      if (structureView === "arbol") {
+        resetSelectionToRoot();
+      } else {
+        clearSelection();
+      }
       setRemoveConfirmOpen(false);
     } catch (reason) {
       setError(apiErrorMessage(reason));

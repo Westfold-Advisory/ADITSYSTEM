@@ -54,6 +54,26 @@ Viewport **1440×900**, mismo usuario en Personas y **Admin → Mapa**:
 - [ ] Editar / alta hijo / baja (según rol): sin errores; pins/cobertura coherentes.
 - [ ] Territorio: coords del pin + geocercas como en Personas.
 
+---
+
+## P0.3 — UX-02 (sin drawer al entrar en listado / organigrama)
+
+- Bootstrap en `useHierarchyScope`: **no** preselecciona persona al cargar (`setSelected` eliminado del effect inicial).
+- `DomainAdminPage`: al cargar o estar en **listado** u **organigrama**, `clearSelection()` mantiene el drawer cerrado hasta clic explícito.
+- Cambio a vista **árbol** sigue usando `resetSelectionToRoot()` (patrón master-detail del árbol).
+- Tras baja lógica: en listado/organigrama se limpia selección; en árbol se restaura ancla.
+
+### Cierre P0 TRA-142 (merge gate)
+
+| Ítem                              | Evidencia                    |
+| --------------------------------- | ---------------------------- |
+| P0.1 PersonSummary mapa           | PR #109                      |
+| P0.2 PersonDetailPanel compartido | PR #107, #109                |
+| P0.3 UX-02                        | PR #111                      |
+| P0.4 Doc + checklist              | `tra-140-etapa3.md`, PR #110 |
+
+**P2 diferido:** Drawer genérico DS, `DescriptionList` — no bloquea cierre P0.
+
 ### Fuera de alcance (P2 — TRA-142)
 
 Drawer genérico abstracto; mapa público (Etapa 4).
