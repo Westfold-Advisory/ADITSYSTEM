@@ -40,6 +40,7 @@ function OrgChartNode({
       {hasChildren && (
         <ul
           className="org-chart__children"
+          data-child-count={children.length}
           aria-label={`Subordinados de ${nameOf(person)}`}
         >
           {children.map((child) => (

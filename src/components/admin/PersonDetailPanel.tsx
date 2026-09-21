@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { X } from "lucide-react";
 import { Tabs } from "radix-ui";
 
 import type { DomainApi } from "@/api/domain";
@@ -261,6 +262,7 @@ export function PersonDetailPanel({
   onUpdate,
   onChangePassword,
   onRemove,
+  onDismiss,
 }: {
   selected: Person;
   breadcrumb: Person[];
@@ -286,6 +288,7 @@ export function PersonDetailPanel({
   onUpdate: (input: PersonInput) => Promise<void>;
   onChangePassword: (newPassword: string) => Promise<void>;
   onRemove: () => void;
+  onDismiss?: () => void;
 }) {
   const createOptions = useMemo(
     () => createOptionsForSelection(actorRole, selected, sessionPersonId),
@@ -300,6 +303,20 @@ export function PersonDetailPanel({
 
   return (
     <Card className="person-detail hierarchy-detail-panel">
+      {onDismiss ? (
+        <div className="hierarchy-detail-panel__toolbar">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="hierarchy-detail-panel__close"
+            onClick={onDismiss}
+            aria-label="Cerrar detalle"
+          >
+            <X size={18} aria-hidden="true" />
+          </Button>
+        </div>
+      ) : null}
       <HierarchyBreadcrumbs
         path={breadcrumb}
         onNavigate={onNavigateBreadcrumb}

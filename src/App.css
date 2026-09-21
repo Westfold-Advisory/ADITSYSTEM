@@ -277,6 +277,13 @@ a:focus-visible {
   padding: 2rem 1rem;
 }
 
+.admin-page.hierarchy-page {
+  max-width: none;
+  width: 100%;
+  margin-inline: 0;
+  padding: var(--md-sys-spacing-4, 1rem) var(--md-sys-spacing-5, 1.25rem);
+}
+
 .event-form-actions {
   display: flex;
   justify-content: space-between;
