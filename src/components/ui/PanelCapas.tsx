@@ -5,6 +5,7 @@ import {
   type Geofence,
   type GeofenceType,
 } from "@/api/geofences";
+import { publicUiCopy } from "@/content/public-ui-es";
 import { useModalFocus } from "@/hooks/useModalFocus";
 import {
   catalogLimitsFor,
@@ -249,9 +250,7 @@ export function PanelCapas({
                 )}
                 {emptyCatalog && (
                   <p className="px-1 text-[10px] text-muted-foreground">
-                    {type === "MUNICIPIO" || type === "ESTADO"
-                      ? "En dev/RDS no hay esta capa: el import TRA-128 solo subió distrito local, distrito federal y sección desde el release GitHub, aunque los shapes de Puebla existan en disco."
-                      : "Sin registros en el servidor para esta capa."}
+                    {publicUiCopy.capas.emptyCatalog}
                   </p>
                 )}
                 {isTruncated && GEOFENCE_CATALOG_LIMITS[type]?.mapHint && (

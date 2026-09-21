@@ -135,6 +135,14 @@ Excepciones: nombres de archivo en docs técnicas, no en UI.
 Implementación: `src/content/admin-ui-es.ts`  
 Tests de regresión: `src/content/admin-ui-es.test.ts`
 
+## 8. Referencia Lote 2 (TRA-146)
+
+Implementación: `adminUiCopy.eventos.*`, `adminUiCopy.documentos.*` en `src/content/admin-ui-es.ts`; `publicUiCopy.capas.*` en `src/content/public-ui-es.ts`.
+Tests de regresión: `src/content/admin-ui-es.test.ts`, `src/content/public-ui-es.test.ts`, `src/content/content-blacklist.test.ts` (lista negra §5 sobre todos los módulos de copy).
+
+Auditados sin cambios de copy (ya cumplían el contrato): `FormularioNuevoEvento`, `PersonChangePasswordForm`, `LoginPage`, `lib/auth-messages.ts`.
+Corrección de datos (no solo copy): `UnauthorizedRoleScreen` mostraba el rol crudo del backend (`COORDINADOR_GENERAL`); ahora usa `roleLabel()`. `PersonDocumentsTab` mostraba el tipo MIME crudo (`application/pdf`); ahora usa `formatDocumentFormat()`.
+
 ## Roadmap
 
 - **Lote 1:** Personas, mapa admin, ficha, formularios, baja (PR #118).

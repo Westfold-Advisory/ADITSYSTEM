@@ -11,6 +11,25 @@ export function documentTypeLabel(type: DocumentType): string {
   return TYPE_LABELS[type];
 }
 
+const FORMAT_LABELS: Record<string, string> = {
+  "application/pdf": "PDF",
+  "image/jpeg": "Imagen JPG",
+  "image/png": "Imagen PNG",
+  "image/webp": "Imagen WebP",
+  "application/msword": "Word",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+    "Word",
+};
+
+/** Etiqueta legible del formato de archivo; evita mostrar el tipo MIME crudo. */
+export function formatDocumentFormat(mimeType: string): string {
+  return (
+    FORMAT_LABELS[mimeType] ??
+    mimeType.split("/")[1]?.toUpperCase() ??
+    "Archivo"
+  );
+}
+
 export function formatDocumentSize(sizeBytes: number): string {
   if (sizeBytes < 1024) return `${sizeBytes} B`;
   if (sizeBytes < 1024 * 1024) return `${(sizeBytes / 1024).toFixed(1)} KB`;
