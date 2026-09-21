@@ -65,12 +65,12 @@ Viewport **1440×900**, mismo usuario en Personas y **Admin → Mapa**:
 
 ### Cierre P0 TRA-142 (merge gate)
 
-| Ítem                              | Evidencia                                         |
-| --------------------------------- | ------------------------------------------------- |
-| P0.1 PersonSummary mapa           | PR #109                                           |
-| P0.2 PersonDetailPanel compartido | PR #107, #109                                     |
-| P0.3 UX-02                        | PR pendiente `fix/tra-142-p0-ux02-no-auto-drawer` |
-| P0.4 Doc + checklist              | `tra-140-etapa3.md`, PR #110                      |
+| Ítem                              | Evidencia                    |
+| --------------------------------- | ---------------------------- |
+| P0.1 PersonSummary mapa           | PR #109                      |
+| P0.2 PersonDetailPanel compartido | PR #107, #109                |
+| P0.3 UX-02                        | PR #111                      |
+| P0.4 Doc + checklist              | `tra-140-etapa3.md`, PR #110 |
 
 **P2 diferido:** Drawer genérico DS, `DescriptionList` — no bloquea cierre P0.
 
