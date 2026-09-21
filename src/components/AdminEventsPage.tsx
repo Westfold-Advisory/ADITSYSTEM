@@ -207,6 +207,7 @@ export function AdminEventsPage() {
         onSignOut={logout}
         showModuleNav={false}
         showSignOut={false}
+        showEyebrow={false}
         actions={
           <Button size="sm" variant="outline" onClick={() => setEditing("new")}>
             Crear evento

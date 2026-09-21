@@ -378,6 +378,7 @@ export function AdminCoverageMapPage() {
         onSignOut={logout}
         showModuleNav={false}
         showSignOut={false}
+        showEyebrow={false}
       />
 
       <AdminWorkspaceShell

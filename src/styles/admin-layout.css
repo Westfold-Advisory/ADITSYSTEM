@@ -217,27 +217,31 @@
 
 .admin-sidebar-user {
   flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
   padding-top: var(--md-sys-spacing-3, 0.75rem);
   border-top: 1px solid var(--md-sys-color-outline-variant);
 }
 
 .admin-sidebar-user__card {
   display: flex;
-  align-items: flex-start;
-  gap: 0.65rem;
-  padding: 0.65rem 0.7rem;
+  flex-direction: column;
   border-radius: var(--md-sys-radius-md, 8px);
   background: var(--md-sys-color-surface-container-highest, #ececec);
   border: 1px solid var(--md-sys-color-outline-variant);
+  overflow: hidden;
+}
+
+.admin-sidebar-user__identity {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.7rem 0.75rem;
+  min-width: 0;
 }
 
 .admin-sidebar-user__avatar {
   flex-shrink: 0;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2.25rem;
+  height: 2.25rem;
   border-radius: var(--md-sys-radius-full, 999px);
   display: grid;
   place-items: center;
@@ -249,6 +253,9 @@
 .admin-sidebar-user__meta {
   min-width: 0;
   flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
 }
 
 .admin-sidebar-user__name {
@@ -261,11 +268,12 @@
 }
 
 .admin-sidebar-user__role-line {
-  margin: 0.2rem 0 0;
+  display: block;
+  line-height: 1;
 }
 
 .admin-sidebar-user__email {
-  margin: 0.25rem 0 0;
+  margin: 0;
   font: var(--md-sys-typescale-body-small);
   color: var(--md-sys-color-on-surface-variant);
   overflow: hidden;
@@ -276,7 +284,16 @@
 .admin-sidebar-user__sign-out {
   width: 100%;
   justify-content: flex-start;
+  gap: 0.5rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: 0;
   color: var(--md-sys-color-on-surface-variant);
+  border-top: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.admin-sidebar-user__sign-out:hover {
+  color: var(--md-sys-color-on-surface);
+  background: var(--md-sys-color-surface-container-high, #e7e8f0);
 }
 
 .admin-workspace-main {
