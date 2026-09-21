@@ -18,7 +18,7 @@
 }
 
 @media (min-width: 1024px) {
-  .coverage-map-workspace {
+  .coverage-map-workspace--layers-open {
     grid-template-columns: minmax(17rem, 19rem) minmax(0, 1fr);
   }
 
