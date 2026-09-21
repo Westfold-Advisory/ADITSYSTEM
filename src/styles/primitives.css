@@ -225,12 +225,20 @@
 }
 .ui-dialog {
   width: min(32rem, calc(100% - 2rem));
+  max-height: calc(100dvh - 2rem);
   border: 1px solid var(--cyber-border);
   border-radius: var(--radius-lg);
   background: var(--cyber-surface-1);
   color: var(--cyber-text);
   box-shadow: var(--cyber-shadow-lg);
   padding: var(--cyber-space-xl);
+}
+.ui-dialog:modal {
+  position: fixed;
+  inset: 0;
+  height: fit-content;
+  margin: auto;
+  overflow: auto;
 }
 .ui-dialog::backdrop {
   background: oklch(0 0 0 / 0.7);
