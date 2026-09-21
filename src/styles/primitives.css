@@ -245,6 +245,34 @@
   margin: 0;
   color: var(--cyber-text-bright);
 }
+.ui-dialog__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cyber-space-md);
+}
+.ui-dialog__body {
+  margin: 0;
+  color: var(--cyber-text);
+  line-height: 1.5;
+}
+.ui-dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--cyber-space-sm);
+}
+.admin-workspace .ui-dialog--confirm {
+  border-color: var(--md-sys-color-outline-variant);
+  background: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-on-surface);
+  box-shadow: var(--md-sys-elevation-3);
+}
+.admin-workspace .ui-dialog--confirm h2 {
+  color: var(--md-sys-color-on-surface);
+}
+.admin-workspace .ui-dialog--confirm .ui-dialog__body {
+  color: var(--md-sys-color-on-surface-variant);
+}
 .ui-sheet {
   margin: 0;
   max-width: none;
