@@ -83,7 +83,6 @@ export function useHierarchyScope(api: DomainApi, rootPersonId: string) {
         if (!active) return;
         anchorRef.current = current;
         setSelf(current);
-        setSelected(current);
         setExpanded({ [current.id]: true });
         await loadChildren(current, current);
       } catch (reason) {
