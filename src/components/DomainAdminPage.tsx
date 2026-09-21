@@ -17,6 +17,11 @@ import { apiErrorMessage, nameOf } from "@/components/admin/person-display";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { capabilitiesFor } from "@/lib/capabilities";
 import { canRegisterDocuments } from "@/lib/document-access";
+import {
+  buildKnownPersonsForDocumentAccess,
+  buildPersonBreadcrumb,
+  canManagePerson,
+} from "@/lib/person-detail-context";
 import type { PersonCreateOption } from "@/lib/person-provisioning";
 import { ErrorState, LoadingState } from "@/components/ui/AsyncState";
 import { useHierarchyScope } from "@/hooks/useHierarchyScope";
@@ -81,23 +86,20 @@ export function DomainAdminPage({ session }: { session: LoginResponse }) {
     [children, self],
   );
 
-  const breadcrumb = useMemo(() => {
-    if (!self || !selected) return [];
-    const byId = new Map(
+  const treeKnownById = useMemo(() => {
+    if (!self) return new Map<string, Person>();
+    return new Map(
       [self, ...Object.values(children).flat()].map((person) => [
         person.id,
         person,
       ]),
     );
-    const path: Person[] = [];
-    for (
-      let current: Person | undefined = selected;
-      current;
-      current = current.parentId ? byId.get(current.parentId) : undefined
-    )
-      path.unshift(current);
-    return path.length ? path : [selected];
-  }, [children, selected, self]);
+  }, [children, self]);
+
+  const breadcrumb = useMemo(() => {
+    if (!selected) return [];
+    return buildPersonBreadcrumb(selected, treeKnownById);
+  }, [selected, treeKnownById]);
 
   const select = useCallback(
     (person: Person) => {
@@ -219,18 +221,8 @@ export function DomainAdminPage({ session }: { session: LoginResponse }) {
   };
 
   const canManageSelected = (person: Person) =>
-    person.id === self?.id ||
-    (capabilities.canCreateChild && person.role === capabilities.childRole);
+    canManagePerson(person, self, capabilities);
 
-  const knownPersons = useMemo(() => {
-    if (!self) return new Map<string, Person>();
-    return new Map(
-      [self, ...Object.values(children).flat()].map((person) => [
-        person.id,
-        person,
-      ]),
-    );
-  }, [children, self]);
   const canRegisterDocumentsForSelected =
     self && selected
       ? canRegisterDocuments(
@@ -238,7 +230,7 @@ export function DomainAdminPage({ session }: { session: LoginResponse }) {
           capabilities,
           self,
           selected,
-          knownPersons,
+          buildKnownPersonsForDocumentAccess(self, selected, []),
         )
       : false;
   const requestRemove = () => {
