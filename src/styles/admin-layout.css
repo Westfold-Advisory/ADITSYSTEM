@@ -108,6 +108,33 @@
   font-weight: 600;
 }
 
+.admin-nav-tabs__tab:focus-visible {
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+  border-radius: var(--md-sys-radius-sm, 6px);
+}
+
+/* Tab bar L2 (canvas): vistas de un módulo, bajo el título de página. */
+.admin-view-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  min-width: 0;
+  margin-bottom: var(--md-sys-spacing-4, 1rem);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.admin-view-tabs__tab {
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  gap: 0.4rem;
+}
+
+.admin-view-tabs__icon {
+  opacity: 0.85;
+}
+
 .admin-page-actions {
   margin: 0 0 var(--md-sys-spacing-4, 1rem);
 }
@@ -160,6 +187,46 @@
   --admin-sidebar-width: 4rem;
 }
 
+/* Barra superior solo-móvil: identidad mínima + acceso al rail (drawer). */
+.admin-console-topbar {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--md-sys-spacing-3, 0.75rem);
+}
+
+.admin-console-topbar__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.admin-console-topbar__logo {
+  display: block;
+  max-height: 1.75rem;
+  width: auto;
+  object-fit: contain;
+}
+
+.admin-console-topbar__monogram,
+.admin-workspace-sidebar__monogram {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--md-sys-radius-sm, 6px);
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+  font: var(--md-sys-typescale-label-medium, 600 0.75rem/1 inherit);
+  letter-spacing: 0.02em;
+}
+
+.admin-console-backdrop {
+  display: none;
+}
+
 .admin-console-layout__body {
   flex: 1 1 auto;
   min-width: 0;
@@ -208,13 +275,20 @@
   margin-left: auto;
 }
 
-.admin-console-layout--collapsed .admin-workspace-sidebar__brand {
-  flex-direction: column;
-  align-items: center;
+.admin-workspace-sidebar__close {
+  display: none;
+  flex-shrink: 0;
 }
 
-.admin-console-layout--collapsed .admin-workspace-sidebar__collapse {
-  margin-left: 0;
+@media (min-width: 64rem) {
+  .admin-console-layout--collapsed .admin-workspace-sidebar__brand {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .admin-console-layout--collapsed .admin-workspace-sidebar__collapse {
+    margin-left: 0;
+  }
 }
 
 .admin-workspace-sidebar__brand-mark {
@@ -338,27 +412,27 @@
   justify-content: center;
 }
 
-.admin-console-layout--collapsed .admin-nav-sidebar__heading,
-.admin-console-layout--collapsed .admin-nav-sidebar__label,
-.admin-console-layout--collapsed .admin-workspace-sidebar__product {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
+/* La rail compacta (iconos sin etiqueta) es un patrón de escritorio; en el
+   drawer móvil el rail siempre muestra el rótulo completo. */
+@media (min-width: 64rem) {
+  .admin-console-layout--collapsed .admin-nav-sidebar__heading,
+  .admin-console-layout--collapsed .admin-nav-sidebar__label,
+  .admin-console-layout--collapsed .admin-workspace-sidebar__product {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
 
-.admin-console-layout--collapsed .admin-nav-sidebar__link {
-  justify-content: center;
-  padding-inline: 0.35rem;
-}
-
-.admin-console-layout--collapsed .admin-workspace-sidebar__brand-mark {
-  display: none;
+  .admin-console-layout--collapsed .admin-nav-sidebar__link {
+    justify-content: center;
+    padding-inline: 0.35rem;
+  }
 }
 
 .admin-sidebar-user__sign-out:focus-visible {
@@ -448,134 +522,57 @@
   opacity: 1;
 }
 
-.admin-nav-sidebar__item--org {
-  position: relative;
-}
-
-.admin-nav-sidebar__submenu {
-  list-style: none;
-  margin: 0.1rem 0 0;
-  padding: 0.15rem 0 0.35rem 0.35rem;
-  display: none;
-  flex-direction: column;
-  gap: 0.08rem;
-  border-left: 2px solid var(--md-sys-color-outline-variant);
-  margin-left: 0.55rem;
-}
-
-.admin-nav-sidebar__item--org:hover .admin-nav-sidebar__submenu,
-.admin-nav-sidebar__item--org:focus-within .admin-nav-sidebar__submenu {
-  display: flex;
-}
-
-.admin-nav-sidebar__submenu-link {
-  appearance: none;
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  width: 100%;
-  text-align: left;
-  margin: 0;
-  padding: 0.35rem 0.45rem 0.35rem 0.4rem;
-  border: 1px solid transparent;
-  border-radius: var(--md-sys-radius-sm, 6px);
-  background: transparent;
-  font: var(--md-sys-typescale-label-large, 500 0.8125rem/1.35 inherit);
-  color: var(--md-sys-color-on-surface-variant);
-  cursor: pointer;
-  transition:
-    background 0.15s ease,
-    color 0.15s ease;
-}
-
-.admin-nav-sidebar__submenu-link:hover {
-  color: var(--md-sys-color-on-surface);
-  background: var(--md-sys-color-surface-container-high);
-}
-
-.admin-nav-sidebar__submenu-link[aria-current="page"] {
-  color: var(--md-sys-color-primary);
-  font-weight: 600;
-  background: var(--md-sys-color-surface-container);
-}
-
-.admin-nav-sidebar__submenu-link:focus-visible {
+.admin-nav-sidebar__link:focus-visible {
   outline: 2px solid var(--md-sys-color-primary);
   outline-offset: 1px;
 }
 
-.admin-console-layout--collapsed .admin-nav-sidebar__submenu {
-  position: absolute;
-  left: calc(100% + 6px);
-  top: 0;
-  z-index: 30;
-  min-width: 11.5rem;
-  margin: 0;
-  padding: 0.35rem;
-  border-left: none;
-  border-radius: var(--md-sys-radius-md, 8px);
-  background: var(--md-sys-color-surface-container);
-  border: 1px solid var(--md-sys-color-outline-variant);
-  box-shadow: 0 4px 12px rgb(0 0 0 / 12%);
-}
-
-.admin-console-layout--collapsed
-  .admin-nav-sidebar__submenu
-  .admin-nav-sidebar__label {
-  position: static;
-  width: auto;
-  height: auto;
-  margin: 0;
-  padding: 0;
-  overflow: visible;
-  clip: auto;
-  white-space: normal;
-}
-
+/* Rail: sticky en desktop; drawer off-canvas en móvil/tablet (activado por
+   el hamburguesa de `.admin-console-topbar`). Un solo control de cierre de
+   sesión (pie del rail) viaja con el drawer — nunca se duplica en el topbar. */
 @media (max-width: 63.99rem) {
   .admin-console-layout {
     flex-direction: column;
   }
 
+  .admin-console-topbar {
+    display: flex;
+    padding: var(--md-sys-spacing-3, 0.75rem) var(--md-sys-spacing-4, 1rem);
+    border-bottom: 1px solid var(--md-sys-color-outline-variant);
+    background: var(--md-sys-color-surface-container-low);
+  }
+
+  .admin-console-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    background: rgb(0 0 0 / 0.4);
+  }
+
   .admin-workspace-sidebar {
-    position: static;
-    flex: none;
-    width: 100%;
-    height: auto;
-    max-height: none;
-    flex-direction: column;
-    align-items: stretch;
-    border-right: none;
-    border-bottom: 1px solid var(--md-sys-color-outline-variant);
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 50;
+    display: none;
+    width: min(85vw, 20rem);
+    height: 100vh;
+    max-height: 100vh;
+    border-right: 1px solid var(--md-sys-color-outline-variant);
+    box-shadow: var(--md-sys-elevation-3, 0 8px 24px rgb(0 0 0 / 0.18));
   }
 
-  .admin-workspace-sidebar__brand {
-    flex-direction: row;
-    border-bottom: 1px solid var(--md-sys-color-outline-variant);
-    padding-bottom: var(--md-sys-spacing-3, 0.75rem);
+  .admin-workspace-sidebar--mobile-open {
+    display: flex;
   }
 
-  .admin-nav-sidebar__list {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 0.35rem;
+  .admin-workspace-sidebar__collapse {
+    display: none;
   }
 
-  .admin-nav-sidebar__link {
-    width: auto;
-    flex: 1 1 auto;
-    min-width: min(100%, 9.5rem);
-    border-left-width: 1px;
-  }
-
-  .admin-nav-sidebar__link[aria-current="page"] {
-    border-left-color: var(--md-sys-color-primary);
-  }
-
-  .admin-workspace-sidebar__sub {
-    border-top: 1px solid var(--md-sys-color-outline-variant);
-    padding-top: var(--md-sys-spacing-3, 0.75rem);
-    margin-top: 0;
+  .admin-workspace-sidebar__close {
+    display: inline-flex;
+    margin-left: auto;
   }
 }
 
