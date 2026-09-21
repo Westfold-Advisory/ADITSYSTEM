@@ -15,6 +15,7 @@ import {
   type AdminSession,
 } from "@/lib/admin-session";
 import { SESSION_EXPIRED_MESSAGE } from "@/lib/auth-messages";
+import { adminUiCopy } from "@/content/admin-ui-es";
 import { adminPageTitle } from "@/lib/admin-nav";
 import { capabilitiesFor } from "@/lib/capabilities";
 
@@ -76,7 +77,7 @@ export function AdminStructurePage() {
           <AdminPageHeader
             eyebrow={institution.productName}
             title={adminPageTitle("/admin/personas")}
-            subtitle="Estructura, listado y organigrama según tu alcance."
+            subtitle={adminUiCopy.personas.pageSubtitle}
             onSignOut={logout}
             showModuleNav={false}
             showSignOut={false}

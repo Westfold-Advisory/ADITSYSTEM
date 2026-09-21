@@ -1,5 +1,6 @@
 import { useMemo, useState, type FormEvent } from "react";
 
+import { adminUiCopy } from "@/content/admin-ui-es";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/Field";
 import { PasswordField } from "@/components/ui/PasswordField";
@@ -165,8 +166,8 @@ export function PersonForm({
         </h2>
         <p className="form-intro">
           {mode === "create"
-            ? `Se agregará bajo ${parentLabel}. No necesitas capturar un identificador.`
-            : "Actualiza los datos personales visibles en la ficha."}
+            ? adminUiCopy.personForm.createIntro(parentLabel)
+            : adminUiCopy.personForm.editIntro}
         </p>
       </div>
 
@@ -243,9 +244,7 @@ export function PersonForm({
       {mode === "create" && role && isAuthenticatableRole(role) ? (
         <div className="form-section">
           <p className="eyebrow">Acceso al sistema</p>
-          <p className="form-intro">
-            El usuario iniciará sesión con correo electrónico y contraseña.
-          </p>
+          <p className="form-intro">{adminUiCopy.personForm.accessIntro}</p>
           <div className="event-form-grid">
             <Field label="Correo electrónico" error={fieldErrors.email}>
               <input

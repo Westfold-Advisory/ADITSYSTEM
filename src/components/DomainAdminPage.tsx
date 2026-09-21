@@ -21,6 +21,7 @@ import {
 } from "@/components/admin/PersonasViewNav";
 import { AdminWorkspaceShell } from "@/components/admin/AdminWorkspaceShell";
 import { apiErrorMessage, nameOf } from "@/components/admin/person-display";
+import { adminUiCopy } from "@/content/admin-ui-es";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Drawer } from "@/components/ui/Drawer";
 import { capabilitiesFor } from "@/lib/capabilities";
@@ -346,10 +347,7 @@ export function DomainAdminPage({
 
   const personasContent = (
     <>
-      <p className="request-message">
-        Las acciones disponibles dependen de tu alcance. El backend valida rol y
-        pertenencia en cada solicitud.
-      </p>
+      <p className="request-message">{adminUiCopy.personas.scopeNotice}</p>
       {error && (
         <ErrorState
           message={error}
@@ -357,7 +355,7 @@ export function DomainAdminPage({
         />
       )}
       {!self ? (
-        <LoadingState label="Cargando estructura…" />
+        <LoadingState label={adminUiCopy.personas.loadingStructure} />
       ) : (
         <>
           {structureView === "arbol" ? (
@@ -464,22 +462,19 @@ export function DomainAdminPage({
       {personasContent}
       <ConfirmDialog
         open={removeConfirmOpen && Boolean(selected)}
-        title="Dar de baja persona"
+        title={adminUiCopy.destructive.removePersonTitle}
         description={
           selected ? (
             <>
               <p>
-                ¿Confirmas dar de baja a <strong>{nameOf(selected)}</strong>?
+                {adminUiCopy.destructive.removePersonConfirm(nameOf(selected))}
               </p>
-              <p>
-                Es una baja lógica: la persona dejará de aparecer en la
-                estructura activa, pero se conservan los datos históricos.
-              </p>
+              <p>{adminUiCopy.destructive.removePersonConsequence}</p>
             </>
           ) : null
         }
-        confirmLabel="Dar de baja"
-        cancelLabel="Cancelar"
+        confirmLabel={adminUiCopy.destructive.confirmLabel}
+        cancelLabel={adminUiCopy.destructive.cancelLabel}
         onConfirm={() => void confirmRemove()}
         onCancel={() => setRemoveConfirmOpen(false)}
         busy={removeBusy}
