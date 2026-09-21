@@ -76,6 +76,7 @@ export function AdminStructurePage() {
         onSignOut={logout}
         showModuleNav={false}
         showSignOut={false}
+        showEyebrow={false}
       />
       <DomainAdminPage session={session} onSignOut={logout} />
     </main>

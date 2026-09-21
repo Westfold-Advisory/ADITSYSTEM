@@ -11,6 +11,7 @@ export function AdminPageHeader({
   actions,
   showModuleNav = true,
   showSignOut = true,
+  showEyebrow = true,
 }: {
   eyebrow: string;
   title: string;
@@ -21,6 +22,8 @@ export function AdminPageHeader({
   showModuleNav?: boolean;
   /** Oculta cerrar sesión del header cuando vive en el sidebar (tarjeta usuario). */
   showSignOut?: boolean;
+  /** Oculta la marca de producto cuando ya se muestra en el sidebar (AppShell admin), para no duplicarla. */
+  showEyebrow?: boolean;
 }) {
   return (
     <header
@@ -30,7 +33,9 @@ export function AdminPageHeader({
     >
       <div className="admin-header__band">
         <div className="admin-header__identity">
-          <p className="eyebrow admin-header__eyebrow">{eyebrow}</p>
+          {showEyebrow ? (
+            <p className="eyebrow admin-header__eyebrow">{eyebrow}</p>
+          ) : null}
           <h1 className="admin-header__title">{title}</h1>
           <p className="admin-header__meta">{subtitle}</p>
         </div>

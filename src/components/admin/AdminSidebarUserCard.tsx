@@ -27,27 +27,33 @@ export function AdminSidebarUserCard({
   return (
     <footer className="admin-sidebar-user">
       <div className="admin-sidebar-user__card">
-        <div className="admin-sidebar-user__avatar" aria-hidden="true">
-          {initials}
+        <div className="admin-sidebar-user__identity">
+          <div className="admin-sidebar-user__avatar" aria-hidden="true">
+            {initials}
+          </div>
+          <div className="admin-sidebar-user__meta">
+            <p className="admin-sidebar-user__name" title={displayName}>
+              {displayName}
+            </p>
+            <div className="admin-sidebar-user__role-line">
+              <RoleChip role={role} />
+            </div>
+            <p className="admin-sidebar-user__email" title={email}>
+              {email}
+            </p>
+          </div>
         </div>
-        <div className="admin-sidebar-user__meta">
-          <p className="admin-sidebar-user__name">{displayName}</p>
-          <p className="admin-sidebar-user__role-line">
-            <RoleChip role={role} />
-          </p>
-          <p className="admin-sidebar-user__email">{email}</p>
-        </div>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="admin-sidebar-user__sign-out"
+          onClick={onSignOut}
+        >
+          <LogOut size={16} aria-hidden="true" />
+          Cerrar sesión
+        </Button>
       </div>
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        className="admin-sidebar-user__sign-out"
-        onClick={onSignOut}
-      >
-        <LogOut size={16} aria-hidden="true" />
-        Cerrar sesión
-      </Button>
     </footer>
   );
 }
