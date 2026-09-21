@@ -1,23 +1,27 @@
-# QA dev — Etapa 1 Lote 1 (PR #103) antes de merge
+# QA dev — Etapa 1 Lote 1 (#103 en `main`)
 
-## Importante: qué hay hoy en dev compartido
+Checklist manual para validar **layout admin**, **drawer Personas** y **acciones homologadas** (`AdminActionBar`).
 
-El deploy a **aditsystem-dev** ocurre **solo al hacer push a `main`** (workflow `Deploy to S3`).
+Referencia de alcance: [`tra-140-etapa1-lote1.md`](./tra-140-etapa1-lote1.md).
 
-| Build                                                | Contenido aproximado                                                         |
-| ---------------------------------------------------- | ---------------------------------------------------------------------------- |
-| **Dev actual** (`main` ≈ #102)                       | Sidebar, ancho `admin-workspace`, drawer `PersonSummary`                     |
-| **PR #103** (rama `feat/etapa1-lote1-admin-actions`) | + `AdminActionBar`, reglas de botones eventos, sin pills legacy en workspace |
+## Qué incluye el build actual
 
-Por tanto: en **https://aditsystem-dev.ervic.pro/** puedes validar **canvas + drawer (#101–102)**; los **botones homologados del lote 1 (#103)** no aparecen en dev hasta merge + deploy.
+El [PR #103](https://github.com/Westfold-Advisory/ADITSYSTEM/pull/103) está **mergeado en `main`** (commit de referencia: `41570ad`).
 
-Para revisar **los tres puntos del PR #103 antes del merge**, usa **preview local** apuntando a la API de dev (abajo).
+| Entorno                     | Contenido                                                                                                                                       |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`main` / dev desplegado** | Sidebar L1/L2, ancho `admin-workspace`, drawer `PersonSummary`, `AdminActionBar`, botones de eventos homologados, sin pills legacy en workspace |
+| **Preview local**           | Mismo código que `main` si hiciste `git pull`; API configurable (por defecto **API dev**)                                                       |
+
+Deploy: push a **`main`** → workflow **Deploy to S3** → **https://aditsystem-dev.ervic.pro/** (alias del frontend en dev).
 
 ---
 
 ## Checklist PO (1440×900 recomendado)
 
-### A. `/admin` — Eventos (solo con build #103)
+Viewport: Chrome DevTools → modo responsive → **1440 × 100%**.
+
+### A. `/admin` — Eventos
 
 - [ ] Sidebar izquierda: Personas · Mapa de cobertura · Eventos.
 - [ ] Contenido usa casi todo el ancho (sin columna centrada ~960px).
@@ -26,46 +30,68 @@ Para revisar **los tres puntos del PR #103 antes del merge**, usa **preview loca
 - [ ] `Cancelar` / `Despublicar` = outline; `Eliminar` = destructive (rojo).
 - [ ] Header: acción **Crear evento** = outline (esquina superior).
 
-### B. `/admin/personas` (dev actual ≈ #102; drawer acciones outline reforzado en #103)
+### B. `/admin/personas`
 
 - [ ] Subnav en sidebar: Listado · Árbol · Organigrama.
 - [ ] **Listado u Organigrama** sin panel derecho hasta seleccionar fila/tarjeta.
 - [ ] Al seleccionar: drawer con ✕, `PersonSummary`, tabs.
-- [ ] Acciones (Registrar / Editar): **outline**, no pill azul legacy (#103).
+- [ ] Acciones (Registrar / Editar): **outline**, no pill azul legacy.
 
 ### C. Ancho canvas — Personas, Mapa, Eventos
 
-- [ ] **Personas** → organigrama o listado ocupa el área principal (mapa/chart no “flotando” en 960px).
+- [ ] **Personas** → listado u organigrama ocupa el área principal (no “flotando” en ~960px).
 - [ ] **Mapa de cobertura** → mapa + toolbar a ancho completo.
-- [ ] **Eventos** → grid de tarjetas ancho completo.
+- [ ] **Eventos** → grid de tarjetas a ancho completo.
 
 ---
 
-## Preview local contra API dev (pre-merge #103)
+## Preview local (script recomendado)
 
-Desde el repo, rama del PR:
+Desde la raíz del repo, en **`main`** actualizado:
 
 ```bash
 git fetch origin
-git checkout feat/etapa1-lote1-admin-actions
+git checkout main
+git pull origin main
 npm ci
-VITE_API_BASE_URL=https://api.aditsystem-dev.ervic.pro/api/v1 npm run build
-VITE_API_BASE_URL=https://api.aditsystem-dev.ervic.pro/api/v1 npx vite preview --host 127.0.0.1 --port 4173
+./scripts/run-etapa1-qa-preview.sh
 ```
 
-1. Abre **http://127.0.0.1:4173/** (entrada `/`; rutas profundas pueden requerir navegación interna o `history` como en S3).
-2. Inicia sesión con tu cuenta admin de dev.
+1. Abre **http://127.0.0.1:4173/** (entrada `/`).
+2. Inicia sesión con tu cuenta **admin de dev**.
 3. Navega con el **sidebar** a Personas / Mapa / Eventos.
 4. Recorre el checklist A–C.
+
+**Detener preview:**
+
+```bash
+./scripts/run-etapa1-qa-preview.sh stop
+```
+
+Variables opcionales: `VITE_API_BASE_URL`, `PREVIEW_HOST`, `PREVIEW_PORT`.
+
+### Build manual (sin script)
+
+```bash
+VITE_API_BASE_URL=https://api.aditsystem-dev.ervic.pro/api/v1 npm run build
+npm run preview -- --host 127.0.0.1 --port 4173
+```
 
 Credenciales: las de tu entorno dev (no van en el repo).
 
 ---
 
-## Después de tu OK
+## Validación en dev desplegado
 
-1. Merge **PR #103** → `main`.
-2. Esperar job **Deploy to S3** en GitHub Actions.
-3. Repetir checklist A–C en **https://aditsystem-dev.ervic.pro/** (misma sesión/API).
+1. Confirma que **Deploy to S3** terminó en verde en [Actions](https://github.com/Westfold-Advisory/ADITSYSTEM/actions) tras el merge a `main`.
+2. Abre **https://aditsystem-dev.ervic.pro/** → login → mismo checklist A–C.
 
-CI PR #103: https://github.com/Westfold-Advisory/ADITSYSTEM/pull/103
+---
+
+## Verificar commit en tu clon
+
+```bash
+git rev-parse --short HEAD
+# Esperado en línea con main: 41570ad o posterior que incluya #103
+git log -1 --oneline
+```
