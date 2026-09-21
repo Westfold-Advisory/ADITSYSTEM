@@ -43,6 +43,7 @@ export function PanelCapas({
   onEnsureTypeLoaded,
   onClose,
   returnFocusRef,
+  variant = "dialog",
 }: {
   items: Geofence[];
   visible: Record<GeofenceType, boolean>;
@@ -61,9 +62,14 @@ export function PanelCapas({
   onEnsureTypeLoaded?: (type: GeofenceType) => void;
   onClose: () => void;
   returnFocusRef?: RefObject<HTMLElement | null>;
+  /** The admin coverage map uses a non-modal responsive sidebar. */
+  variant?: "dialog" | "sidebar";
 }) {
   const [search, setSearch] = useState("");
-  const [listScope, setListScope] = useState<GeofenceListScope>("ALL");
+  const [listScope, setListScope] = useState<GeofenceListScope>(() =>
+    variant === "sidebar" ? "DISTRITO_LOCAL" : "ALL",
+  );
+  const [mobileTab, setMobileTab] = useState<"LAYERS" | "SEARCH">("LAYERS");
   const dialogRef = useRef<HTMLElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -72,31 +78,35 @@ export function PanelCapas({
     returnFocusRef,
     onClose,
     initialFocusRef: closeButtonRef,
+    enabled: variant === "dialog",
   });
 
+  const activeScope =
+    listScope !== "ALL" && visible[listScope]
+      ? listScope
+      : (GEOFENCE_TYPES.find((type) => visible[type]) ?? "ALL");
+
   useEffect(() => {
-    if (listScope !== "ALL") onEnsureTypeLoaded?.(listScope);
-  }, [listScope, onEnsureTypeLoaded]);
+    if (activeScope !== "ALL") onEnsureTypeLoaded?.(activeScope);
+  }, [activeScope, onEnsureTypeLoaded]);
 
   useEffect(() => {
     const term = search.trim();
     if (term.length < 2 || !onEnsureTypeLoaded) return;
-    for (const type of GEOFENCE_TYPES) {
-      if (visible[type] && !(isTypeLoaded?.(type) ?? true)) {
-        onEnsureTypeLoaded(type);
-      }
+    if (activeScope !== "ALL" && !(isTypeLoaded?.(activeScope) ?? true)) {
+      onEnsureTypeLoaded(activeScope);
     }
-  }, [isTypeLoaded, onEnsureTypeLoaded, search, visible]);
+  }, [activeScope, isTypeLoaded, onEnsureTypeLoaded, search]);
 
   const listResult = useMemo(
     () =>
       filterGeofencesForPanelList({
         items,
         visible,
-        listScope,
+        listScope: activeScope,
         search,
       }),
-    [items, listScope, search, visible],
+    [activeScope, items, search, visible],
   );
 
   const selected = items.find((item) => item.id === selectedId);
@@ -112,10 +122,10 @@ export function PanelCapas({
   return (
     <section
       ref={dialogRef}
-      role="dialog"
-      aria-modal="true"
+      role={variant === "dialog" ? "dialog" : undefined}
+      aria-modal={variant === "dialog" ? "true" : undefined}
       aria-label="Capas territoriales"
-      className="absolute top-3 right-3 z-20 flex max-h-[calc(100%-1.5rem)] w-80 flex-col overflow-hidden rounded border max-sm:inset-x-0 max-sm:top-auto max-sm:bottom-0 max-sm:w-full max-sm:max-h-[78%] max-sm:rounded-b-none"
+      className={`coverage-layer-panel ${variant === "dialog" ? "absolute top-3 right-3 z-20 max-h-[calc(100%-1.5rem)] w-80 max-sm:inset-x-0 max-sm:top-auto max-sm:bottom-0 max-sm:w-full max-sm:max-h-[78%] max-sm:rounded-b-none" : "w-full"} flex flex-col overflow-hidden rounded border`}
       style={{
         background: "var(--cyber-surface-1)",
         borderColor: "var(--cyber-border)",
@@ -131,13 +141,15 @@ export function PanelCapas({
           style={{ color: "var(--md-sys-color-on-surface)" }}
         >
           <Layers size={14} aria-hidden />
-          Capas territoriales
+          {variant === "sidebar" ? "Capas y búsqueda" : "Capas territoriales"}
         </span>
         <button
           ref={closeButtonRef}
           type="button"
           onClick={onClose}
-          aria-label="Cerrar capas"
+          aria-label={
+            variant === "sidebar" ? "Contraer capas y búsqueda" : "Cerrar capas"
+          }
           className="rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
           style={{ outlineColor: "var(--md-sys-color-primary)" }}
         >
@@ -145,8 +157,32 @@ export function PanelCapas({
         </button>
       </header>
 
+      {variant === "sidebar" && (
+        <div
+          className="grid grid-cols-2 border-b lg:hidden"
+          style={{ borderColor: "var(--cyber-border-subtle)" }}
+        >
+          <button
+            type="button"
+            onClick={() => setMobileTab("LAYERS")}
+            aria-pressed={mobileTab === "LAYERS"}
+            className="min-h-10 text-xs font-medium"
+          >
+            Capas
+          </button>
+          <button
+            type="button"
+            onClick={() => setMobileTab("SEARCH")}
+            aria-pressed={mobileTab === "SEARCH"}
+            className="min-h-10 text-xs font-medium"
+          >
+            Buscar
+          </button>
+        </div>
+      )}
+
       <div
-        className="p-2 border-b space-y-2"
+        className={`${variant === "sidebar" && mobileTab === "SEARCH" ? "max-lg:hidden " : ""}p-2 border-b space-y-2`}
         style={{ borderColor: "var(--cyber-border-subtle)" }}
       >
         <p className="text-[11px] leading-snug text-muted-foreground">
@@ -159,7 +195,7 @@ export function PanelCapas({
             className="rounded border px-2 py-1 text-[11px]"
             onClick={() => setAllLayers(true)}
           >
-            Mostrar capas base
+            Base
           </button>
           <button
             type="button"
@@ -238,7 +274,7 @@ export function PanelCapas({
       </div>
 
       <div
-        className="space-y-2 border-b p-2"
+        className={`${variant === "sidebar" && mobileTab === "LAYERS" ? "max-lg:hidden " : ""}space-y-2 border-b p-2`}
         style={{ borderColor: "var(--cyber-border-subtle)" }}
       >
         <label
@@ -249,14 +285,13 @@ export function PanelCapas({
         </label>
         <select
           id="geofence-list-scope"
-          value={listScope}
+          value={activeScope}
           onChange={(event) =>
             setListScope(event.target.value as GeofenceListScope)
           }
           className="min-h-9 w-full rounded border bg-transparent px-2 text-xs"
         >
-          <option value="ALL">Todas las capas activas</option>
-          {GEOFENCE_TYPES.map((type) => (
+          {GEOFENCE_TYPES.filter((type) => visible[type]).map((type) => (
             <option key={type} value={type}>
               {typeLabels[type]}
               {countsByType?.[type] !== undefined
@@ -294,7 +329,9 @@ export function PanelCapas({
         </div>
       )}
 
-      <div className="min-h-0 flex-1 overflow-y-auto p-2 space-y-1">
+      <div
+        className={`${variant === "sidebar" && mobileTab === "LAYERS" ? "max-lg:hidden " : ""}min-h-0 flex-1 overflow-y-auto p-2 space-y-1`}
+      >
         {loading && (
           <div role="status" aria-live="polite">
             <span className="sr-only">Cargando geocercas…</span>
@@ -322,9 +359,9 @@ export function PanelCapas({
             <p className="text-xs text-muted-foreground">
               {search.trim()
                 ? "Ningún territorio coincide. Prueba otro nombre, activa la capa correspondiente o espera a que termine la carga."
-                : listScope === "ALL"
-                  ? "No hay datos cargados para las capas activas. Marca una capa y espera el conteo numérico."
-                  : `No hay ${typeLabels[listScope as GeofenceType].toLocaleLowerCase("es-MX")} cargados. Activa la capa y espera la carga.`}
+                : activeScope === "ALL"
+                  ? "Activa una capa para buscar un territorio."
+                  : `No hay ${typeLabels[activeScope].toLocaleLowerCase("es-MX")} cargados. Activa la capa y espera la carga.`}
             </p>
           )}
         {listResult.truncated && (

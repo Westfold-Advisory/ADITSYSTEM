@@ -7,17 +7,21 @@ export function useModalFocus({
   returnFocusRef,
   onClose,
   initialFocusRef,
+  enabled = true,
 }: {
   containerRef: RefObject<HTMLElement | null>;
   returnFocusRef?: RefObject<HTMLElement | null>;
   onClose: () => void;
   initialFocusRef?: RefObject<HTMLElement | null>;
+  enabled?: boolean;
 }) {
   useEffect(() => {
+    if (!enabled) return;
     initialFocusRef?.current?.focus();
-  }, [initialFocusRef]);
+  }, [enabled, initialFocusRef]);
 
   useEffect(() => {
+    if (!enabled) return;
     const node = containerRef.current;
     if (!node) return;
 
@@ -53,5 +57,5 @@ export function useModalFocus({
       node.removeEventListener("keydown", handleKeyDown);
       returnTarget?.focus();
     };
-  }, [containerRef, onClose, returnFocusRef]);
+  }, [containerRef, enabled, onClose, returnFocusRef]);
 }
