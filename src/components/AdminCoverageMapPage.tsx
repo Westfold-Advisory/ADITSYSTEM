@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Layers, Search } from "lucide-react";
+import { PanelLeftClose, PanelLeftOpen, Search } from "lucide-react";
 
 import type { LoginResponse } from "@/api/auth";
 import { DomainApi } from "@/api/domain";
@@ -134,7 +134,7 @@ export function AdminCoverageMapPage() {
   const [selectedGeofenceId, setSelectedGeofenceId] = useState<string | null>(
     null,
   );
-  const [panelCapasAbierto, setPanelCapasAbierto] = useState(false);
+  const [panelCapasAbierto, setPanelCapasAbierto] = useState(true);
   const capasTriggerRef = useRef<HTMLButtonElement>(null);
   const [pointGeofences] = useState<Geofence[]>([]);
   const [pointLookup] = useState({
@@ -369,10 +369,15 @@ export function AdminCoverageMapPage() {
           ref={capasTriggerRef}
           variant="outline"
           size="sm"
-          onClick={() => setPanelCapasAbierto(true)}
+          onClick={() => setPanelCapasAbierto((current) => !current)}
+          aria-expanded={panelCapasAbierto}
         >
-          <Layers size={14} aria-hidden />
-          Capas territoriales
+          {panelCapasAbierto ? (
+            <PanelLeftClose size={14} aria-hidden />
+          ) : (
+            <PanelLeftOpen size={14} aria-hidden />
+          )}
+          {panelCapasAbierto ? "Ocultar capas" : "Capas y búsqueda"}
         </Button>
       </section>
 
@@ -383,74 +388,77 @@ export function AdminCoverageMapPage() {
         />
       )}
 
-      <div className="coverage-map-layout grid gap-4 lg:grid-cols-[1fr_320px]">
-        <div className="coverage-map-stage">
-          {coverageLoading ? (
-            <LoadingState label="Cargando cobertura…" />
-          ) : coverageError ? null : (
-            <>
-              {filteredPins.length === 0 && (
-                <p className="coverage-map-empty-banner" role="status">
-                  {pins.length === 0
-                    ? "No hay personas con ubicación en tu alcance. Puedes activar capas territoriales y el mapa de calor."
-                    : "Ningún pin coincide con los filtros actuales. Ajusta rol o búsqueda."}
-                </p>
-              )}
-              <Map
-                className="absolute inset-0 h-full w-full"
-                theme="dark"
-                keyboard={false}
-                viewport={{
-                  center: [-98.2, 19.04] as [number, number],
-                  zoom: 8,
-                }}
-              >
-                <MapControls position="bottom-right" />
-                <Capa
-                  items={geofences}
-                  visible={geofenceVisibility}
-                  selectedId={selectedGeofenceId}
-                  onSelect={handleSelectGeofence}
-                />
-                {showHeatmap && heatmap.features.length > 0 && (
-                  <MapHeatmapLayer data={heatmap} visible={showHeatmap} />
+      <div className="coverage-map-layout grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="coverage-map-workspace">
+          {panelCapasAbierto && (
+            <PanelCapas
+              variant="sidebar"
+              items={geofences}
+              visible={geofenceVisibility}
+              selectedId={selectedGeofenceId}
+              loading={geofencesLoading}
+              error={geofencesError}
+              errorsByType={errorsByType}
+              truncatedTypes={truncatedTypes}
+              countsByType={countsByType}
+              isTypeLoaded={isTypeLoaded}
+              isTypeLoading={isTypeLoading}
+              pointGeofences={pointGeofences}
+              pointLookup={pointLookup}
+              onToggle={handleGeofenceLayerToggle}
+              onSelect={handleSelectGeofence}
+              onEnsureTypeLoaded={(type) => void ensureTypeLoaded(type)}
+              onClose={() => setPanelCapasAbierto(false)}
+              returnFocusRef={capasTriggerRef}
+            />
+          )}
+          <div className="coverage-map-stage">
+            {coverageLoading ? (
+              <LoadingState label="Cargando cobertura…" />
+            ) : coverageError ? null : (
+              <>
+                {filteredPins.length === 0 && (
+                  <p className="coverage-map-empty-banner" role="status">
+                    {pins.length === 0
+                      ? "No hay personas con ubicación en tu alcance. Puedes activar capas territoriales y el mapa de calor."
+                      : "Ningún pin coincide con los filtros actuales. Ajusta rol o búsqueda."}
+                  </p>
                 )}
-                {pinFeatures.features.length > 0 && (
-                  <MapClusterLayer
-                    data={pinFeatures}
-                    clusterMaxZoom={12}
-                    clusterRadius={40}
-                    pointColor="var(--md-sys-color-primary)"
-                    onPointClick={(feature) => {
-                      setEditing(false);
-                      setSelectedPinId(feature.properties.id);
-                    }}
-                  />
-                )}
-                {panelCapasAbierto && (
-                  <PanelCapas
+                <Map
+                  className="absolute inset-0 h-full w-full"
+                  theme="dark"
+                  keyboard={false}
+                  viewport={{
+                    center: [-98.2, 19.04] as [number, number],
+                    zoom: 8,
+                  }}
+                >
+                  <MapControls position="bottom-right" />
+                  <Capa
                     items={geofences}
                     visible={geofenceVisibility}
                     selectedId={selectedGeofenceId}
-                    loading={geofencesLoading}
-                    error={geofencesError}
-                    errorsByType={errorsByType}
-                    truncatedTypes={truncatedTypes}
-                    countsByType={countsByType}
-                    isTypeLoaded={isTypeLoaded}
-                    isTypeLoading={isTypeLoading}
-                    pointGeofences={pointGeofences}
-                    pointLookup={pointLookup}
-                    onToggle={handleGeofenceLayerToggle}
                     onSelect={handleSelectGeofence}
-                    onEnsureTypeLoaded={(type) => void ensureTypeLoaded(type)}
-                    onClose={() => setPanelCapasAbierto(false)}
-                    returnFocusRef={capasTriggerRef}
                   />
-                )}
-              </Map>
-            </>
-          )}
+                  {showHeatmap && heatmap.features.length > 0 && (
+                    <MapHeatmapLayer data={heatmap} visible={showHeatmap} />
+                  )}
+                  {pinFeatures.features.length > 0 && (
+                    <MapClusterLayer
+                      data={pinFeatures}
+                      clusterMaxZoom={12}
+                      clusterRadius={40}
+                      pointColor="var(--md-sys-color-primary)"
+                      onPointClick={(feature) => {
+                        setEditing(false);
+                        setSelectedPinId(feature.properties.id);
+                      }}
+                    />
+                  )}
+                </Map>
+              </>
+            )}
+          </div>
         </div>
 
         <aside className="coverage-map-detail border p-4" aria-live="polite">

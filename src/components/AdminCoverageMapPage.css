@@ -10,6 +10,35 @@
   align-items: stretch;
 }
 
+.coverage-map-workspace {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  gap: 1rem;
+}
+
+@media (min-width: 1024px) {
+  .coverage-map-workspace {
+    grid-template-columns: minmax(17rem, 19rem) minmax(0, 1fr);
+  }
+
+  .coverage-map-workspace > .coverage-layer-panel {
+    height: min(72vh, 720px);
+    min-height: 480px;
+  }
+}
+
+@media (max-width: 1023px) {
+  .coverage-map-workspace > .coverage-layer-panel {
+    position: absolute;
+    right: 0.75rem;
+    bottom: 0;
+    left: 0.75rem;
+    z-index: 20;
+    max-height: min(78%, 34rem);
+  }
+}
+
 .coverage-map-stage {
   position: relative;
   height: min(72vh, 720px);
