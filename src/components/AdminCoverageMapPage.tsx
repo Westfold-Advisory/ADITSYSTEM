@@ -9,6 +9,7 @@ import {
   type GeofenceType,
 } from "@/api/geofences";
 import { ApiClient } from "@/api/http";
+import { AdminActionBar } from "@/components/admin/AdminActionBar";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminWorkspaceShell } from "@/components/admin/AdminWorkspaceShell";
 import { PersonForm } from "@/components/admin/PersonForm";
@@ -493,13 +494,17 @@ export function AdminCoverageMapPage() {
                     aria-hidden
                   />
                   {!editing ? (
-                    <Button
-                      className="mt-4"
-                      variant="outline"
-                      onClick={() => setEditing(true)}
+                    <AdminActionBar
+                      className="coverage-map-detail__actions"
+                      ariaLabel="Acciones sobre la persona seleccionada"
                     >
-                      Editar persona
-                    </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => setEditing(true)}
+                      >
+                        Editar persona
+                      </Button>
+                    </AdminActionBar>
                   ) : parentPerson ? (
                     <PersonForm
                       mode="edit"

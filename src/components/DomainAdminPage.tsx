@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { DomainApi } from "@/api/domain";
 import { ApiClient } from "@/api/http";
@@ -13,7 +13,8 @@ import {
   type PersonasStructureView,
 } from "@/components/admin/PersonasViewNav";
 import { AdminWorkspaceShell } from "@/components/admin/AdminWorkspaceShell";
-import { apiErrorMessage } from "@/components/admin/person-display";
+import { apiErrorMessage, nameOf } from "@/components/admin/person-display";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { capabilitiesFor } from "@/lib/capabilities";
 import { canRegisterDocuments } from "@/lib/document-access";
 import type { PersonCreateOption } from "@/lib/person-provisioning";
@@ -67,6 +68,9 @@ export function DomainAdminPage({ session }: { session: LoginResponse }) {
   const [changingPassword, setChangingPassword] = useState(false);
   const [treeSheetOpen, setTreeSheetOpen] = useState(false);
   const [filter, setFilter] = useState<PersonFilter>(emptyPersonFilter);
+  const [removeConfirmOpen, setRemoveConfirmOpen] = useState(false);
+  const [removeBusy, setRemoveBusy] = useState(false);
+  const drawerReturnFocusRef = useRef<HTMLElement | null>(null);
   const filterActive = isPersonFilterActive(filter);
   const filteredChildren = useMemo(
     () => (self ? filterChildMapForTree(self, children, filter) : children),
@@ -97,6 +101,9 @@ export function DomainAdminPage({ session }: { session: LoginResponse }) {
 
   const select = useCallback(
     (person: Person) => {
+      if (document.activeElement instanceof HTMLElement) {
+        drawerReturnFocusRef.current = document.activeElement;
+      }
       selectPerson(person);
       setCreating(false);
       setEditing(false);
@@ -234,21 +241,26 @@ export function DomainAdminPage({ session }: { session: LoginResponse }) {
           knownPersons,
         )
       : false;
-  const remove = async () => {
-    if (
-      !selected ||
-      selected.id === session.user.persona_id ||
-      !window.confirm(
-        `Dar de baja a ${selected.nombre}? Esta operación es una baja lógica.`,
-      )
-    )
+  const requestRemove = () => {
+    if (!selected || selected.id === session.user.persona_id) return;
+    setRemoveConfirmOpen(true);
+  };
+
+  const confirmRemove = async () => {
+    if (!selected || selected.id === session.user.persona_id) {
+      setRemoveConfirmOpen(false);
       return;
+    }
+    setRemoveBusy(true);
     try {
       await api.deletePerson(selected.id);
       removePersonFromTree(selected.id);
       resetSelectionToRoot();
+      setRemoveConfirmOpen(false);
     } catch (reason) {
       setError(apiErrorMessage(reason));
+    } finally {
+      setRemoveBusy(false);
     }
   };
 
@@ -315,7 +327,7 @@ export function DomainAdminPage({ session }: { session: LoginResponse }) {
       onCreate={createChild}
       onUpdate={updatePerson}
       onChangePassword={changePassword}
-      onRemove={() => void remove()}
+      onRemove={requestRemove}
     />
   ) : null;
 
@@ -411,8 +423,9 @@ export function DomainAdminPage({ session }: { session: LoginResponse }) {
                     onCreate={createChild}
                     onUpdate={updatePerson}
                     onChangePassword={changePassword}
-                    onRemove={() => void remove()}
+                    onRemove={requestRemove}
                     onDismiss={dismissAltDetail}
+                    returnFocusRef={drawerReturnFocusRef}
                   />
                 </section>
               ) : null}
@@ -430,6 +443,28 @@ export function DomainAdminPage({ session }: { session: LoginResponse }) {
       }
     >
       {personasContent}
+      <ConfirmDialog
+        open={removeConfirmOpen && Boolean(selected)}
+        title="Dar de baja persona"
+        description={
+          selected ? (
+            <>
+              <p>
+                ¿Confirmas dar de baja a <strong>{nameOf(selected)}</strong>?
+              </p>
+              <p>
+                Es una baja lógica: la persona dejará de aparecer en la
+                estructura activa, pero se conservan los datos históricos.
+              </p>
+            </>
+          ) : null
+        }
+        confirmLabel="Dar de baja"
+        cancelLabel="Cancelar"
+        onConfirm={() => void confirmRemove()}
+        onCancel={() => setRemoveConfirmOpen(false)}
+        busy={removeBusy}
+      />
     </AdminWorkspaceShell>
   );
 }

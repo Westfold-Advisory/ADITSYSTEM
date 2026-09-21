@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState, type RefObject } from "react";
 import { X } from "lucide-react";
 import { Tabs } from "radix-ui";
 
@@ -30,6 +30,8 @@ import { PersonSummary } from "./PersonSummary";
 import { PersonChangePasswordForm } from "./PersonChangePasswordForm";
 import { PersonDocumentsTab } from "./PersonDocumentsTab";
 import { PersonForm } from "./PersonForm";
+import { useModalFocus } from "@/hooks/useModalFocus";
+
 import { nameOf, roleLabel } from "./person-display";
 import { PersonStatusBadge } from "./PersonStatusBadge";
 
@@ -295,6 +297,7 @@ export function PersonDetailPanel({
   onChangePassword,
   onRemove,
   onDismiss,
+  returnFocusRef,
 }: {
   selected: Person;
   breadcrumb: Person[];
@@ -321,7 +324,12 @@ export function PersonDetailPanel({
   onChangePassword: (newPassword: string) => Promise<void>;
   onRemove: () => void;
   onDismiss?: () => void;
+  /** Elemento que abrió el drawer; recibe foco al cerrar. */
+  returnFocusRef?: RefObject<HTMLElement | null>;
 }) {
+  const drawerRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
   const createOptions = useMemo(
     () => createOptionsForSelection(actorRole, selected, sessionPersonId),
     [actorRole, selected, sessionPersonId],
@@ -333,6 +341,14 @@ export function PersonDetailPanel({
     isAuthenticatableRole(selected.role) &&
     canManageSelected(selected);
   const isDrawer = Boolean(onDismiss);
+
+  useModalFocus({
+    containerRef: drawerRef,
+    returnFocusRef,
+    onClose: onDismiss ?? (() => undefined),
+    initialFocusRef: closeButtonRef,
+    enabled: isDrawer,
+  });
 
   const formBlock = (
     <>
@@ -402,11 +418,13 @@ export function PersonDetailPanel({
   if (isDrawer) {
     return (
       <div
+        ref={drawerRef}
         className="person-drawer"
         aria-label={`Detalle de ${nameOf(selected)}`}
       >
         <div className="person-drawer__top">
           <Button
+            ref={closeButtonRef}
             type="button"
             variant="ghost"
             size="sm"
