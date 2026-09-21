@@ -1,5 +1,7 @@
 import { GitBranch, List, Network } from "lucide-react";
 
+import { useAdminSidebarCompact } from "@/components/admin/admin-sidebar-context";
+
 const VIEWS = [
   { value: "listado" as const, label: "Listado", Icon: List },
   { value: "arbol" as const, label: "Árbol y detalle", Icon: GitBranch },
@@ -15,9 +17,18 @@ export function PersonasViewNav({
   value: PersonasStructureView;
   onChange: (view: PersonasStructureView) => void;
 }) {
+  const compact = useAdminSidebarCompact();
+
   return (
-    <nav className="personas-view-nav" aria-label="Vistas de personas">
-      <p className="personas-view-nav__heading">Vistas</p>
+    <nav
+      className={
+        compact
+          ? "personas-view-nav personas-view-nav--compact"
+          : "personas-view-nav"
+      }
+      aria-label="Vistas de personas"
+    >
+      {!compact ? <p className="personas-view-nav__heading">Vistas</p> : null}
       <ul className="personas-view-nav__list">
         {VIEWS.map((view) => (
           <li key={view.value}>
@@ -26,13 +37,14 @@ export function PersonasViewNav({
               className="personas-view-nav__link"
               aria-current={value === view.value ? "page" : undefined}
               onClick={() => onChange(view.value)}
+              title={view.label}
             >
               <view.Icon
                 size={16}
                 className="personas-view-nav__icon"
                 aria-hidden
               />
-              <span>{view.label}</span>
+              <span className="personas-view-nav__label">{view.label}</span>
             </button>
           </li>
         ))}

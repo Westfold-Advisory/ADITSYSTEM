@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 
 import { DomainApi } from "@/api/domain";
 import { ApiClient } from "@/api/http";
@@ -41,9 +48,11 @@ import type { Person, PersonInput, PersonProvisionInput } from "@/types/domain";
 export function DomainAdminPage({
   session,
   onSignOut,
+  pageHeader,
 }: {
   session: LoginResponse;
   onSignOut: () => void;
+  pageHeader?: ReactNode;
 }) {
   const capabilities = capabilitiesFor(session.user.rol);
   const api = useMemo(
@@ -443,6 +452,7 @@ export function DomainAdminPage({
 
   return (
     <AdminWorkspaceShell
+      header={pageHeader}
       subNav={
         <PersonasViewNav value={structureView} onChange={changeStructureView} />
       }
