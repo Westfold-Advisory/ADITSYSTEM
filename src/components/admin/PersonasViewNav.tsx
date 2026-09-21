@@ -1,4 +1,5 @@
-import { GitBranch, List, Network } from "lucide-react";
+import { ChevronDown, GitBranch, List, Network } from "lucide-react";
+import { DropdownMenu } from "radix-ui";
 
 import { useAdminSidebarCompact } from "@/components/admin/admin-sidebar-context";
 
@@ -18,37 +19,58 @@ export function PersonasViewNav({
   onChange: (view: PersonasStructureView) => void;
 }) {
   const compact = useAdminSidebarCompact();
+  const current = VIEWS.find((view) => view.value === value) ?? VIEWS[0]!;
 
   return (
-    <nav
-      className={
-        compact
-          ? "personas-view-nav personas-view-nav--compact"
-          : "personas-view-nav"
-      }
-      aria-label="Vistas de personas"
-    >
-      {!compact ? <p className="personas-view-nav__heading">Vistas</p> : null}
-      <ul className="personas-view-nav__list">
-        {VIEWS.map((view) => (
-          <li key={view.value}>
-            <button
-              type="button"
-              className="personas-view-nav__link"
-              aria-current={value === view.value ? "page" : undefined}
-              onClick={() => onChange(view.value)}
-              title={view.label}
+    <DropdownMenu.Root>
+      <DropdownMenu.Trigger asChild>
+        <button
+          type="button"
+          className="personas-view-nav__trigger"
+          aria-label={compact ? `Vista: ${current.label}` : undefined}
+          title={compact ? current.label : undefined}
+        >
+          <current.Icon
+            size={16}
+            className="personas-view-nav__icon"
+            aria-hidden
+          />
+          {!compact ? (
+            <>
+              <span className="personas-view-nav__label">{current.label}</span>
+              <ChevronDown
+                size={14}
+                className="personas-view-nav__chevron"
+                aria-hidden
+              />
+            </>
+          ) : null}
+        </button>
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Portal>
+        <DropdownMenu.Content
+          className="personas-view-nav__menu"
+          align="start"
+          side={compact ? "right" : "bottom"}
+          sideOffset={4}
+        >
+          {VIEWS.map((view) => (
+            <DropdownMenu.Item
+              key={view.value}
+              className="personas-view-nav__menu-item"
+              data-active={value === view.value ? "true" : undefined}
+              onSelect={() => onChange(view.value)}
             >
               <view.Icon
                 size={16}
                 className="personas-view-nav__icon"
                 aria-hidden
               />
-              <span className="personas-view-nav__label">{view.label}</span>
-            </button>
-          </li>
-        ))}
-      </ul>
-    </nav>
+              {view.label}
+            </DropdownMenu.Item>
+          ))}
+        </DropdownMenu.Content>
+      </DropdownMenu.Portal>
+    </DropdownMenu.Root>
   );
 }

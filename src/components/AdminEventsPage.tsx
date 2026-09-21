@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import type { LoginResponse } from "@/api/auth";
+import { DomainApi } from "@/api/domain";
 import { EventsApi } from "@/api/events";
 import { ApiClient } from "@/api/http";
 import type { Event, EventInput } from "@/types/events";
@@ -22,7 +23,7 @@ import { capabilitiesFor } from "@/lib/capabilities";
 import { FormularioNuevoEvento } from "./FormularioNuevoEvento";
 import { AdminActionBar } from "./admin/AdminActionBar";
 import { AdminPageHeader } from "./admin/AdminPageHeader";
-import { adminUserDisplayName } from "@/lib/admin-user-display";
+import { useOwnPersonDisplayName } from "@/hooks/useOwnPersonDisplayName";
 import { AdminWorkspaceShell } from "./admin/AdminWorkspaceShell";
 import { adminPageTitle } from "@/lib/admin-nav";
 import { LoginPage } from "./LoginPage";
@@ -119,6 +120,17 @@ export function AdminEventsPage() {
       ),
     [handleUnauthorized, session?.access_token],
   );
+  const domainApi = useMemo(
+    () =>
+      new DomainApi(
+        new ApiClient({
+          getAccessToken: () => session?.access_token,
+          onUnauthorized: handleUnauthorized,
+        }),
+      ),
+    [handleUnauthorized, session?.access_token],
+  );
+  const userDisplayName = useOwnPersonDisplayName(domainApi, session);
   const canManage = session
     ? capabilitiesFor(session.user.rol).canManageEvents
     : false;
@@ -223,7 +235,7 @@ export function AdminEventsPage() {
             }
           />
         }
-        userDisplayName={adminUserDisplayName(session.user.email)}
+        userDisplayName={userDisplayName}
         userEmail={session.user.email}
         userRole={session.user.rol}
         onSignOut={logout}
