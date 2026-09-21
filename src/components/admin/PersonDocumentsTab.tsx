@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/Field";
 import { adminUiCopy } from "@/content/admin-ui-es";
 import {
-  buildPrivateObjectKey,
   currentDocumentOfType,
   documentSummaryLine,
   documentTypeLabel,
@@ -145,13 +144,11 @@ function DocumentRegistrationForm({
     setSaving(true);
     setError(null);
     try {
-      const doc = await api.registerDocument(personId, {
+      const doc = await api.uploadDocument(personId, {
         type,
         title: title.trim(),
         description: description.trim() || null,
-        s3Key: buildPrivateObjectKey(personId, type, file.name),
-        mimeType: file.type || "application/octet-stream",
-        sizeBytes: file.size,
+        file,
       });
       onRegistered(doc);
       setTitle("");
@@ -199,7 +196,7 @@ function DocumentRegistrationForm({
       </div>
       <Field
         label="Archivo"
-        hint="Se usarán nombre, tipo MIME y tamaño. El contenido no se envía aún al servidor."
+        hint="El archivo se sube a almacenamiento privado antes de registrar la metadata."
       >
         <input
           type="file"
@@ -229,7 +226,7 @@ function DocumentRegistrationForm({
           Cancelar
         </Button>
         <Button type="submit" disabled={saving}>
-          {saving ? "Registrando…" : "Registrar metadata"}
+          {saving ? "Subiendo…" : "Registrar documento"}
         </Button>
       </div>
     </form>
