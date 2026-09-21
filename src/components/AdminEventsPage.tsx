@@ -20,6 +20,7 @@ import { UnauthorizedRoleScreen } from "./UnauthorizedRoleScreen";
 import { capabilitiesFor } from "@/lib/capabilities";
 import { FormularioNuevoEvento } from "./FormularioNuevoEvento";
 import { AdminPageHeader } from "./admin/AdminPageHeader";
+import { AdminWorkspaceShell } from "./admin/AdminWorkspaceShell";
 import { roleLabel } from "./admin/person-display";
 import { adminPageTitle } from "@/lib/admin-nav";
 import { LoginPage } from "./LoginPage";
@@ -199,7 +200,7 @@ export function AdminEventsPage() {
     );
 
   return (
-    <main className="admin-page">
+    <main className="admin-page admin-workspace">
       <AdminPageHeader
         eyebrow={institution.productName}
         title={adminPageTitle("/admin")}
@@ -209,74 +210,77 @@ export function AdminEventsPage() {
           </>
         }
         onSignOut={logout}
+        showModuleNav={false}
         actions={
-          <Button size="sm" onClick={() => setEditing("new")}>
+          <Button size="sm" variant="outline" onClick={() => setEditing("new")}>
             Crear evento
           </Button>
         }
       />
-      {editing ? (
-        <FormularioNuevoEvento
-          event={editing === "new" ? undefined : editing}
-          onCancel={() => setEditing(null)}
-          onSubmit={save}
-        />
-      ) : (
-        <>
-          {error && (
-            <p className="request-message error" role="alert">
-              {error}
-            </p>
-          )}
-          {isLoading ? (
-            <LoadingState label="Cargando eventos…" />
-          ) : error ? (
-            <ErrorState message={error} />
-          ) : events.length === 0 ? (
-            <EmptyState>
-              No hay eventos administrativos todavía. Crea un borrador para
-              comenzar.
-            </EmptyState>
-          ) : (
-            <section className="admin-events" aria-live="polite">
-              {events.map((event) => (
-                <Card key={event.id} className="admin-event-card">
-                  <header className="admin-event-card__head">
-                    <h2>{event.name}</h2>
-                    <EventStatusBadge status={event.status} />
-                  </header>
-                  <p className="admin-event-card__meta">
-                    {event.type} · {event.locationText}
-                  </p>
-                  <div className="admin-event-card__actions">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setEditing(event)}
-                    >
-                      Editar
-                    </Button>
-                    {actionsFor(event).map(({ action, label, sensitive }) => {
-                      const busy = activeAction === `${event.id}:${action}`;
-                      return (
-                        <Button
-                          key={action}
-                          size="sm"
-                          variant={actionButtonVariant(action, sensitive)}
-                          status={busy ? "loading" : "idle"}
-                          onClick={() => void runAction(event, action)}
-                        >
-                          {label}
-                        </Button>
-                      );
-                    })}
-                  </div>
-                </Card>
-              ))}
-            </section>
-          )}
-        </>
-      )}
+      <AdminWorkspaceShell>
+        {editing ? (
+          <FormularioNuevoEvento
+            event={editing === "new" ? undefined : editing}
+            onCancel={() => setEditing(null)}
+            onSubmit={save}
+          />
+        ) : (
+          <>
+            {error && (
+              <p className="request-message error" role="alert">
+                {error}
+              </p>
+            )}
+            {isLoading ? (
+              <LoadingState label="Cargando eventos…" />
+            ) : error ? (
+              <ErrorState message={error} />
+            ) : events.length === 0 ? (
+              <EmptyState>
+                No hay eventos administrativos todavía. Crea un borrador para
+                comenzar.
+              </EmptyState>
+            ) : (
+              <section className="admin-events" aria-live="polite">
+                {events.map((event) => (
+                  <Card key={event.id} className="admin-event-card">
+                    <header className="admin-event-card__head">
+                      <h2>{event.name}</h2>
+                      <EventStatusBadge status={event.status} />
+                    </header>
+                    <p className="admin-event-card__meta">
+                      {event.type} · {event.locationText}
+                    </p>
+                    <div className="admin-event-card__actions">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setEditing(event)}
+                      >
+                        Editar
+                      </Button>
+                      {actionsFor(event).map(({ action, label, sensitive }) => {
+                        const busy = activeAction === `${event.id}:${action}`;
+                        return (
+                          <Button
+                            key={action}
+                            size="sm"
+                            variant={actionButtonVariant(action, sensitive)}
+                            status={busy ? "loading" : "idle"}
+                            onClick={() => void runAction(event, action)}
+                          >
+                            {label}
+                          </Button>
+                        );
+                      })}
+                    </div>
+                  </Card>
+                ))}
+              </section>
+            )}
+          </>
+        )}
+      </AdminWorkspaceShell>
     </main>
   );
 }

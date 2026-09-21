@@ -9,12 +9,15 @@ export function AdminPageHeader({
   subtitle,
   onSignOut,
   actions,
+  showModuleNav = true,
 }: {
   eyebrow: string;
   title: string;
   subtitle: ReactNode;
   onSignOut: () => void;
   actions?: ReactNode;
+  /** Oculta tabs horizontales cuando la navegación vive en el sidebar (AppShell admin). */
+  showModuleNav?: boolean;
 }) {
   return (
     <header className="admin-header">
@@ -43,7 +46,7 @@ export function AdminPageHeader({
           </Button>
         </div>
         <div className="admin-header__nav-row">
-          <AdminNav />
+          {showModuleNav ? <AdminNav /> : null}
           {actions ? (
             <div className="admin-header__page-actions">{actions}</div>
           ) : null}

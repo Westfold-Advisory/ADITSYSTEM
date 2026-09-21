@@ -10,6 +10,7 @@ import {
 } from "@/api/geofences";
 import { ApiClient } from "@/api/http";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { AdminWorkspaceShell } from "@/components/admin/AdminWorkspaceShell";
 import { PersonForm } from "@/components/admin/PersonForm";
 import { nameOf, roleLabel } from "@/components/admin/person-display";
 import { UnauthorizedRoleScreen } from "@/components/UnauthorizedRoleScreen";
@@ -303,7 +304,7 @@ export function AdminCoverageMapPage() {
   const hasSelectedPin = Boolean(selectedPinId && selectedPin);
 
   return (
-    <main className="admin-page coverage-map-page">
+    <main className="admin-page admin-workspace coverage-map-page">
       <AdminPageHeader
         eyebrow={institution.productName}
         title={adminPageTitle("/admin/mapa")}
@@ -313,211 +314,217 @@ export function AdminCoverageMapPage() {
           </>
         }
         onSignOut={logout}
+        showModuleNav={false}
       />
 
-      <section
-        className="admin-page-toolbar coverage-map-toolbar"
-        aria-label="Filtros del mapa"
-      >
-        <label className="flex items-center gap-2">
-          <Search size={16} aria-hidden />
-          <span className="sr-only">Buscar persona</span>
-          <input
-            type="search"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Buscar por nombre"
-            className="min-h-10 rounded border px-3"
-          />
-        </label>
-        <div className="flex flex-wrap gap-1" role="group" aria-label="Rol">
-          {COVERAGE_ROLE_FILTERS.map((filter) => (
-            <Button
-              key={filter}
-              size="sm"
-              variant={roleFilter === filter ? "default" : "outline"}
-              onClick={() => setRoleFilter(filter)}
-            >
-              {coverageRoleFilterLabel[filter]}
-            </Button>
-          ))}
-        </div>
-        <label className="flex items-center gap-2 text-sm">
-          Necesidad (heatmap)
-          <select
-            value={needFilter}
-            onChange={(event) =>
-              setNeedFilter(event.target.value as CommunityNeed | "ALL")
-            }
-            className="min-h-10 rounded border px-2"
-          >
-            <option value="ALL">Todas</option>
-            {communityNeedOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <Button
-          variant={showHeatmap ? "default" : "outline"}
-          size="sm"
-          onClick={() => setShowHeatmap((current) => !current)}
+      <AdminWorkspaceShell>
+        <section
+          className="admin-page-toolbar coverage-map-toolbar"
+          aria-label="Filtros del mapa"
         >
-          {showHeatmap ? "Ocultar" : "Mostrar"} mapa de calor
-        </Button>
-        <Button
-          ref={capasTriggerRef}
-          variant="outline"
-          size="sm"
-          onClick={() => setPanelCapasAbierto((current) => !current)}
-          aria-expanded={panelCapasAbierto}
-        >
-          {panelCapasAbierto ? (
-            <PanelLeftClose size={14} aria-hidden />
-          ) : (
-            <PanelLeftOpen size={14} aria-hidden />
-          )}
-          {panelCapasAbierto ? "Ocultar capas" : "Capas y búsqueda"}
-        </Button>
-      </section>
-
-      {coverageError && (
-        <ErrorState
-          message={coverageError}
-          onRetry={() => setReloadToken((value) => value + 1)}
-        />
-      )}
-
-      <div
-        className={`coverage-map-layout grid gap-4 ${hasSelectedPin ? "lg:grid-cols-[minmax(0,1fr)_320px]" : ""}`}
-      >
-        <div
-          className={`coverage-map-workspace ${panelCapasAbierto ? "coverage-map-workspace--layers-open" : ""}`}
-        >
-          {panelCapasAbierto && (
-            <PanelCapas
-              variant="sidebar"
-              items={geofences}
-              visible={geofenceVisibility}
-              selectedId={selectedGeofenceId}
-              loading={geofencesLoading}
-              error={geofencesError}
-              errorsByType={errorsByType}
-              truncatedTypes={truncatedTypes}
-              countsByType={countsByType}
-              isTypeLoaded={isTypeLoaded}
-              isTypeLoading={isTypeLoading}
-              pointGeofences={pointGeofences}
-              pointLookup={pointLookup}
-              onToggle={handleGeofenceLayerToggle}
-              onSelect={handleSelectGeofence}
-              onEnsureTypeLoaded={(type) => void ensureTypeLoaded(type)}
-              onClose={() => setPanelCapasAbierto(false)}
-              returnFocusRef={capasTriggerRef}
+          <label className="flex items-center gap-2">
+            <Search size={16} aria-hidden />
+            <span className="sr-only">Buscar persona</span>
+            <input
+              type="search"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Buscar por nombre"
+              className="min-h-10 rounded border px-3"
             />
-          )}
-          <div className="coverage-map-stage">
-            {coverageLoading ? (
-              <LoadingState label="Cargando cobertura…" />
-            ) : coverageError ? null : (
-              <>
-                {filteredPins.length === 0 && (
-                  <p className="coverage-map-empty-banner" role="status">
-                    {pins.length === 0
-                      ? "No hay personas con ubicación en tu alcance. Puedes activar capas territoriales y el mapa de calor."
-                      : "Ningún pin coincide con los filtros actuales. Ajusta rol o búsqueda."}
-                  </p>
-                )}
-                <Map
-                  className="absolute inset-0 h-full w-full"
-                  theme="dark"
-                  keyboard={false}
-                  viewport={{
-                    center: [-98.2, 19.04] as [number, number],
-                    zoom: 8,
-                  }}
-                >
-                  <MapControls position="bottom-right" />
-                  <Capa
-                    items={geofences}
-                    visible={geofenceVisibility}
-                    selectedId={selectedGeofenceId}
-                    onSelect={handleSelectGeofence}
-                  />
-                  {showHeatmap && heatmap.features.length > 0 && (
-                    <MapHeatmapLayer data={heatmap} visible={showHeatmap} />
+          </label>
+          <div className="flex flex-wrap gap-1" role="group" aria-label="Rol">
+            {COVERAGE_ROLE_FILTERS.map((filter) => (
+              <Button
+                key={filter}
+                size="sm"
+                variant={roleFilter === filter ? "default" : "outline"}
+                onClick={() => setRoleFilter(filter)}
+              >
+                {coverageRoleFilterLabel[filter]}
+              </Button>
+            ))}
+          </div>
+          <label className="flex items-center gap-2 text-sm">
+            Necesidad (heatmap)
+            <select
+              value={needFilter}
+              onChange={(event) =>
+                setNeedFilter(event.target.value as CommunityNeed | "ALL")
+              }
+              className="min-h-10 rounded border px-2"
+            >
+              <option value="ALL">Todas</option>
+              {communityNeedOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <Button
+            variant={showHeatmap ? "default" : "outline"}
+            size="sm"
+            onClick={() => setShowHeatmap((current) => !current)}
+          >
+            {showHeatmap ? "Ocultar" : "Mostrar"} mapa de calor
+          </Button>
+          <Button
+            ref={capasTriggerRef}
+            variant="outline"
+            size="sm"
+            onClick={() => setPanelCapasAbierto((current) => !current)}
+            aria-expanded={panelCapasAbierto}
+          >
+            {panelCapasAbierto ? (
+              <PanelLeftClose size={14} aria-hidden />
+            ) : (
+              <PanelLeftOpen size={14} aria-hidden />
+            )}
+            {panelCapasAbierto ? "Ocultar capas" : "Capas y búsqueda"}
+          </Button>
+        </section>
+
+        {coverageError && (
+          <ErrorState
+            message={coverageError}
+            onRetry={() => setReloadToken((value) => value + 1)}
+          />
+        )}
+
+        <div
+          className={`coverage-map-layout grid gap-4 ${hasSelectedPin ? "lg:grid-cols-[minmax(0,1fr)_320px]" : ""}`}
+        >
+          <div
+            className={`coverage-map-workspace ${panelCapasAbierto ? "coverage-map-workspace--layers-open" : ""}`}
+          >
+            {panelCapasAbierto && (
+              <PanelCapas
+                variant="sidebar"
+                items={geofences}
+                visible={geofenceVisibility}
+                selectedId={selectedGeofenceId}
+                loading={geofencesLoading}
+                error={geofencesError}
+                errorsByType={errorsByType}
+                truncatedTypes={truncatedTypes}
+                countsByType={countsByType}
+                isTypeLoaded={isTypeLoaded}
+                isTypeLoading={isTypeLoading}
+                pointGeofences={pointGeofences}
+                pointLookup={pointLookup}
+                onToggle={handleGeofenceLayerToggle}
+                onSelect={handleSelectGeofence}
+                onEnsureTypeLoaded={(type) => void ensureTypeLoaded(type)}
+                onClose={() => setPanelCapasAbierto(false)}
+                returnFocusRef={capasTriggerRef}
+              />
+            )}
+            <div className="coverage-map-stage">
+              {coverageLoading ? (
+                <LoadingState label="Cargando cobertura…" />
+              ) : coverageError ? null : (
+                <>
+                  {filteredPins.length === 0 && (
+                    <p className="coverage-map-empty-banner" role="status">
+                      {pins.length === 0
+                        ? "No hay personas con ubicación en tu alcance. Puedes activar capas territoriales y el mapa de calor."
+                        : "Ningún pin coincide con los filtros actuales. Ajusta rol o búsqueda."}
+                    </p>
                   )}
-                  {pinFeatures.features.length > 0 && (
-                    <MapClusterLayer
-                      data={pinFeatures}
-                      clusterMaxZoom={12}
-                      clusterRadius={40}
-                      pointColor="var(--md-sys-color-primary)"
-                      onPointClick={(feature) => {
+                  <Map
+                    className="absolute inset-0 h-full w-full"
+                    theme="dark"
+                    keyboard={false}
+                    viewport={{
+                      center: [-98.2, 19.04] as [number, number],
+                      zoom: 8,
+                    }}
+                  >
+                    <MapControls position="bottom-right" />
+                    <Capa
+                      items={geofences}
+                      visible={geofenceVisibility}
+                      selectedId={selectedGeofenceId}
+                      onSelect={handleSelectGeofence}
+                    />
+                    {showHeatmap && heatmap.features.length > 0 && (
+                      <MapHeatmapLayer data={heatmap} visible={showHeatmap} />
+                    )}
+                    {pinFeatures.features.length > 0 && (
+                      <MapClusterLayer
+                        data={pinFeatures}
+                        clusterMaxZoom={12}
+                        clusterRadius={40}
+                        pointColor="var(--md-sys-color-primary)"
+                        onPointClick={(feature) => {
+                          setEditing(false);
+                          setSelectedPinId(feature.properties.id);
+                        }}
+                      />
+                    )}
+                  </Map>
+                </>
+              )}
+            </div>
+          </div>
+
+          {selectedPin && (
+            <aside
+              className="coverage-map-detail border p-4"
+              aria-live="polite"
+            >
+              {detailLoading || !selectedPerson ? (
+                <LoadingState label="Cargando persona…" />
+              ) : (
+                <>
+                  <RoleChip role={selectedPerson.role} />
+                  <h2 className="text-lg font-semibold">
+                    {nameOf(selectedPerson)}
+                  </h2>
+                  <p className="text-sm">{roleLabel(selectedPerson.role)}</p>
+                  <p className="text-sm">
+                    {selectedPin.latitude.toFixed(5)},{" "}
+                    {selectedPin.longitude.toFixed(5)}
+                  </p>
+                  <div
+                    className="mt-2 h-3 w-3 rounded-full"
+                    style={{ background: pinColorForRole(selectedPerson.role) }}
+                    aria-hidden
+                  />
+                  {!editing ? (
+                    <Button
+                      className="mt-4"
+                      variant="outline"
+                      onClick={() => setEditing(true)}
+                    >
+                      Editar persona
+                    </Button>
+                  ) : parentPerson ? (
+                    <PersonForm
+                      mode="edit"
+                      parent={parentPerson}
+                      initialValues={{
+                        nombre: selectedPerson.nombre,
+                        apellidoPaterno: selectedPerson.apellidoPaterno,
+                        apellidoMaterno: selectedPerson.apellidoMaterno,
+                        telefono: selectedPerson.telefono,
+                      }}
+                      submitLabel="Guardar cambios"
+                      onCancel={() => setEditing(false)}
+                      onSaveUpdate={async (input) => {
+                        await api.updatePerson(selectedPerson.id, input);
                         setEditing(false);
-                        setSelectedPinId(feature.properties.id);
+                        setReloadToken((value) => value + 1);
                       }}
                     />
-                  )}
-                </Map>
-              </>
-            )}
-          </div>
+                  ) : null}
+                </>
+              )}
+            </aside>
+          )}
         </div>
-
-        {selectedPin && (
-          <aside className="coverage-map-detail border p-4" aria-live="polite">
-            {detailLoading || !selectedPerson ? (
-              <LoadingState label="Cargando persona…" />
-            ) : (
-              <>
-                <RoleChip role={selectedPerson.role} />
-                <h2 className="text-lg font-semibold">
-                  {nameOf(selectedPerson)}
-                </h2>
-                <p className="text-sm">{roleLabel(selectedPerson.role)}</p>
-                <p className="text-sm">
-                  {selectedPin.latitude.toFixed(5)},{" "}
-                  {selectedPin.longitude.toFixed(5)}
-                </p>
-                <div
-                  className="mt-2 h-3 w-3 rounded-full"
-                  style={{ background: pinColorForRole(selectedPerson.role) }}
-                  aria-hidden
-                />
-                {!editing ? (
-                  <Button
-                    className="mt-4"
-                    variant="outline"
-                    onClick={() => setEditing(true)}
-                  >
-                    Editar persona
-                  </Button>
-                ) : parentPerson ? (
-                  <PersonForm
-                    mode="edit"
-                    parent={parentPerson}
-                    initialValues={{
-                      nombre: selectedPerson.nombre,
-                      apellidoPaterno: selectedPerson.apellidoPaterno,
-                      apellidoMaterno: selectedPerson.apellidoMaterno,
-                      telefono: selectedPerson.telefono,
-                    }}
-                    submitLabel="Guardar cambios"
-                    onCancel={() => setEditing(false)}
-                    onSaveUpdate={async (input) => {
-                      await api.updatePerson(selectedPerson.id, input);
-                      setEditing(false);
-                      setReloadToken((value) => value + 1);
-                    }}
-                  />
-                ) : null}
-              </>
-            )}
-          </aside>
-        )}
-      </div>
+      </AdminWorkspaceShell>
     </main>
   );
 }
