@@ -39,13 +39,23 @@ test("person scope helpers", async (t) => {
     const admin = person({ id: "admin", role: "ADMIN" });
     const cg = person({ id: "cg", role: "COORDINADOR_GENERAL" });
     const rows = directoryRowsForActor(admin, [admin, cg]);
-    assert.deepEqual(rows.map((p) => p.id), [cg.id]);
+    assert.deepEqual(
+      rows.map((p) => p.id),
+      [cg.id],
+    );
   });
 
   await t.test("orgChartRoots for ADMIN uses top-level CG nodes", () => {
     const admin = person({ id: "admin", role: "ADMIN" });
-    const cg = person({ id: "cg", role: "COORDINADOR_GENERAL", parentId: null });
+    const cg = person({
+      id: "cg",
+      role: "COORDINADOR_GENERAL",
+      parentId: null,
+    });
     const roots = orgChartRoots(admin, { [admin.id]: [cg] });
-    assert.deepEqual(roots.map((p) => p.id), [cg.id]);
+    assert.deepEqual(
+      roots.map((p) => p.id),
+      [cg.id],
+    );
   });
 });

@@ -8,14 +8,14 @@ Ofrecer **tres formatos** en `/admin/personas` sin eliminar el flujo actual, cor
 
 ## Cambios funcionales
 
-| Área | Cambio |
-|------|--------|
-| Nav admin | Orden: **Personas → Mapa → Eventos** (`ADMIN_NAV_LINKS`). |
-| Búsqueda árbol | `filterChildMapForTree` mantiene ramas con coincidencias; al filtrar se expanden ancestros y se selecciona la primera persona que coincide (detalle alineado con el resultado). |
-| Vista Listado | Tabla: nombre, rol, teléfono, estado, superior, acción «Ver ficha». ADMIN: todas las personas operativas (excluye fila ADMIN). |
-| Vista Organigrama | Tarjetas jerárquicas desde raíz(es) operativa(s); zoom ±; clic abre la misma ficha de detalle. |
-| Vista Árbol | Sin cambio de patrón master-detail; **ADMIN** oculta la fila raíz (`omitRoot` en árbol). |
-| ADMIN landing | Tab por defecto: **Listado**; selección inicial vacía para favorecer exploración del directorio. |
+| Área              | Cambio                                                                                                                                                                          |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Nav admin         | Orden: **Personas → Mapa → Eventos** (`ADMIN_NAV_LINKS`).                                                                                                                       |
+| Búsqueda árbol    | `filterChildMapForTree` mantiene ramas con coincidencias; al filtrar se expanden ancestros y se selecciona la primera persona que coincide (detalle alineado con el resultado). |
+| Vista Listado     | Tabla: nombre, rol, teléfono, estado, superior, acción «Ver ficha». ADMIN: todas las personas operativas (excluye fila ADMIN).                                                  |
+| Vista Organigrama | Tarjetas jerárquicas desde raíz(es) operativa(s); zoom ±; clic abre la misma ficha de detalle.                                                                                  |
+| Vista Árbol       | Sin cambio de patrón master-detail; **ADMIN** oculta la fila raíz (`omitRoot` en árbol).                                                                                        |
+| ADMIN landing     | Tab por defecto: **Listado**; selección inicial vacía para favorecer exploración del directorio.                                                                                |
 
 ## Archivos tocados
 

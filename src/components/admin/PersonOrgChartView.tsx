@@ -88,11 +88,16 @@ export function PersonOrgChartView({
             tarjeta para abrir la ficha.
           </p>
         </div>
-        <div className="person-org-chart__zoom" aria-label="Zoom del organigrama">
+        <div
+          className="person-org-chart__zoom"
+          aria-label="Zoom del organigrama"
+        >
           <Button type="button" variant="outline" size="sm" onClick={zoomOut}>
             −
           </Button>
-          <span className="person-org-chart__zoom-label">{Math.round(scale * 100)}%</span>
+          <span className="person-org-chart__zoom-label">
+            {Math.round(scale * 100)}%
+          </span>
           <Button type="button" variant="outline" size="sm" onClick={zoomIn}>
             +
           </Button>

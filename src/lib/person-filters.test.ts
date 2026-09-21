@@ -72,31 +72,38 @@ test("person filters", async (t) => {
     assert.equal(isPersonFilterActive({ text: "", status: "ACTIVO" }), true);
   });
 
-  await t.test("filterChildMapForTree keeps branches that lead to matches", () => {
-    const root = person({ id: "root", nombre: "Raíz", role: "COORDINADOR_GENERAL" });
-    const coord = person({
-      id: "coord",
-      nombre: "Coord",
-      role: "COORDINADOR",
-      parentId: "root",
-    });
-    const enlace = person({
-      id: "enlace",
-      nombre: "Target",
-      role: "ENLACE",
-      parentId: "coord",
-    });
-    const childrenById = {
-      [root.id]: [coord],
-      [coord.id]: [enlace],
-    };
-    const filtered = filterChildMapForTree(root, childrenById, {
-      text: "target",
-      status: "TODOS",
-    });
-    assert.deepEqual(filtered[root.id], [coord]);
-    assert.deepEqual(filtered[coord.id], [enlace]);
-  });
+  await t.test(
+    "filterChildMapForTree keeps branches that lead to matches",
+    () => {
+      const root = person({
+        id: "root",
+        nombre: "Raíz",
+        role: "COORDINADOR_GENERAL",
+      });
+      const coord = person({
+        id: "coord",
+        nombre: "Coord",
+        role: "COORDINADOR",
+        parentId: "root",
+      });
+      const enlace = person({
+        id: "enlace",
+        nombre: "Target",
+        role: "ENLACE",
+        parentId: "coord",
+      });
+      const childrenById = {
+        [root.id]: [coord],
+        [coord.id]: [enlace],
+      };
+      const filtered = filterChildMapForTree(root, childrenById, {
+        text: "target",
+        status: "TODOS",
+      });
+      assert.deepEqual(filtered[root.id], [coord]);
+      assert.deepEqual(filtered[coord.id], [enlace]);
+    },
+  );
 
   await t.test("collectAncestorIds walks up the tree", () => {
     const root = person({ id: "root", parentId: null });

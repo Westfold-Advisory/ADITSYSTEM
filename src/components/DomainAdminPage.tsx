@@ -13,7 +13,11 @@ import { apiErrorMessage } from "@/components/admin/person-display";
 import { capabilitiesFor } from "@/lib/capabilities";
 import { canRegisterDocuments } from "@/lib/document-access";
 import type { PersonCreateOption } from "@/lib/person-provisioning";
-import { EmptyState, ErrorState, LoadingState } from "@/components/ui/AsyncState";
+import {
+  EmptyState,
+  ErrorState,
+  LoadingState,
+} from "@/components/ui/AsyncState";
 import { useHierarchyScope } from "@/hooks/useHierarchyScope";
 import {
   collectAncestorIds,
@@ -67,8 +71,7 @@ export function DomainAdminPage({ session }: { session: LoginResponse }) {
   const [filter, setFilter] = useState<PersonFilter>(emptyPersonFilter);
   const filterActive = isPersonFilterActive(filter);
   const filteredChildren = useMemo(
-    () =>
-      self ? filterChildMapForTree(self, children, filter) : children,
+    () => (self ? filterChildMapForTree(self, children, filter) : children),
     [children, filter, self],
   );
   const peopleInScope = useMemo(
@@ -131,7 +134,9 @@ export function DomainAdminPage({ session }: { session: LoginResponse }) {
     filterSyncRef.current = key;
 
     const all = [self, ...Object.values(children).flat()];
-    const byId = new Map(all.map((person) => [person.id.toLowerCase(), person]));
+    const byId = new Map(
+      all.map((person) => [person.id.toLowerCase(), person]),
+    );
     const matches = filterPersonList(all, filter);
     if (matches.length === 0) return;
 
@@ -150,15 +155,7 @@ export function DomainAdminPage({ session }: { session: LoginResponse }) {
     if (!selectedStillVisible) {
       select(matches[0]);
     }
-  }, [
-    children,
-    expandNode,
-    filter,
-    filterActive,
-    select,
-    selected,
-    self,
-  ]);
+  }, [children, expandNode, filter, filterActive, select, selected, self]);
 
   const createChild = async (
     input: PersonProvisionInput,

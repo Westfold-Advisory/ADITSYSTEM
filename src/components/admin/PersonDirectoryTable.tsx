@@ -1,10 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/Field";
 import { nameOf, roleLabel } from "@/components/admin/person-display";
-import {
-  directoryRowsForActor,
-  parentDisplayName,
-} from "@/lib/person-scope";
+import { directoryRowsForActor, parentDisplayName } from "@/lib/person-scope";
 import type { PersonFilter, PersonStatusFilter } from "@/lib/person-filters";
 import { filterPersonList, isPersonFilterActive } from "@/lib/person-filters";
 import { PERSON_STATUSES, type Person } from "@/types/domain";
@@ -35,11 +32,10 @@ export function PersonDirectoryTable({
   onClearFilter: () => void;
   onSelect: (person: Person) => void;
 }) {
-  const byId = new Map(people.map((person) => [person.id.toLowerCase(), person]));
-  const rows = filterPersonList(
-    directoryRowsForActor(actor, people),
-    filter,
+  const byId = new Map(
+    people.map((person) => [person.id.toLowerCase(), person]),
   );
+  const rows = filterPersonList(directoryRowsForActor(actor, people), filter);
   const filterActive = isPersonFilterActive(filter);
 
   return (
@@ -89,7 +85,10 @@ export function PersonDirectoryTable({
         )}
       </div>
       <div className="person-directory__table-wrap">
-        <table className="person-directory__table" aria-labelledby="directory-table-title">
+        <table
+          className="person-directory__table"
+          aria-labelledby="directory-table-title"
+        >
           <thead>
             <tr>
               <th scope="col">Nombre</th>
@@ -116,7 +115,9 @@ export function PersonDirectoryTable({
                   <tr
                     key={person.id}
                     data-selected={selected || undefined}
-                    className={selected ? "person-directory__row--selected" : undefined}
+                    className={
+                      selected ? "person-directory__row--selected" : undefined
+                    }
                   >
                     <td>{nameOf(person)}</td>
                     <td>{roleLabel(person.role)}</td>

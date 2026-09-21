@@ -47,9 +47,7 @@ export function orgChartRoots(
 ): Person[] {
   if (root.role === "ADMIN") {
     return sortPeopleByName(
-      (childrenById[root.id] ?? []).filter(
-        (person) => person.role !== "ADMIN",
-      ),
+      (childrenById[root.id] ?? []).filter((person) => person.role !== "ADMIN"),
     );
   }
   return [root];
