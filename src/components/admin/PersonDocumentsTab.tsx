@@ -9,12 +9,14 @@ import {
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/Field";
+import { adminUiCopy } from "@/content/admin-ui-es";
 import {
   buildPrivateObjectKey,
   currentDocumentOfType,
   documentSummaryLine,
   documentTypeLabel,
   formatDocumentDate,
+  formatDocumentFormat,
 } from "@/lib/document-display";
 import {
   DOCUMENT_TYPES,
@@ -30,7 +32,8 @@ function DocumentRecord({ doc }: { doc: Documento }) {
       <h4>{doc.title}</h4>
       <p className="document-meta">{documentSummaryLine(doc)}</p>
       <p className="document-meta">
-        {doc.mimeType} · registrado el {formatDocumentDate(doc.createdAt)}
+        {formatDocumentFormat(doc.mimeType)} · registrado el{" "}
+        {formatDocumentDate(doc.createdAt)}
       </p>
     </article>
   );
@@ -123,11 +126,7 @@ function DocumentRegistrationForm({
     >
       <div>
         <h3>Registrar documento</h3>
-        <p className="form-intro">
-          Captura la metadata del archivo. La clave de almacenamiento se genera
-          de forma privada; no se muestra en pantalla. La carga del binario a S3
-          se completará en un flujo posterior.
-        </p>
+        <p className="form-intro">{adminUiCopy.documentos.registerIntro}</p>
       </div>
       <div className="event-form-grid">
         <Field label="Tipo">

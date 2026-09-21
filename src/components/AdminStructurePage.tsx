@@ -64,7 +64,7 @@ export function AdminStructurePage() {
   const capabilities = capabilitiesFor(session.user.rol);
   if (!capabilities.canViewStructure) {
     return (
-      <UnauthorizedRoleScreen roleLabel={session.user.rol} onSignOut={logout} />
+      <UnauthorizedRoleScreen role={session.user.rol} onSignOut={logout} />
     );
   }
 

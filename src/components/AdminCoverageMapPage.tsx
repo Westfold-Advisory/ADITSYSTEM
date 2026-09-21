@@ -359,7 +359,7 @@ export function AdminCoverageMapPage() {
   }
   if (!capabilities.canViewStructure) {
     return (
-      <UnauthorizedRoleScreen roleLabel={session.user.rol} onSignOut={logout} />
+      <UnauthorizedRoleScreen role={session.user.rol} onSignOut={logout} />
     );
   }
 

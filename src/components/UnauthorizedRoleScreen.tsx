@@ -4,18 +4,20 @@ void React;
 
 import { getInstitutionConfig } from "@/config/institution";
 import { FORBIDDEN_ROLE_MESSAGE } from "@/lib/auth-messages";
+import { roleLabel } from "@/lib/role-label";
+import type { AuthenticatedRole } from "@/types/domain";
 import { PublicAppShell } from "./PublicAppShell";
 import { Alert } from "./ui/Alert";
 import { Button } from "./ui/button";
 import { Card } from "./ui/Card";
 
 export type UnauthorizedRoleScreenProps = {
-  roleLabel?: string;
+  role?: AuthenticatedRole;
   onSignOut: () => void;
 };
 
 export function UnauthorizedRoleScreen({
-  roleLabel,
+  role,
   onSignOut,
 }: UnauthorizedRoleScreenProps) {
   const institution = getInstitutionConfig();
@@ -30,9 +32,9 @@ export function UnauthorizedRoleScreen({
           </header>
           <Alert tone="warning" title="Permisos insuficientes">
             {FORBIDDEN_ROLE_MESSAGE}
-            {roleLabel ? (
+            {role ? (
               <p className="login-page__intro">
-                Rol de la sesión: <strong>{roleLabel}</strong>
+                Rol de la sesión: <strong>{roleLabel(role)}</strong>
               </p>
             ) : null}
           </Alert>

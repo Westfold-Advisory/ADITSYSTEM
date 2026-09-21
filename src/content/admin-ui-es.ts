@@ -54,4 +54,29 @@ export const adminUiCopy = {
     confirmLabel: "Dar de baja",
     cancelLabel: "Cancelar",
   },
+  eventos: {
+    pageSubtitle: "Borradores, publicación y ciclo de vida de eventos.",
+    createButton: "Crear evento",
+    loadingList: "Cargando eventos…",
+    emptyList:
+      "No hay eventos administrativos todavía. Crea un borrador para comenzar.",
+    actions: {
+      publish: "Publicar",
+      unpublish: "Despublicar",
+      start: "Iniciar",
+      finish: "Finalizar",
+      cancel: "Cancelar",
+      delete: "Dar de baja",
+    },
+    confirmUnpublish: (eventName: string) =>
+      `¿Confirmas despublicar el evento “${eventName}”? Volverá a borrador y dejará de verse públicamente.`,
+    confirmCancel: (eventName: string) =>
+      `¿Confirmas cancelar el evento “${eventName}”? Dejará de estar disponible públicamente y no podrás reactivarlo.`,
+    confirmDelete: (eventName: string) =>
+      `¿Confirmas dar de baja el evento “${eventName}”? Es una baja lógica: se conserva el historial y deja de estar disponible.`,
+  },
+  documentos: {
+    registerIntro:
+      "Captura los datos del documento. El archivo se guarda en almacenamiento privado y no se muestra en pantalla; la carga completa del archivo estará disponible próximamente.",
+  },
 } as const;
