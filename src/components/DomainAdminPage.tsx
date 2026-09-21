@@ -34,10 +34,17 @@ import {
   isPersonFilterActive,
   type PersonFilter,
 } from "@/lib/person-filters";
+import { adminUserDisplayName } from "@/lib/admin-user-display";
 import { collectPeopleInScope } from "@/lib/person-scope";
 import type { Person, PersonInput, PersonProvisionInput } from "@/types/domain";
 
-export function DomainAdminPage({ session }: { session: LoginResponse }) {
+export function DomainAdminPage({
+  session,
+  onSignOut,
+}: {
+  session: LoginResponse;
+  onSignOut: () => void;
+}) {
   const capabilities = capabilitiesFor(session.user.rol);
   const api = useMemo(
     () =>
@@ -439,6 +446,10 @@ export function DomainAdminPage({ session }: { session: LoginResponse }) {
       subNav={
         <PersonasViewNav value={structureView} onChange={changeStructureView} />
       }
+      userDisplayName={adminUserDisplayName(session.user.email, self)}
+      userEmail={session.user.email}
+      userRole={session.user.rol}
+      onSignOut={onSignOut}
     >
       {personasContent}
       <ConfirmDialog

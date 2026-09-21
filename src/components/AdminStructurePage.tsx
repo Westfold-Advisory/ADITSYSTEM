@@ -2,7 +2,6 @@ import { useCallback, useState } from "react";
 
 import type { LoginResponse } from "@/api/auth";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
-import { roleLabel } from "@/components/admin/person-display";
 import { DomainAdminPage } from "@/components/DomainAdminPage";
 import { LoginPage } from "@/components/LoginPage";
 import { PublicAppShell } from "@/components/PublicAppShell";
@@ -73,15 +72,12 @@ export function AdminStructurePage() {
       <AdminPageHeader
         eyebrow={institution.productName}
         title={adminPageTitle("/admin/personas")}
-        subtitle={
-          <>
-            {session.user.email} · alcance {roleLabel(session.user.rol)}
-          </>
-        }
+        subtitle="Estructura, listado y organigrama según tu alcance."
         onSignOut={logout}
         showModuleNav={false}
+        showSignOut={false}
       />
-      <DomainAdminPage session={session} />
+      <DomainAdminPage session={session} onSignOut={logout} />
     </main>
   );
 }

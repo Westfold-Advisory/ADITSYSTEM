@@ -21,8 +21,8 @@ import { capabilitiesFor } from "@/lib/capabilities";
 import { FormularioNuevoEvento } from "./FormularioNuevoEvento";
 import { AdminActionBar } from "./admin/AdminActionBar";
 import { AdminPageHeader } from "./admin/AdminPageHeader";
+import { adminUserDisplayName } from "@/lib/admin-user-display";
 import { AdminWorkspaceShell } from "./admin/AdminWorkspaceShell";
-import { roleLabel } from "./admin/person-display";
 import { adminPageTitle } from "@/lib/admin-nav";
 import { LoginPage } from "./LoginPage";
 import { PublicAppShell } from "./PublicAppShell";
@@ -203,20 +203,22 @@ export function AdminEventsPage() {
       <AdminPageHeader
         eyebrow={institution.productName}
         title={adminPageTitle("/admin")}
-        subtitle={
-          <>
-            {session.user.email} · alcance {roleLabel(session.user.rol)}
-          </>
-        }
+        subtitle="Borradores, publicación y ciclo de vida de eventos."
         onSignOut={logout}
         showModuleNav={false}
+        showSignOut={false}
         actions={
           <Button size="sm" variant="outline" onClick={() => setEditing("new")}>
             Crear evento
           </Button>
         }
       />
-      <AdminWorkspaceShell>
+      <AdminWorkspaceShell
+        userDisplayName={adminUserDisplayName(session.user.email)}
+        userEmail={session.user.email}
+        userRole={session.user.rol}
+        onSignOut={logout}
+      >
         {editing ? (
           <FormularioNuevoEvento
             event={editing === "new" ? undefined : editing}

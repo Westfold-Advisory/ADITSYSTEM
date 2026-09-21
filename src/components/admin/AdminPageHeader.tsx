@@ -10,6 +10,7 @@ export function AdminPageHeader({
   onSignOut,
   actions,
   showModuleNav = true,
+  showSignOut = true,
 }: {
   eyebrow: string;
   title: string;
@@ -18,6 +19,8 @@ export function AdminPageHeader({
   actions?: ReactNode;
   /** Oculta tabs horizontales cuando la navegación vive en el sidebar (AppShell admin). */
   showModuleNav?: boolean;
+  /** Oculta cerrar sesión del header cuando vive en el sidebar (tarjeta usuario). */
+  showSignOut?: boolean;
 }) {
   return (
     <header
@@ -31,24 +34,28 @@ export function AdminPageHeader({
           <h1 className="admin-header__title">{title}</h1>
           <p className="admin-header__meta">{subtitle}</p>
         </div>
-        <div className="admin-header__session">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="admin-header__sign-out"
-            onClick={onSignOut}
-            aria-label="Cerrar sesión"
-          >
-            <span className="admin-header__sign-out-label">Cerrar sesión</span>
-            <span
-              className="admin-header__sign-out-label--short"
-              aria-hidden="true"
+        {showSignOut ? (
+          <div className="admin-header__session">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="admin-header__sign-out"
+              onClick={onSignOut}
+              aria-label="Cerrar sesión"
             >
-              Salir
-            </span>
-          </Button>
-        </div>
+              <span className="admin-header__sign-out-label">
+                Cerrar sesión
+              </span>
+              <span
+                className="admin-header__sign-out-label--short"
+                aria-hidden="true"
+              >
+                Salir
+              </span>
+            </Button>
+          </div>
+        ) : null}
         <div className="admin-header__nav-row">
           {showModuleNav ? <AdminNav /> : null}
           {actions ? (

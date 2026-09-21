@@ -12,11 +12,7 @@ import { ApiClient } from "@/api/http";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminWorkspaceShell } from "@/components/admin/AdminWorkspaceShell";
 import { PersonDetailPanel } from "@/components/admin/PersonDetailPanel";
-import {
-  apiErrorMessage,
-  nameOf,
-  roleLabel,
-} from "@/components/admin/person-display";
+import { apiErrorMessage, nameOf } from "@/components/admin/person-display";
 import { UnauthorizedRoleScreen } from "@/components/UnauthorizedRoleScreen";
 import { LoginPage } from "@/components/LoginPage";
 import { PublicAppShell } from "@/components/PublicAppShell";
@@ -44,6 +40,7 @@ import {
   SESSION_EXPIRED_MESSAGE,
   requestFailureMessage,
 } from "@/lib/auth-messages";
+import { adminUserDisplayName } from "@/lib/admin-user-display";
 import { capabilitiesFor } from "@/lib/capabilities";
 import { communityNeedOptions } from "@/lib/community-needs";
 import { adminPageTitle } from "@/lib/admin-nav";
@@ -377,16 +374,21 @@ export function AdminCoverageMapPage() {
       <AdminPageHeader
         eyebrow={institution.productName}
         title={adminPageTitle("/admin/mapa")}
-        subtitle={
-          <>
-            {session.user.email} · alcance {roleLabel(session.user.rol)}
-          </>
-        }
+        subtitle="Cobertura territorial y detalle de personas por pin."
         onSignOut={logout}
         showModuleNav={false}
+        showSignOut={false}
       />
 
-      <AdminWorkspaceShell>
+      <AdminWorkspaceShell
+        userDisplayName={adminUserDisplayName(
+          session.user.email,
+          selectedPerson,
+        )}
+        userEmail={session.user.email}
+        userRole={session.user.rol}
+        onSignOut={logout}
+      >
         <section
           className="admin-page-toolbar coverage-map-toolbar"
           aria-label="Filtros del mapa"
