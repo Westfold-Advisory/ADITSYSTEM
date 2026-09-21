@@ -1,14 +1,8 @@
-import { GitBranch, List, Network } from "lucide-react";
-
 import { useAdminSidebarCompact } from "@/components/admin/admin-sidebar-context";
-
-const VIEWS = [
-  { value: "listado" as const, label: "Listado", Icon: List },
-  { value: "arbol" as const, label: "Árbol y detalle", Icon: GitBranch },
-  { value: "organigrama" as const, label: "Organigrama", Icon: Network },
-];
-
-export type PersonasStructureView = (typeof VIEWS)[number]["value"];
+import {
+  ORGANIZATION_STRUCTURE_VIEWS,
+  type PersonasStructureView,
+} from "@/components/admin/organization-structure-views";
 
 export function PersonasViewNav({
   value,
@@ -26,11 +20,11 @@ export function PersonasViewNav({
           ? "personas-view-nav personas-view-nav--compact"
           : "personas-view-nav"
       }
-      aria-label="Vistas de personas"
+      aria-label="Vistas de organización"
     >
       {!compact ? <p className="personas-view-nav__heading">Vistas</p> : null}
       <ul className="personas-view-nav__list">
-        {VIEWS.map((view) => (
+        {ORGANIZATION_STRUCTURE_VIEWS.map((view) => (
           <li key={view.value}>
             <button
               type="button"

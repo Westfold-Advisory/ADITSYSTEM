@@ -303,9 +303,13 @@
   white-space: nowrap;
 }
 
-.admin-sidebar-user__role-line {
-  display: block;
-  line-height: 1;
+.admin-sidebar-user__role {
+  margin: 0;
+  font: var(--md-sys-typescale-label-medium, 500 0.75rem/1.35 inherit);
+  color: var(--md-sys-color-on-surface-variant);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .admin-sidebar-user__sign-out {
@@ -450,6 +454,90 @@
 
 .admin-nav-sidebar__link[aria-current="page"] .admin-nav-sidebar__icon {
   opacity: 1;
+}
+
+.admin-nav-sidebar__item--org {
+  position: relative;
+}
+
+.admin-nav-sidebar__submenu {
+  list-style: none;
+  margin: 0.1rem 0 0;
+  padding: 0.15rem 0 0.35rem 0.35rem;
+  display: none;
+  flex-direction: column;
+  gap: 0.08rem;
+  border-left: 2px solid var(--md-sys-color-outline-variant);
+  margin-left: 0.55rem;
+}
+
+.admin-nav-sidebar__item--org:hover .admin-nav-sidebar__submenu,
+.admin-nav-sidebar__item--org:focus-within .admin-nav-sidebar__submenu {
+  display: flex;
+}
+
+.admin-nav-sidebar__submenu-link {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  text-align: left;
+  margin: 0;
+  padding: 0.35rem 0.45rem 0.35rem 0.4rem;
+  border: 1px solid transparent;
+  border-radius: var(--md-sys-radius-sm, 6px);
+  background: transparent;
+  font: var(--md-sys-typescale-label-large, 500 0.8125rem/1.35 inherit);
+  color: var(--md-sys-color-on-surface-variant);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.admin-nav-sidebar__submenu-link:hover {
+  color: var(--md-sys-color-on-surface);
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.admin-nav-sidebar__submenu-link[aria-current="page"] {
+  color: var(--md-sys-color-primary);
+  font-weight: 600;
+  background: var(--md-sys-color-surface-container);
+}
+
+.admin-nav-sidebar__submenu-link:focus-visible {
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: 1px;
+}
+
+.admin-console-layout--collapsed .admin-nav-sidebar__submenu {
+  position: absolute;
+  left: calc(100% + 6px);
+  top: 0;
+  z-index: 30;
+  min-width: 11.5rem;
+  margin: 0;
+  padding: 0.35rem;
+  border-left: none;
+  border-radius: var(--md-sys-radius-md, 8px);
+  background: var(--md-sys-color-surface-container);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 12%);
+}
+
+.admin-console-layout--collapsed
+  .admin-nav-sidebar__submenu
+  .admin-nav-sidebar__label {
+  position: static;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
 }
 
 .personas-view-nav__heading {

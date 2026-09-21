@@ -23,7 +23,8 @@ describe("admin nav", () => {
 
   it("uses the same page title as the nav label per route", () => {
     assert.equal(adminPageTitle("/admin"), "Eventos");
-    assert.equal(adminPageTitle("/admin/mapa"), "Mapa de cobertura");
+    assert.equal(adminPageTitle("/admin/mapa"), "Territorio");
+    assert.equal(adminPageTitle("/admin/personas"), "Organización");
     for (const link of ADMIN_NAV_LINKS) {
       assert.equal(link.pageTitle, link.label);
     }
