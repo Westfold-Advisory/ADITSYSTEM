@@ -291,9 +291,10 @@ a:focus-visible {
   align-items: center;
 }
 
-.admin-page > button,
-.event-form-actions button,
-.login-form > button {
+/* Legacy: no aplica dentro de admin-workspace (usar componente Button). */
+.admin-page:not(.admin-workspace) > button,
+.event-form-actions button:not([data-slot="button"]),
+.login-form > button:not([data-slot="button"]) {
   min-height: 2.5rem;
   border: 1px solid var(--md-sys-color-primary);
   border-radius: var(--md-sys-radius-full);
@@ -307,9 +308,9 @@ a:focus-visible {
     background var(--cyber-duration-fast) var(--cyber-ease);
 }
 
-.admin-page > button:hover,
-.event-form-actions button:hover,
-.login-form > button:hover {
+.admin-page:not(.admin-workspace) > button:hover,
+.event-form-actions button:not([data-slot="button"]):hover,
+.login-form > button:not([data-slot="button"]):hover {
   box-shadow: var(--md-sys-elevation-1);
   background: #174681;
 }
@@ -322,13 +323,13 @@ a:focus-visible {
   margin: 0.25rem 0 0;
   color: var(--md-sys-color-on-surface-variant);
 }
-.admin-page > button + button {
+.admin-page:not(.admin-workspace) > button + button {
   margin-left: 0.75rem;
   background: transparent;
   color: var(--md-sys-color-primary);
 }
-.admin-page button:disabled,
-.event-form-actions button:disabled {
+.admin-page:not(.admin-workspace) button:disabled,
+.event-form-actions button:not([data-slot="button"]):disabled {
   cursor: not-allowed;
   opacity: 0.55;
   box-shadow: none;
