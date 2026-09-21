@@ -45,6 +45,7 @@ export function AdminNav({
                   isSidebar ? "admin-nav-sidebar__link" : "admin-nav-tabs__tab"
                 }
                 aria-current={active ? "page" : undefined}
+                title={isSidebar ? link.label : undefined}
               >
                 {isSidebar ? (
                   <Icon

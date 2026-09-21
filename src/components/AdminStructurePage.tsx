@@ -68,17 +68,22 @@ export function AdminStructurePage() {
   }
 
   return (
-    <main className="admin-page admin-workspace hierarchy-page">
-      <AdminPageHeader
-        eyebrow={institution.productName}
-        title={adminPageTitle("/admin/personas")}
-        subtitle="Estructura, listado y organigrama según tu alcance."
+    <main className="admin-console-page hierarchy-page">
+      <DomainAdminPage
+        session={session}
         onSignOut={logout}
-        showModuleNav={false}
-        showSignOut={false}
-        showEyebrow={false}
+        pageHeader={
+          <AdminPageHeader
+            eyebrow={institution.productName}
+            title={adminPageTitle("/admin/personas")}
+            subtitle="Estructura, listado y organigrama según tu alcance."
+            onSignOut={logout}
+            showModuleNav={false}
+            showSignOut={false}
+            showEyebrow={false}
+          />
+        }
       />
-      <DomainAdminPage session={session} onSignOut={logout} />
     </main>
   );
 }

@@ -199,22 +199,28 @@ export function AdminEventsPage() {
     );
 
   return (
-    <main className="admin-page admin-workspace">
-      <AdminPageHeader
-        eyebrow={institution.productName}
-        title={adminPageTitle("/admin")}
-        subtitle="Borradores, publicación y ciclo de vida de eventos."
-        onSignOut={logout}
-        showModuleNav={false}
-        showSignOut={false}
-        showEyebrow={false}
-        actions={
-          <Button size="sm" variant="outline" onClick={() => setEditing("new")}>
-            Crear evento
-          </Button>
-        }
-      />
+    <main className="admin-console-page">
       <AdminWorkspaceShell
+        header={
+          <AdminPageHeader
+            eyebrow={institution.productName}
+            title={adminPageTitle("/admin")}
+            subtitle="Borradores, publicación y ciclo de vida de eventos."
+            onSignOut={logout}
+            showModuleNav={false}
+            showSignOut={false}
+            showEyebrow={false}
+            actions={
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setEditing("new")}
+              >
+                Crear evento
+              </Button>
+            }
+          />
+        }
         userDisplayName={adminUserDisplayName(session.user.email)}
         userEmail={session.user.email}
         userRole={session.user.rol}

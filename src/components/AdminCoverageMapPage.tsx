@@ -370,18 +370,19 @@ export function AdminCoverageMapPage() {
   const detailOpen = Boolean(selectedPinId);
 
   return (
-    <main className="admin-page admin-workspace coverage-map-page">
-      <AdminPageHeader
-        eyebrow={institution.productName}
-        title={adminPageTitle("/admin/mapa")}
-        subtitle="Cobertura territorial y detalle de personas por pin."
-        onSignOut={logout}
-        showModuleNav={false}
-        showSignOut={false}
-        showEyebrow={false}
-      />
-
+    <main className="admin-console-page coverage-map-page">
       <AdminWorkspaceShell
+        header={
+          <AdminPageHeader
+            eyebrow={institution.productName}
+            title={adminPageTitle("/admin/mapa")}
+            subtitle="Cobertura territorial y detalle de personas por pin."
+            onSignOut={logout}
+            showModuleNav={false}
+            showSignOut={false}
+            showEyebrow={false}
+          />
+        }
         userDisplayName={adminUserDisplayName(
           session.user.email,
           selectedPerson,
