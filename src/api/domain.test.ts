@@ -94,6 +94,33 @@ test("createPerson sends TRA-137 credential fields", async () => {
   assert.equal(body?.rol, "ENLACE");
 });
 
+test("getDocumentDownloadUrl uses descarga route", async () => {
+  let request: Request | undefined;
+  const api = new DomainApi(
+    new ApiClient({
+      getAccessToken: () => "token",
+      fetchFn: async (input, init) => {
+        request = new Request(input, init);
+        return new Response(
+          JSON.stringify({
+            url: "https://signed.example/cv.pdf",
+            expires_at: "2026-01-01T00:05:00Z",
+            file_name: "Currículum",
+          }),
+          { headers: { "content-type": "application/json" } },
+        );
+      },
+    }),
+  );
+  const result = await api.getDocumentDownloadUrl("person-1", "doc-1");
+  assert.equal(result.url, "https://signed.example/cv.pdf");
+  assert.equal(result.fileName, "Currículum");
+  assert.match(
+    request?.url ?? "",
+    /\/personas\/person-1\/documentos\/doc-1\/descarga$/,
+  );
+});
+
 test("changePersonPassword uses credenciales route", async () => {
   let request: Request | undefined;
   const api = new DomainApi(
