@@ -7,6 +7,7 @@ import {
   collectPeopleInScope,
   directoryRowsForActor,
   orgChartRoots,
+  superiorFilterOptions,
 } from "./person-scope";
 
 function person(overrides: Partial<Person>): Person {
@@ -56,6 +57,28 @@ test("person scope helpers", async (t) => {
     assert.deepEqual(
       roots.map((p) => p.id),
       [cg.id],
+    );
+  });
+
+  await t.test("superiorFilterOptions lists parents in scope", () => {
+    const actor = person({ id: "actor", role: "COORDINADOR_GENERAL" });
+    const coord = person({
+      id: "coord",
+      role: "COORDINADOR",
+      parentId: "actor",
+      nombre: "Beto",
+    });
+    const enlace = person({
+      id: "enlace",
+      role: "ENLACE",
+      parentId: "coord",
+      nombre: "Carla",
+    });
+    const people = [actor, coord, enlace];
+    const options = superiorFilterOptions(actor, people);
+    assert.deepEqual(
+      options.map((p) => p.id),
+      ["actor", "coord"],
     );
   });
 });

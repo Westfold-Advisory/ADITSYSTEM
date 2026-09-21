@@ -1,11 +1,12 @@
-import { Button } from "@/components/ui/button";
-import { Field } from "@/components/ui/Field";
 import {
   HierarchyTreeFilterBar,
   HierarchyTreeRoot,
 } from "@/components/ui/HierarchyTree";
-import type { PersonFilter, PersonStatusFilter } from "@/lib/person-filters";
-import { PERSON_STATUSES, type Person } from "@/types/domain";
+import { PersonFilterFields } from "@/components/admin/PersonFilterFields";
+import { superiorFilterOptions } from "@/lib/person-scope";
+import type { PersonFilter } from "@/lib/person-filters";
+import { adminUiCopy } from "@/content/admin-ui-es";
+import type { Person } from "@/types/domain";
 
 export function HierarchyTreePanel({
   self,
@@ -16,6 +17,7 @@ export function HierarchyTreePanel({
   children,
   expanded,
   loadingNode,
+  peopleInScope,
   onFilterChange,
   onClearFilter,
   onSelect,
@@ -30,65 +32,36 @@ export function HierarchyTreePanel({
   children: Record<string, Person[]>;
   expanded: Record<string, boolean>;
   loadingNode: string | null;
+  peopleInScope: Person[];
   onFilterChange: (next: PersonFilter) => void;
   onClearFilter: () => void;
   onSelect: (person: Person) => void;
   onToggle: (person: Person) => void;
   hideRoot?: boolean;
 }) {
+  const copy = adminUiCopy.personas.tree;
+  const superiorOptions = superiorFilterOptions(self, peopleInScope);
+
   return (
     <>
       <h2 id="structure-title" className="hierarchy-panel-title">
-        Directorio
+        {copy.title}
       </h2>
       <p className="hierarchy-panel-intro">
-        {hideRoot
-          ? "Estructura operativa completa. Tu cuenta de administrador no aparece como nodo padre."
-          : "Explora tu alcance jerárquico. Selecciona una persona para ver detalle y acciones permitidas."}
+        {hideRoot ? copy.introAdmin : copy.introDefault}
       </p>
       <HierarchyTreeRoot
         omitRoot={hideRoot}
         busy={loadingNode === self.id}
         filterBar={
           <HierarchyTreeFilterBar>
-            <Field label="Buscar por nombre">
-              <input
-                type="search"
-                value={filter.text}
-                placeholder="Nombre o apellido"
-                onChange={(event) =>
-                  onFilterChange({ ...filter, text: event.target.value })
-                }
-              />
-            </Field>
-            <Field label="Estado">
-              <select
-                value={filter.status}
-                onChange={(event) =>
-                  onFilterChange({
-                    ...filter,
-                    status: event.target.value as PersonStatusFilter,
-                  })
-                }
-              >
-                <option value="TODOS">Todos</option>
-                {PERSON_STATUSES.map((status) => (
-                  <option key={status} value={status}>
-                    {status.charAt(0) + status.slice(1).toLowerCase()}
-                  </option>
-                ))}
-              </select>
-            </Field>
-            {filterActive && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={onClearFilter}
-              >
-                Limpiar filtro
-              </Button>
-            )}
+            <PersonFilterFields
+              filter={filter}
+              superiorOptions={superiorOptions}
+              onFilterChange={onFilterChange}
+              onClearFilter={onClearFilter}
+              clearButtonSize="sm"
+            />
           </HierarchyTreeFilterBar>
         }
         root={{

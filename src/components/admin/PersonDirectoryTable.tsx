@@ -1,19 +1,16 @@
 import { Button } from "@/components/ui/button";
-import { Field } from "@/components/ui/Field";
+import { PersonFilterFields } from "@/components/admin/PersonFilterFields";
+import { PersonStatusBadge } from "@/components/admin/PersonStatusBadge";
 import { nameOf, roleLabel } from "@/components/admin/person-display";
-import { directoryRowsForActor, parentDisplayName } from "@/lib/person-scope";
-import type { PersonFilter, PersonStatusFilter } from "@/lib/person-filters";
+import { adminUiCopy } from "@/content/admin-ui-es";
+import {
+  directoryRowsForActor,
+  parentDisplayName,
+  superiorFilterOptions,
+} from "@/lib/person-scope";
+import type { PersonFilter } from "@/lib/person-filters";
 import { filterPersonList, isPersonFilterActive } from "@/lib/person-filters";
-import { PERSON_STATUSES, type Person } from "@/types/domain";
-
-function PersonStatusBadge({ status }: { status: Person["status"] }) {
-  const slug = status.toLowerCase();
-  return (
-    <span className={`person-status-badge person-status-badge--${slug}`}>
-      {status.charAt(0) + status.slice(1).toLowerCase()}
-    </span>
-  );
-}
+import type { Person } from "@/types/domain";
 
 export function PersonDirectoryTable({
   actor,
@@ -32,57 +29,28 @@ export function PersonDirectoryTable({
   onClearFilter: () => void;
   onSelect: (person: Person) => void;
 }) {
+  const copy = adminUiCopy.personas.directory;
   const byId = new Map(
     people.map((person) => [person.id.toLowerCase(), person]),
   );
   const rows = filterPersonList(directoryRowsForActor(actor, people), filter);
-  const filterActive = isPersonFilterActive(filter);
+  const superiorOptions = superiorFilterOptions(actor, people);
 
   return (
     <div className="person-directory">
       <h2 id="directory-table-title" className="hierarchy-panel-title">
-        Listado de personal
+        {copy.title}
       </h2>
       <p className="hierarchy-panel-intro">
-        Vista tipo directorio para comparar con el árbol.{" "}
-        {actor.role === "ADMIN"
-          ? "Como administrador ves todas las personas operativas, sin jerarquía bajo tu cuenta."
-          : "Incluye tu alcance y subordinados cargados."}
+        {copy.intro(actor.role === "ADMIN")}
       </p>
       <div className="ui-hierarchy-tree-filter person-directory__filters">
-        <Field label="Buscar por nombre">
-          <input
-            type="search"
-            value={filter.text}
-            placeholder="Nombre o apellido"
-            onChange={(event) =>
-              onFilterChange({ ...filter, text: event.target.value })
-            }
-          />
-        </Field>
-        <Field label="Estado">
-          <select
-            value={filter.status}
-            onChange={(event) =>
-              onFilterChange({
-                ...filter,
-                status: event.target.value as PersonStatusFilter,
-              })
-            }
-          >
-            <option value="TODOS">Todos</option>
-            {PERSON_STATUSES.map((status) => (
-              <option key={status} value={status}>
-                {status.charAt(0) + status.slice(1).toLowerCase()}
-              </option>
-            ))}
-          </select>
-        </Field>
-        {filterActive && (
-          <Button type="button" variant="ghost" onClick={onClearFilter}>
-            Limpiar filtros
-          </Button>
-        )}
+        <PersonFilterFields
+          filter={filter}
+          superiorOptions={superiorOptions}
+          onFilterChange={onFilterChange}
+          onClearFilter={onClearFilter}
+        />
       </div>
       <div className="person-directory__table-wrap">
         <table
@@ -91,21 +59,22 @@ export function PersonDirectoryTable({
         >
           <thead>
             <tr>
-              <th scope="col">Nombre</th>
-              <th scope="col">Rol</th>
-              <th scope="col">Teléfono</th>
-              <th scope="col">Estado</th>
-              <th scope="col">Superior</th>
+              <th scope="col">{copy.columns.name}</th>
+              <th scope="col">{copy.columns.role}</th>
+              <th scope="col">{copy.columns.status}</th>
+              <th scope="col">{copy.columns.superior}</th>
               <th scope="col">
-                <span className="sr-only">Acciones</span>
+                <span className="sr-only">{copy.columns.actions}</span>
               </th>
             </tr>
           </thead>
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={6} className="person-directory__empty">
-                  No hay personas que coincidan con los filtros.
+                <td colSpan={5} className="person-directory__empty">
+                  {isPersonFilterActive(filter)
+                    ? adminUiCopy.personas.filters.emptyMatch
+                    : copy.emptyScope}
                 </td>
               </tr>
             ) : (
@@ -121,7 +90,6 @@ export function PersonDirectoryTable({
                   >
                     <td>{nameOf(person)}</td>
                     <td>{roleLabel(person.role)}</td>
-                    <td>{person.telefono || "—"}</td>
                     <td>
                       <PersonStatusBadge status={person.status} />
                     </td>
@@ -133,7 +101,7 @@ export function PersonDirectoryTable({
                         size="sm"
                         onClick={() => onSelect(person)}
                       >
-                        {selected ? "Seleccionado" : "Ver ficha"}
+                        {selected ? copy.viewSelected : copy.viewDetail}
                       </Button>
                     </td>
                   </tr>
@@ -144,7 +112,7 @@ export function PersonDirectoryTable({
         </table>
       </div>
       <p className="person-directory__count" aria-live="polite">
-        {rows.length} persona{rows.length === 1 ? "" : "s"}
+        {copy.resultCount(rows.length)}
       </p>
     </div>
   );

@@ -41,6 +41,8 @@ test("person filters", async (t) => {
     const result = filterPersonList([target, other], {
       text: "MARIA lop",
       status: "TODOS",
+      role: "TODOS",
+      superiorId: "TODOS",
     });
     assert.deepEqual(result, [target]);
   });
@@ -52,6 +54,8 @@ test("person filters", async (t) => {
     const result = filterPersonList([active, inactive, baja], {
       text: "",
       status: "INACTIVO",
+      role: "TODOS",
+      superiorId: "TODOS",
     });
     assert.deepEqual(result, [inactive]);
   });
@@ -63,14 +67,78 @@ test("person filters", async (t) => {
     const result = filterPersonList([match, wrongStatus, wrongName], {
       text: "sofía",
       status: "ACTIVO",
+      role: "TODOS",
+      superiorId: "TODOS",
     });
     assert.deepEqual(result, [match]);
   });
 
   await t.test("a non-empty text or non-default status is active", () => {
-    assert.equal(isPersonFilterActive({ text: "  ", status: "TODOS" }), false);
-    assert.equal(isPersonFilterActive({ text: "ana", status: "TODOS" }), true);
-    assert.equal(isPersonFilterActive({ text: "", status: "ACTIVO" }), true);
+    assert.equal(
+      isPersonFilterActive({
+        text: "  ",
+        status: "TODOS",
+        role: "TODOS",
+        superiorId: "TODOS",
+      }),
+      false,
+    );
+    assert.equal(
+      isPersonFilterActive({
+        text: "ana",
+        status: "TODOS",
+        role: "TODOS",
+        superiorId: "TODOS",
+      }),
+      true,
+    );
+    assert.equal(
+      isPersonFilterActive({
+        text: "",
+        status: "ACTIVO",
+        role: "TODOS",
+        superiorId: "TODOS",
+      }),
+      true,
+    );
+    assert.equal(
+      isPersonFilterActive({
+        text: "",
+        status: "TODOS",
+        role: "ENLACE",
+        superiorId: "TODOS",
+      }),
+      true,
+    );
+  });
+
+  await t.test("matches by role and superior", () => {
+    const child = person({
+      id: "child",
+      nombre: "Luis",
+      role: "ENLACE",
+      parentId: "parent",
+    });
+    const other = person({
+      id: "other",
+      nombre: "Luis",
+      role: "ENLACE",
+      parentId: "root",
+    });
+    const byRole = filterPersonList([child, other], {
+      text: "",
+      status: "TODOS",
+      role: "ENLACE",
+      superiorId: "TODOS",
+    });
+    assert.deepEqual(byRole, [child, other]);
+    const bySuperior = filterPersonList([child, other], {
+      text: "",
+      status: "TODOS",
+      role: "TODOS",
+      superiorId: "parent",
+    });
+    assert.deepEqual(bySuperior, [child]);
   });
 
   await t.test(
@@ -100,6 +168,8 @@ test("person filters", async (t) => {
       const filtered = filterChildMapForTree(root, childrenById, {
         text: "target",
         status: "TODOS",
+        role: "TODOS",
+        superiorId: "TODOS",
       });
       assert.deepEqual(filtered[root.id], [coord]);
       assert.deepEqual(filtered[coord.id], [enlace]);
@@ -127,6 +197,8 @@ test("person filters", async (t) => {
         {
           text: "target",
           status: "TODOS",
+          role: "TODOS",
+          superiorId: "TODOS",
         },
         root,
       );

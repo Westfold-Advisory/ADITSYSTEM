@@ -113,6 +113,20 @@ export const adminUiCopy = {
       `¿Confirmas cancelar el evento “${eventName}”? Dejará de estar disponible públicamente y no podrás reactivarlo.`,
     confirmDelete: (eventName: string) =>
       `¿Confirmas dar de baja el evento “${eventName}”? Es una baja lógica: se conserva el historial y deja de estar disponible.`,
+    actionsGroup: (eventName: string) => `Acciones para ${eventName}`,
+    table: {
+      caption: "Listado de eventos administrativos",
+      edit: "Editar",
+      columns: {
+        name: "Evento",
+        status: "Estado",
+        type: "Tipo",
+        schedule: "Fechas",
+        capacity: "Cupo",
+        location: "Lugar",
+        actions: "Acciones",
+      },
+    },
   },
   documentos: {
     registerIntro:

@@ -1104,6 +1104,120 @@
 }
 
 /* Admin events list */
+.admin-events-section {
+  margin-top: var(--md-sys-spacing-2, 0.5rem);
+}
+
+.admin-events-table-wrap {
+  overflow-x: auto;
+}
+
+.admin-events-table {
+  width: 100%;
+  border-collapse: collapse;
+  font: var(--md-sys-typescale-body-small);
+}
+
+.admin-events-table th,
+.admin-events-table td {
+  padding: 0.55rem 0.65rem;
+  text-align: left;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  vertical-align: middle;
+}
+
+.admin-events-table thead th {
+  font: var(--md-sys-typescale-label-large);
+  color: var(--md-sys-color-on-surface-variant);
+  background: var(--md-sys-color-surface-container-low);
+  position: sticky;
+  top: 0;
+}
+
+.admin-events-table__name {
+  font-weight: 600;
+  max-width: 14rem;
+}
+
+.admin-events-table__schedule {
+  white-space: nowrap;
+}
+
+.admin-events-table__location {
+  max-width: 12rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-events-table__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-sys-spacing-2, 0.5rem);
+  min-width: 12rem;
+}
+
+.admin-events-cards {
+  display: none;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: var(--md-sys-spacing-3, 0.75rem);
+}
+
+.admin-events-cards__item {
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-radius-md, 8px);
+  padding: var(--md-sys-spacing-3, 0.75rem);
+  background: var(--md-sys-color-surface);
+}
+
+.admin-events-cards__head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--md-sys-spacing-2, 0.5rem);
+  margin-bottom: var(--md-sys-spacing-2, 0.5rem);
+}
+
+.admin-events-cards__meta {
+  display: grid;
+  gap: var(--md-sys-spacing-2, 0.5rem);
+  margin: 0 0 var(--md-sys-spacing-3, 0.75rem);
+  font: var(--md-sys-typescale-body-small);
+}
+
+.admin-events-cards__meta div {
+  display: grid;
+  grid-template-columns: 6rem 1fr;
+  gap: 0.35rem;
+}
+
+.admin-events-cards__meta dt {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.admin-events-cards__meta dd {
+  margin: 0;
+}
+
+.admin-events-cards__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-sys-spacing-2, 0.5rem);
+}
+
+@media (max-width: 56rem) {
+  .admin-events-table {
+    display: none;
+  }
+
+  .admin-events-cards {
+    display: grid;
+  }
+}
+
 .admin-events {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));

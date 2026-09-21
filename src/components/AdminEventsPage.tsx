@@ -11,16 +11,14 @@ import { adminRequestFailureMessage } from "@/lib/request-error-handling";
 import { UnauthorizedRoleScreen } from "./UnauthorizedRoleScreen";
 import { capabilitiesFor } from "@/lib/capabilities";
 import { FormularioNuevoEvento } from "./FormularioNuevoEvento";
-import { AdminActionBar } from "./admin/AdminActionBar";
+import { AdminEventsTable } from "./admin/AdminEventsTable";
 import { AdminPageHeader } from "./admin/AdminPageHeader";
 import { useOwnPersonDisplayName } from "@/hooks/useOwnPersonDisplayName";
 import { AdminWorkspaceShell } from "./admin/AdminWorkspaceShell";
 import { adminPageTitle } from "@/lib/admin-nav";
 import { LoginPage } from "./LoginPage";
 import { PublicAppShell } from "./PublicAppShell";
-import { EventStatusBadge } from "@/components/events/public/EventStatusBadge";
 import { Button } from "./ui/button";
-import { Card } from "./ui/Card";
 import { EmptyState, ErrorState, LoadingState } from "./ui/AsyncState";
 
 import "@/components/events/public/events-public.css";
@@ -237,44 +235,15 @@ export function AdminEventsPage() {
             ) : events.length === 0 ? (
               <EmptyState>{adminUiCopy.eventos.emptyList}</EmptyState>
             ) : (
-              <section className="admin-events" aria-live="polite">
-                {events.map((event) => (
-                  <Card key={event.id} className="admin-event-card">
-                    <header className="admin-event-card__head">
-                      <h2>{event.name}</h2>
-                      <EventStatusBadge status={event.status} />
-                    </header>
-                    <p className="admin-event-card__meta">
-                      {event.type} · {event.locationText}
-                    </p>
-                    <AdminActionBar
-                      className="admin-event-card__actions"
-                      ariaLabel={`Acciones para ${event.name}`}
-                    >
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setEditing(event)}
-                      >
-                        Editar
-                      </Button>
-                      {actionsFor(event).map(({ action, label }) => {
-                        const busy = activeAction === `${event.id}:${action}`;
-                        return (
-                          <Button
-                            key={action}
-                            size="sm"
-                            variant={actionButtonVariant(action)}
-                            status={busy ? "loading" : "idle"}
-                            onClick={() => void runAction(event, action)}
-                          >
-                            {label}
-                          </Button>
-                        );
-                      })}
-                    </AdminActionBar>
-                  </Card>
-                ))}
+              <section className="admin-events-section" aria-live="polite">
+                <AdminEventsTable
+                  events={events}
+                  actionsFor={actionsFor}
+                  actionButtonVariant={actionButtonVariant}
+                  activeAction={activeAction}
+                  onEdit={(event) => setEditing(event)}
+                  onRunAction={(event, action) => void runAction(event, action)}
+                />
               </section>
             )}
           </>

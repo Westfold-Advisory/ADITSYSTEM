@@ -53,6 +53,29 @@ export function orgChartRoots(
   return [root];
 }
 
+/** Superiores presentes en el alcance cargado (filtro de listado/árbol). */
+export function superiorFilterOptions(
+  actor: Person,
+  people: Person[],
+): Person[] {
+  const rows =
+    actor.role === "ADMIN"
+      ? people.filter((person) => person.role !== "ADMIN")
+      : people.filter((person) => person.id !== actor.id);
+  const parentIds = new Set<string>();
+  for (const person of rows) {
+    if (person.parentId) {
+      parentIds.add(person.parentId.toLowerCase());
+    }
+  }
+  return sortPeopleByName(
+    people.filter(
+      (person) =>
+        person.role !== "ADMIN" && parentIds.has(person.id.toLowerCase()),
+    ),
+  );
+}
+
 export function parentDisplayName(
   person: Person,
   byId: Map<string, Person>,
