@@ -161,6 +161,7 @@ export function AdminCoverageMapPage() {
   const drawerReturnFocusRef = useRef<HTMLElement | null>(null);
 
   const {
+    self,
     person: selectedPerson,
     metrics,
     scopedMap,
@@ -384,10 +385,7 @@ export function AdminCoverageMapPage() {
             showEyebrow={false}
           />
         }
-        userDisplayName={adminUserDisplayName(
-          session.user.email,
-          selectedPerson,
-        )}
+        userDisplayName={adminUserDisplayName(session.user.email, self)}
         userEmail={session.user.email}
         userRole={session.user.rol}
         onSignOut={logout}
