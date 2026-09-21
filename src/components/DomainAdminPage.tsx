@@ -298,6 +298,7 @@ export function DomainAdminPage({
       onSelect={select}
       onToggle={toggle}
       hideRoot={isAdmin}
+      peopleInScope={peopleInScope}
     />
   );
 

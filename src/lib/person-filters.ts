@@ -1,13 +1,22 @@
-import type { Person, PersonStatus } from "@/types/domain";
+import type { Person, PersonRole, PersonStatus } from "@/types/domain";
 
 export type PersonStatusFilter = PersonStatus | "TODOS";
+export type PersonRoleFilter = PersonRole | "TODOS";
+export type PersonSuperiorFilter = string | "TODOS";
 
 export interface PersonFilter {
   text: string;
   status: PersonStatusFilter;
+  role: PersonRoleFilter;
+  superiorId: PersonSuperiorFilter;
 }
 
-export const emptyPersonFilter: PersonFilter = { text: "", status: "TODOS" };
+export const emptyPersonFilter: PersonFilter = {
+  text: "",
+  status: "TODOS",
+  role: "TODOS",
+  superiorId: "TODOS",
+};
 
 function normalize(value: string): string {
   return value
@@ -25,7 +34,12 @@ function fullName(person: Person): string {
 }
 
 export function isPersonFilterActive(filter: PersonFilter): boolean {
-  return filter.text.trim().length > 0 || filter.status !== "TODOS";
+  return (
+    filter.text.trim().length > 0 ||
+    filter.status !== "TODOS" ||
+    filter.role !== "TODOS" ||
+    filter.superiorId !== "TODOS"
+  );
 }
 
 export function personMatchesFilter(
@@ -44,7 +58,11 @@ export function filterPersonList(
     const matchesText = !term || fullName(person).includes(term);
     const matchesStatus =
       filter.status === "TODOS" || person.status === filter.status;
-    return matchesText && matchesStatus;
+    const matchesRole = filter.role === "TODOS" || person.role === filter.role;
+    const matchesSuperior =
+      filter.superiorId === "TODOS" ||
+      person.parentId?.toLowerCase() === filter.superiorId.toLowerCase();
+    return matchesText && matchesStatus && matchesRole && matchesSuperior;
   });
 }
 
