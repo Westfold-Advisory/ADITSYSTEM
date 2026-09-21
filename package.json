@@ -11,8 +11,8 @@
     "format:check": "prettier --check .",
     "test": "tsx --test src/**/*.test.ts",
     "preview": "vite preview",
-    "e2e": "VITE_USE_MOCK_API=true npm run build && playwright test",
-    "e2e:ci": "VITE_USE_MOCK_API=true npm run build && E2E_START_PREVIEW=1 playwright test",
+    "e2e": "npm run build && playwright test",
+    "e2e:ci": "CI=1 npm run build && CI=1 E2E_START_PREVIEW=1 playwright test",
     "e2e:ui": "playwright test --ui"
   },
   "dependencies": {

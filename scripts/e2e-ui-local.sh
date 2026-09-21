@@ -8,7 +8,6 @@ cd "$ROOT"
 API_ORIGIN="${E2E_API_ORIGIN:-http://127.0.0.1:8000}"
 VITE_API_BASE_URL="${VITE_API_BASE_URL:-${API_ORIGIN}/api/v1}"
 export VITE_API_BASE_URL
-export VITE_USE_MOCK_API=false
 export E2E_START_PREVIEW=1
 
 echo "== Comprobando API (${API_ORIGIN}/health) =="

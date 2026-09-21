@@ -28,7 +28,6 @@ export default defineConfig({
           ...process.env,
           VITE_API_BASE_URL:
             process.env.VITE_API_BASE_URL ?? "http://127.0.0.1:8000/api/v1",
-          VITE_USE_MOCK_API: process.env.VITE_USE_MOCK_API ?? "true",
         },
       }
     : undefined,
