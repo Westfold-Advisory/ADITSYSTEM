@@ -297,6 +297,23 @@ export class DomainApi {
       createdAt: new Date(item.created_at),
     }));
   }
+  async getDocumentDownloadUrl(
+    personId: UUID,
+    documentId: UUID,
+  ): Promise<{ url: string; expiresAt: Date; fileName: string }> {
+    const item = await this.client.request<{
+      url: string;
+      expires_at: string;
+      file_name: string;
+    }>(`/personas/${personId}/documentos/${documentId}/descarga`, {
+      access: "authenticated",
+    });
+    return {
+      url: item.url,
+      expiresAt: new Date(item.expires_at),
+      fileName: item.file_name,
+    };
+  }
   async registerDocument(
     id: UUID,
     input: DocumentRegistrationInput,
