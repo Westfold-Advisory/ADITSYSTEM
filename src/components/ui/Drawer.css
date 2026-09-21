@@ -1,0 +1,18 @@
+/* DS Drawer — shell compartido (TRA-142 P2) */
+
+.ui-drawer.hierarchy-detail-drawer {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.ui-drawer__main {
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+@media (max-width: 48rem) {
+  .ui-drawer.hierarchy-detail-drawer {
+    z-index: var(--md-sys-z-drawer, 20);
+  }
+}

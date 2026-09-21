@@ -1,6 +1,8 @@
-import type { Person, PersonMetrics } from "@/types/domain";
+import { useMemo } from "react";
 
+import { DescriptionList } from "@/components/ui/DescriptionList";
 import { RoleChip } from "@/components/ui/RoleChip";
+import type { Person, PersonMetrics } from "@/types/domain";
 
 import { nameOf } from "./person-display";
 import { PersonStatusBadge } from "./PersonStatusBadge";
@@ -27,6 +29,33 @@ export function PersonSummary({
   person: Person;
   metrics: PersonMetrics | null;
 }) {
+  const factItems = useMemo(
+    () => [
+      {
+        term: "Teléfono",
+        value: person.telefono?.trim() ? person.telefono : "—",
+      },
+      {
+        term: "Registro",
+        value: person.registeredAt.toLocaleDateString("es-MX"),
+      },
+      {
+        term: "Descendientes",
+        value: metrics?.descendants ?? "—",
+      },
+      {
+        term: "Documentos",
+        value: metrics?.documents ?? "—",
+      },
+    ],
+    [
+      person.registeredAt,
+      person.telefono,
+      metrics?.descendants,
+      metrics?.documents,
+    ],
+  );
+
   return (
     <header className="person-summary">
       <div className="person-summary__hero">
@@ -41,24 +70,7 @@ export function PersonSummary({
           <PersonStatusBadge status={person.status} />
         </div>
       </div>
-      <dl className="person-summary__facts">
-        <div className="person-summary__fact">
-          <dt>Teléfono</dt>
-          <dd>{person.telefono?.trim() ? person.telefono : "—"}</dd>
-        </div>
-        <div className="person-summary__fact">
-          <dt>Registro</dt>
-          <dd>{person.registeredAt.toLocaleDateString("es-MX")}</dd>
-        </div>
-        <div className="person-summary__fact">
-          <dt>Descendientes</dt>
-          <dd>{metrics?.descendants ?? "—"}</dd>
-        </div>
-        <div className="person-summary__fact">
-          <dt>Documentos</dt>
-          <dd>{metrics?.documents ?? "—"}</dd>
-        </div>
-      </dl>
+      <DescriptionList items={factItems} className="person-summary__facts" />
     </header>
   );
 }

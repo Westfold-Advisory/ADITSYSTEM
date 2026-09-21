@@ -5,6 +5,8 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
 import { Alert } from "./ui/Alert";
+import { DescriptionList } from "./ui/DescriptionList";
+import { Drawer } from "./ui/Drawer";
 import { LoadingState } from "./ui/AsyncState";
 import { Button } from "./ui/button";
 import { Field } from "./ui/Field";
@@ -36,6 +38,34 @@ test("critical primitives expose semantic states and accessible labels", () => {
     createElement(Alert, { tone: "error" }, "Intenta de nuevo."),
   );
   assert.match(error, /role="alert"/);
+
+  const descriptionList = renderToStaticMarkup(
+    createElement(DescriptionList, {
+      items: [
+        { term: "Teléfono", value: "555" },
+        { term: "Registro", value: "1 ene 2026" },
+      ],
+    }),
+  );
+  assert.match(descriptionList, /class="ui-description-list"/);
+  assert.match(
+    descriptionList,
+    /<dt class="ui-description-list__term">Teléfono<\/dt>/,
+  );
+
+  const drawer = renderToStaticMarkup(
+    createElement(
+      Drawer,
+      {
+        open: true,
+        onDismiss: () => undefined,
+        ariaLabel: "Detalle de prueba",
+      },
+      createElement("p", null, "Contenido"),
+    ),
+  );
+  assert.match(drawer, /class="ui-drawer hierarchy-detail-drawer"/);
+  assert.match(drawer, /aria-label="Detalle de prueba"/);
 });
 
 test("button lifecycle preserves its label and only disables the pending action", () => {
