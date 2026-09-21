@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 
 import { EventsApi, mapEventInput, mapEventResponse } from "./events";
 import { ApiClient, ApiError } from "./http";
+import { SESSION_EXPIRED_MESSAGE } from "@/lib/auth-messages";
 
 const response = {
   id: "5ad4ce54-72f9-4c15-9cbb-43f6a5bcd9e0",
@@ -132,6 +133,45 @@ describe("ApiClient", () => {
     );
     await api.listPublic(controller.signal);
     assert.equal(receivedSignal, controller.signal);
+  });
+
+  it("invokes onUnauthorized and uses SESSION_EXPIRED_MESSAGE on admin 401", async () => {
+    const reasons: string[] = [];
+    const client = new ApiClient({
+      baseUrl: "https://api.example.test",
+      getAccessToken: () => "stale-token",
+      onUnauthorized: (reason) => reasons.push(reason),
+      fetchFn: async () =>
+        new Response(JSON.stringify({ detail: "Token expired" }), {
+          status: 401,
+          headers: { "content-type": "application/json" },
+        }),
+    });
+    await assert.rejects(
+      client.request("/events", { access: "admin" }),
+      (error: unknown) =>
+        error instanceof ApiError &&
+        error.status === 401 &&
+        error.message === SESSION_EXPIRED_MESSAGE,
+    );
+    assert.deepEqual(reasons, ["rejected"]);
+  });
+
+  it("invokes onUnauthorized when admin request has no token", async () => {
+    const reasons: string[] = [];
+    const client = new ApiClient({
+      baseUrl: "https://api.example.test",
+      getAccessToken: () => null,
+      onUnauthorized: (reason) => reasons.push(reason),
+      fetchFn: async () => {
+        throw new Error("fetch should not run without token");
+      },
+    });
+    await assert.rejects(
+      client.request("/events", { access: "admin" }),
+      (error: unknown) => error instanceof ApiError && error.status === 401,
+    );
+    assert.deepEqual(reasons, ["missing_token"]);
   });
 
   it("uses only the documented transition and logical-delete endpoints", async () => {

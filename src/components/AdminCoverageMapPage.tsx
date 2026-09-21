@@ -1,7 +1,13 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { PanelLeftClose, PanelLeftOpen, Search } from "lucide-react";
 
-import type { LoginResponse } from "@/api/auth";
 import { DomainApi } from "@/api/domain";
 import {
   GeofencesApi,
@@ -30,17 +36,9 @@ import {
   MapHeatmapLayer,
 } from "@/components/ui/map";
 import { getInstitutionConfig } from "@/config/institution";
-import {
-  clearAdminSession,
-  isAdminSessionExpired,
-  persistAdminSession,
-  readAdminSession,
-  type AdminSession,
-} from "@/lib/admin-session";
-import {
-  SESSION_EXPIRED_MESSAGE,
-  requestFailureMessage,
-} from "@/lib/auth-messages";
+import { useAdminSessionGate } from "@/hooks/useAdminSessionGate";
+import { useStableUnauthorizedHandler } from "@/hooks/useStableUnauthorizedHandler";
+import { adminRequestFailureMessage } from "@/lib/request-error-handling";
 import { adminUserDisplayName } from "@/lib/admin-user-display";
 import { capabilitiesFor } from "@/lib/capabilities";
 import { communityNeedOptions } from "@/lib/community-needs";
@@ -65,51 +63,38 @@ import type { UUID } from "@/types/events";
 
 import "./AdminCoverageMapPage.css";
 
-function loadAdminSession(): {
-  session: AdminSession | null;
-  expiredNotice: string | null;
-} {
-  const stored = readAdminSession();
-  if (!stored) return { session: null, expiredNotice: null };
-  if (isAdminSessionExpired(stored)) {
-    clearAdminSession();
-    return { session: null, expiredNotice: SESSION_EXPIRED_MESSAGE };
-  }
-  return { session: stored, expiredNotice: null };
-}
-
 export function AdminCoverageMapPage() {
   const institution = getInstitutionConfig();
-  const [loginNotice, setLoginNotice] = useState<string | null>(() => {
-    return loadAdminSession().expiredNotice;
-  });
-  const [session, setSession] = useState<LoginResponse | null>(() => {
-    return loadAdminSession().session;
-  });
-  const handleUnauthorized = useCallback(() => {
-    clearAdminSession();
-    setSession(null);
-    setLoginNotice(SESSION_EXPIRED_MESSAGE);
-  }, []);
+  const {
+    session,
+    loginNotice,
+    login,
+    logout,
+    handleUnauthorized: expireSession,
+  } = useAdminSessionGate();
+  const sessionExpiryRef = useRef<() => void>(() => {});
+  const onUnauthorized = useStableUnauthorizedHandler(() =>
+    sessionExpiryRef.current(),
+  );
   const api = useMemo(
     () =>
       new DomainApi(
         new ApiClient({
           getAccessToken: () => session?.access_token,
-          onUnauthorized: handleUnauthorized,
+          onUnauthorized,
         }),
       ),
-    [handleUnauthorized, session?.access_token],
+    [onUnauthorized, session?.access_token],
   );
   const geofencesApi = useMemo(
     () =>
       new GeofencesApi(
         new ApiClient({
           getAccessToken: () => session?.access_token,
-          onUnauthorized: handleUnauthorized,
+          onUnauthorized,
         }),
       ),
-    [handleUnauthorized, session?.access_token],
+    [onUnauthorized, session?.access_token],
   );
   const capabilities = session
     ? capabilitiesFor(session.user.rol)
@@ -159,6 +144,20 @@ export function AdminCoverageMapPage() {
   const [removeConfirmOpen, setRemoveConfirmOpen] = useState(false);
   const [removeBusy, setRemoveBusy] = useState(false);
   const drawerReturnFocusRef = useRef<HTMLElement | null>(null);
+
+  useLayoutEffect(() => {
+    sessionExpiryRef.current = () => {
+      setSelectedPinId(null);
+      setCreating(false);
+      setEditing(false);
+      setChangingPassword(false);
+      setRemoveConfirmOpen(false);
+      setRemoveBusy(false);
+      setCoverageLoading(false);
+      setCoverageError(null);
+      expireSession();
+    };
+  }, [expireSession]);
 
   const {
     self,
@@ -249,7 +248,8 @@ export function AdminCoverageMapPage() {
         })
         .catch((error: unknown) => {
           if (!controller.signal.aborted) {
-            setCoverageError(requestFailureMessage(error));
+            const message = adminRequestFailureMessage(error);
+            if (message) setCoverageError(message);
           }
         })
         .finally(() => {
@@ -338,17 +338,6 @@ export function AdminCoverageMapPage() {
     } finally {
       setRemoveBusy(false);
     }
-  };
-
-  const login = (nextSession: LoginResponse) => {
-    persistAdminSession(nextSession);
-    setLoginNotice(null);
-    setSession(nextSession);
-  };
-  const logout = () => {
-    clearAdminSession();
-    setSession(null);
-    setLoginNotice(null);
   };
 
   if (!session) {
