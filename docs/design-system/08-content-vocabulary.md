@@ -72,7 +72,7 @@ Usar **exactamente** estos términos salvo PO apruebe excepción documentada.
 | --------------------- | --------------------------------------------------------------------------------- | -------------------------------------- |
 | Detalle de persona    | **Ficha**                                                                         | Panel, sidebar, detalle, profile       |
 | Persona en mapa admin | **Punto en el mapa** / seleccionar en el mapa                                     | Pin                                    |
-| Mapa admin            | **Mapa de cobertura**                                                             | Coverage map                           |
+| Mapa admin            | **Territorio** (evitar «Mapa de cobertura», legado de otro sistema)               | Coverage map                           |
 | Densidad / heat layer | **Mapa de concentración**                                                         | Heatmap, mapa de calor                 |
 | Ámbito de datos       | **Tu alcance** / **alcance operativo**                                            | Subárbol, scope técnico                |
 | Jerarquía             | **Estructura** (de personas)                                                      | Subárbol, nodos                        |
@@ -80,7 +80,7 @@ Usar **exactamente** estos términos salvo PO apruebe excepción documentada.
 | Baja                  | **Dar de baja** + explicar **baja lógica**                                        | Eliminar, borrar, delete               |
 | ID sistema            | **Identificador** (solo si hace falta); preferir «se asignará automáticamente»    | Capturar identificador, UUID           |
 | Roles                 | **Coord. general, Coordinador, Enlace, Amigo** (etiquetas existentes `roleLabel`) | Inventar sinónimos                     |
-| Admin shell           | **Consola** / módulos **Personas**, **Mapa de cobertura**, **Eventos**            | Dashboard genérico                     |
+| Admin shell           | **Consola** / módulos **Organización**, **Territorio**, **Eventos**               | Dashboard genérico                     |
 
 ### Glosario ampliado (Lote 2)
 

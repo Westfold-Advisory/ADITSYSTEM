@@ -15,10 +15,7 @@ import { HierarchyTreePanel } from "@/components/admin/HierarchyTree";
 import { PersonDetailPanel } from "@/components/admin/PersonDetailPanel";
 import { PersonDirectoryTable } from "@/components/admin/PersonDirectoryTable";
 import { PersonOrgChartView } from "@/components/admin/PersonOrgChartView";
-import {
-  PersonasViewNav,
-  type PersonasStructureView,
-} from "@/components/admin/PersonasViewNav";
+import type { PersonasStructureView } from "@/components/admin/organization-structure-views";
 import { AdminWorkspaceShell } from "@/components/admin/AdminWorkspaceShell";
 import { apiErrorMessage, nameOf } from "@/components/admin/person-display";
 import { adminUiCopy } from "@/content/admin-ui-es";
@@ -451,9 +448,10 @@ export function DomainAdminPage({
   return (
     <AdminWorkspaceShell
       header={pageHeader}
-      subNav={
-        <PersonasViewNav value={structureView} onChange={changeStructureView} />
-      }
+      organizationViews={{
+        value: structureView,
+        onChange: changeStructureView,
+      }}
       userDisplayName={adminUserDisplayName(session.user.email, self)}
       userEmail={session.user.email}
       userRole={session.user.rol}

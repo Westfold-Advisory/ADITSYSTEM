@@ -1,16 +1,16 @@
 import { normalizePathname } from "@/lib/routing";
 
-/** Navegación global de la consola admin (una sola fila; sin subnav duplicado). */
+/** Navegación global de la consola admin (L1). */
 export const ADMIN_NAV_LINKS = [
   {
     href: "/admin/personas",
-    label: "Personas",
-    pageTitle: "Personas",
+    label: "Organización",
+    pageTitle: "Organización",
   },
   {
     href: "/admin/mapa",
-    label: "Mapa de cobertura",
-    pageTitle: "Mapa de cobertura",
+    label: "Territorio",
+    pageTitle: "Territorio",
   },
   { href: "/admin", label: "Eventos", pageTitle: "Eventos" },
 ] as const;

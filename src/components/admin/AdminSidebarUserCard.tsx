@@ -6,7 +6,7 @@ void React;
 import type { AuthenticatedRole } from "@/types/domain";
 import { adminUserInitials } from "@/lib/admin-user-display";
 import { Button } from "@/components/ui/button";
-import { RoleChip } from "@/components/ui/RoleChip";
+import { roleLabel } from "@/components/admin/person-display";
 
 /**
  * Pie del sidebar admin: identidad compacta + cerrar sesión.
@@ -59,9 +59,7 @@ export function AdminSidebarUserCard({
         </div>
         <div className="admin-sidebar-user__meta">
           <p className="admin-sidebar-user__name">{displayName}</p>
-          <div className="admin-sidebar-user__role-line">
-            <RoleChip role={role} />
-          </div>
+          <p className="admin-sidebar-user__role">{roleLabel(role)}</p>
         </div>
       </div>
       <button

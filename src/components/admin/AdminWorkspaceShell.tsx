@@ -9,6 +9,10 @@ import { Button } from "@/components/ui/button";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { AdminSidebarUserCard } from "@/components/admin/AdminSidebarUserCard";
 import {
+  AdminOrganizationNavContext,
+  type AdminOrganizationNavValue,
+} from "@/components/admin/admin-organization-nav-context";
+import {
   ADMIN_SIDEBAR_COMPACT_STORAGE_KEY,
   AdminSidebarContext,
 } from "@/components/admin/admin-sidebar-context";
@@ -22,6 +26,7 @@ export function AdminWorkspaceShell({
   header,
   children,
   subNav,
+  organizationViews,
   userDisplayName,
   userEmail,
   userRole,
@@ -31,6 +36,8 @@ export function AdminWorkspaceShell({
   header?: ReactNode;
   children: ReactNode;
   subNav?: ReactNode;
+  /** Vistas L2 de Organización (hover en sidebar); solo en /admin/personas. */
+  organizationViews?: AdminOrganizationNavValue;
   userDisplayName: string;
   userEmail: string;
   userRole: AuthenticatedRole;
@@ -96,7 +103,11 @@ export function AdminWorkspaceShell({
             id="admin-sidebar-nav-block"
             className="admin-workspace-sidebar__nav-block"
           >
-            <AdminNav orientation="vertical" />
+            <AdminOrganizationNavContext.Provider
+              value={organizationViews ?? null}
+            >
+              <AdminNav orientation="vertical" />
+            </AdminOrganizationNavContext.Provider>
             {subNav ? (
               <div className="admin-workspace-sidebar__sub">{subNav}</div>
             ) : null}
