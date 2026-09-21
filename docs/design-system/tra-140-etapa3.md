@@ -12,7 +12,7 @@ Parámetros:
 - `session` — `LoginResponse`
 - `personId` — persona seleccionada (p. ej. pin del mapa) o `null`
 
-Retorno (consumo previsto por **TRA-144** → `PersonDetailPanel`):
+Retorno (consumo por **TRA-144** → `PersonDetailPanel`):
 
 | Campo                             | Descripción                                    |
 | --------------------------------- | ---------------------------------------------- |
@@ -29,6 +29,31 @@ Helpers compartidos: `src/lib/person-detail-context.ts`.
 
 Al cambiar `personId`, cada `useEffect` aborta el `AbortController` anterior (persona, ancestros, metrics/map).
 
-### Fuera de este PR
+**Merge:** PR #107.
 
-Integración UI en `AdminCoverageMapPage` → **TRA-144**.
+---
+
+## TRA-144 — PersonDetailPanel en mapa admin
+
+**Merge:** PR #109 (`1955948` en `main`).
+
+### Implementación
+
+- `AdminCoverageMapPage`: selección de pin → `usePersonDetailForPanel` + drawer `PersonDetailPanel` (paridad con Personas: tabs, `PersonSummary`, `AdminActionBar`, CRUD, `ConfirmDialog` baja).
+- `onDismiss` + `returnFocusRef` al pin/mapa; breadcrumb navega con `selectPin`.
+- Tras mutaciones: `refreshPersonDetail()` + `reloadToken` en cobertura.
+- `PersonDetailPanel` / Territorio: prop opcional `mapPinLocation` (coords del pin en mapa admin).
+
+### QA PO (P0 mapa — pendiente sign-off)
+
+Viewport **1440×900**, mismo usuario en Personas y **Admin → Mapa**:
+
+- [ ] Misma persona: mismas pestañas y acciones que en listado/organigrama.
+- [ ] Cerrar drawer (✕): mapa usable; foco razonable al dismiss.
+- [ ] Teclado: trap en drawer; Tab no pierde contexto crítico.
+- [ ] Editar / alta hijo / baja (según rol): sin errores; pins/cobertura coherentes.
+- [ ] Territorio: coords del pin + geocercas como en Personas.
+
+### Fuera de alcance (P2 — TRA-142)
+
+Drawer genérico abstracto; mapa público (Etapa 4).
