@@ -9,19 +9,22 @@ import {
   type GeofenceType,
 } from "@/api/geofences";
 import { ApiClient } from "@/api/http";
-import { AdminActionBar } from "@/components/admin/AdminActionBar";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminWorkspaceShell } from "@/components/admin/AdminWorkspaceShell";
-import { PersonForm } from "@/components/admin/PersonForm";
-import { nameOf, roleLabel } from "@/components/admin/person-display";
+import { PersonDetailPanel } from "@/components/admin/PersonDetailPanel";
+import {
+  apiErrorMessage,
+  nameOf,
+  roleLabel,
+} from "@/components/admin/person-display";
 import { UnauthorizedRoleScreen } from "@/components/UnauthorizedRoleScreen";
 import { LoginPage } from "@/components/LoginPage";
 import { PublicAppShell } from "@/components/PublicAppShell";
 import { Capa } from "@/components/ui/Capa";
 import { ErrorState, LoadingState } from "@/components/ui/AsyncState";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { PanelCapas } from "@/components/ui/PanelCapas";
-import { RoleChip } from "@/components/ui/RoleChip";
 import {
   Map,
   MapClusterLayer,
@@ -48,11 +51,17 @@ import {
   coverageRoleFilterLabel,
   filterCoveragePins,
   initialCoverageGeofenceVisibility,
-  pinColorForRole,
   type CoverageRoleFilter,
 } from "@/lib/coverage-map";
 import { useGeofenceLayerCatalog } from "@/hooks/useGeofenceLayerCatalog";
-import type { CommunityNeed, CoverageMapPin, Person } from "@/types/domain";
+import { usePersonDetailForPanel } from "@/hooks/usePersonDetailForPanel";
+import type { PersonCreateOption } from "@/lib/person-provisioning";
+import type {
+  CommunityNeed,
+  CoverageMapPin,
+  PersonInput,
+  PersonProvisionInput,
+} from "@/types/domain";
 import type { UUID } from "@/types/events";
 
 import "./AdminCoverageMapPage.css";
@@ -145,10 +154,28 @@ export function AdminCoverageMapPage() {
   });
 
   const [selectedPinId, setSelectedPinId] = useState<UUID | null>(null);
-  const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
-  const [parentPerson, setParentPerson] = useState<Person | null>(null);
-  const [detailLoading, setDetailLoading] = useState(false);
+  const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [removeConfirmOpen, setRemoveConfirmOpen] = useState(false);
+  const [removeBusy, setRemoveBusy] = useState(false);
+  const drawerReturnFocusRef = useRef<HTMLElement | null>(null);
+
+  const {
+    person: selectedPerson,
+    metrics,
+    scopedMap,
+    breadcrumb,
+    canManageSelected,
+    canRegisterDocumentsForSelected,
+    loading: personDetailLoading,
+    error: personDetailError,
+    refresh: refreshPersonDetail,
+  } = usePersonDetailForPanel({
+    api,
+    session,
+    personId: selectedPinId,
+  });
 
   const filteredPins = useMemo(
     () => filterCoveragePins(pins, roleFilter, search),
@@ -245,35 +272,73 @@ export function AdminCoverageMapPage() {
     return () => controller.abort();
   }, [ensureTypeLoaded, session]);
 
-  useEffect(() => {
-    if (!selectedPinId || !session) return;
-    const controller = new AbortController();
-    void Promise.resolve().then(() => {
-      setDetailLoading(true);
-      return api
-        .getPerson(selectedPinId, { signal: controller.signal })
-        .then(async (person) => {
-          setSelectedPerson(person);
-          if (person.parentId) {
-            const parent = await api.getPerson(person.parentId, {
-              signal: controller.signal,
-            });
-            setParentPerson(parent);
-          } else {
-            setParentPerson(person);
-          }
-        })
-        .catch((error: unknown) => {
-          if (!controller.signal.aborted) {
-            setCoverageError(requestFailureMessage(error));
-          }
-        })
-        .finally(() => {
-          if (!controller.signal.aborted) setDetailLoading(false);
-        });
-    });
-    return () => controller.abort();
-  }, [api, selectedPinId, session]);
+  const dismissPersonDetail = useCallback(() => {
+    setSelectedPinId(null);
+    setCreating(false);
+    setEditing(false);
+    setChangingPassword(false);
+    setRemoveConfirmOpen(false);
+  }, []);
+
+  const selectPin = useCallback((personId: UUID) => {
+    if (document.activeElement instanceof HTMLElement) {
+      drawerReturnFocusRef.current = document.activeElement;
+    }
+    setCreating(false);
+    setEditing(false);
+    setChangingPassword(false);
+    setSelectedPinId(personId);
+  }, []);
+
+  const createChild = async (
+    input: PersonProvisionInput,
+    option: PersonCreateOption,
+  ) => {
+    if (!selectedPerson) return;
+    await api.createPerson(input, option.role, option.parentId);
+    setCreating(false);
+    refreshPersonDetail();
+    setReloadToken((value) => value + 1);
+  };
+
+  const updatePerson = async (input: PersonInput) => {
+    if (!selectedPerson) return;
+    await api.updatePerson(selectedPerson.id, input);
+    setEditing(false);
+    refreshPersonDetail();
+    setReloadToken((value) => value + 1);
+  };
+
+  const changePassword = async (newPassword: string) => {
+    if (!selectedPerson) return;
+    await api.changePersonPassword(selectedPerson.id, newPassword);
+    setChangingPassword(false);
+  };
+
+  const requestRemove = () => {
+    if (!selectedPerson || selectedPerson.id === session?.user.persona_id) {
+      return;
+    }
+    setRemoveConfirmOpen(true);
+  };
+
+  const confirmRemove = async () => {
+    if (!selectedPerson || selectedPerson.id === session?.user.persona_id) {
+      setRemoveConfirmOpen(false);
+      return;
+    }
+    setRemoveBusy(true);
+    try {
+      await api.deletePerson(selectedPerson.id);
+      dismissPersonDetail();
+      setReloadToken((value) => value + 1);
+      setRemoveConfirmOpen(false);
+    } catch (reason) {
+      setCoverageError(apiErrorMessage(reason));
+    } finally {
+      setRemoveBusy(false);
+    }
+  };
 
   const login = (nextSession: LoginResponse) => {
     persistAdminSession(nextSession);
@@ -299,10 +364,12 @@ export function AdminCoverageMapPage() {
     );
   }
 
-  const selectedPin = filteredPins.find(
-    (pin) => pin.personId === selectedPinId,
-  );
-  const hasSelectedPin = Boolean(selectedPinId && selectedPin);
+  const selectedPin =
+    selectedPinId != null
+      ? (pins.find((pin) => pin.personId === selectedPinId) ??
+        filteredPins.find((pin) => pin.personId === selectedPinId))
+      : undefined;
+  const detailOpen = Boolean(selectedPinId);
 
   return (
     <main className="admin-page admin-workspace coverage-map-page">
@@ -386,15 +453,19 @@ export function AdminCoverageMapPage() {
           </Button>
         </section>
 
-        {coverageError && (
+        {(coverageError || personDetailError) && (
           <ErrorState
-            message={coverageError}
-            onRetry={() => setReloadToken((value) => value + 1)}
+            message={coverageError ?? personDetailError ?? ""}
+            onRetry={() => {
+              setCoverageError(null);
+              refreshPersonDetail();
+              setReloadToken((value) => value + 1);
+            }}
           />
         )}
 
         <div
-          className={`coverage-map-layout grid gap-4 ${hasSelectedPin ? "lg:grid-cols-[minmax(0,1fr)_320px]" : ""}`}
+          className={`coverage-map-layout${detailOpen ? " coverage-map-layout--detail-open" : ""}`}
         >
           <div
             className={`coverage-map-workspace ${panelCapasAbierto ? "coverage-map-workspace--layers-open" : ""}`}
@@ -459,8 +530,7 @@ export function AdminCoverageMapPage() {
                         clusterRadius={40}
                         pointColor="var(--md-sys-color-primary)"
                         onPointClick={(feature) => {
-                          setEditing(false);
-                          setSelectedPinId(feature.properties.id);
+                          selectPin(feature.properties.id);
                         }}
                       />
                     )}
@@ -470,66 +540,93 @@ export function AdminCoverageMapPage() {
             </div>
           </div>
 
-          {selectedPin && (
-            <aside
-              className="coverage-map-detail border p-4"
+          {detailOpen ? (
+            <section
+              className="hierarchy-detail-drawer coverage-map-detail-drawer"
               aria-live="polite"
+              aria-label="Detalle de la persona seleccionada"
             >
-              {detailLoading || !selectedPerson ? (
+              {personDetailLoading && !selectedPerson ? (
                 <LoadingState label="Cargando persona…" />
-              ) : (
-                <>
-                  <RoleChip role={selectedPerson.role} />
-                  <h2 className="text-lg font-semibold">
-                    {nameOf(selectedPerson)}
-                  </h2>
-                  <p className="text-sm">{roleLabel(selectedPerson.role)}</p>
-                  <p className="text-sm">
-                    {selectedPin.latitude.toFixed(5)},{" "}
-                    {selectedPin.longitude.toFixed(5)}
-                  </p>
-                  <div
-                    className="mt-2 h-3 w-3 rounded-full"
-                    style={{ background: pinColorForRole(selectedPerson.role) }}
-                    aria-hidden
-                  />
-                  {!editing ? (
-                    <AdminActionBar
-                      className="coverage-map-detail__actions"
-                      ariaLabel="Acciones sobre la persona seleccionada"
-                    >
-                      <Button
-                        variant="outline"
-                        onClick={() => setEditing(true)}
-                      >
-                        Editar persona
-                      </Button>
-                    </AdminActionBar>
-                  ) : parentPerson ? (
-                    <PersonForm
-                      mode="edit"
-                      parent={parentPerson}
-                      initialValues={{
-                        nombre: selectedPerson.nombre,
-                        apellidoPaterno: selectedPerson.apellidoPaterno,
-                        apellidoMaterno: selectedPerson.apellidoMaterno,
-                        telefono: selectedPerson.telefono,
-                      }}
-                      submitLabel="Guardar cambios"
-                      onCancel={() => setEditing(false)}
-                      onSaveUpdate={async (input) => {
-                        await api.updatePerson(selectedPerson.id, input);
-                        setEditing(false);
-                        setReloadToken((value) => value + 1);
-                      }}
-                    />
-                  ) : null}
-                </>
-              )}
-            </aside>
-          )}
+              ) : selectedPerson ? (
+                <PersonDetailPanel
+                  selected={selectedPerson}
+                  breadcrumb={breadcrumb}
+                  metrics={metrics}
+                  scopedMap={scopedMap}
+                  api={api}
+                  actorRole={session.user.rol}
+                  sessionPersonId={session.user.persona_id}
+                  canManageSelected={canManageSelected}
+                  canRegisterDocuments={canRegisterDocumentsForSelected}
+                  creating={creating}
+                  editing={editing}
+                  changingPassword={changingPassword}
+                  onNavigateBreadcrumb={(person) => selectPin(person.id)}
+                  onStartCreate={() => {
+                    setCreating(true);
+                    setEditing(false);
+                    setChangingPassword(false);
+                  }}
+                  onStartEdit={() => {
+                    setEditing(true);
+                    setCreating(false);
+                    setChangingPassword(false);
+                  }}
+                  onStartChangePassword={() => {
+                    setChangingPassword(true);
+                    setCreating(false);
+                    setEditing(false);
+                  }}
+                  onCancelForm={() => {
+                    setCreating(false);
+                    setEditing(false);
+                    setChangingPassword(false);
+                  }}
+                  onCreate={createChild}
+                  onUpdate={updatePerson}
+                  onChangePassword={changePassword}
+                  onRemove={requestRemove}
+                  onDismiss={dismissPersonDetail}
+                  returnFocusRef={drawerReturnFocusRef}
+                  mapPinLocation={
+                    selectedPin
+                      ? {
+                          latitude: selectedPin.latitude,
+                          longitude: selectedPin.longitude,
+                        }
+                      : null
+                  }
+                />
+              ) : null}
+            </section>
+          ) : null}
         </div>
       </AdminWorkspaceShell>
+      <ConfirmDialog
+        open={removeConfirmOpen && Boolean(selectedPerson)}
+        title="Dar de baja persona"
+        description={
+          selectedPerson ? (
+            <>
+              <p>
+                ¿Confirmas dar de baja a{" "}
+                <strong>{nameOf(selectedPerson)}</strong>?
+              </p>
+              <p>
+                Es una baja lógica: la persona dejará de aparecer en la
+                estructura activa, pero se conservan los datos históricos.
+              </p>
+            </>
+          ) : null
+        }
+        confirmLabel="Dar de baja"
+        cancelLabel="Cancelar"
+        confirmVariant="destructive"
+        busy={removeBusy}
+        onConfirm={() => void confirmRemove()}
+        onCancel={() => setRemoveConfirmOpen(false)}
+      />
     </main>
   );
 }
