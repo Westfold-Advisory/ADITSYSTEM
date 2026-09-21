@@ -28,17 +28,18 @@ export function LoginPage({ onLogin, initialNotice = null }: LoginPageProps) {
   const institution = getInstitutionConfig();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(initialNotice);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const error = submitError ?? initialNotice ?? null;
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsSubmitting(true);
-    setError(null);
+    setSubmitError(null);
     try {
       onLogin(await new AuthApi(new ApiClient()).login(email, password));
     } catch (loginError) {
-      setError(loginFailureMessage(loginError));
+      setSubmitError(loginFailureMessage(loginError));
     } finally {
       setIsSubmitting(false);
     }

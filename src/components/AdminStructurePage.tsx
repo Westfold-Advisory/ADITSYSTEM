@@ -1,57 +1,18 @@
-import { useCallback, useState } from "react";
-
-import type { LoginResponse } from "@/api/auth";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { DomainAdminPage } from "@/components/DomainAdminPage";
 import { LoginPage } from "@/components/LoginPage";
 import { PublicAppShell } from "@/components/PublicAppShell";
 import { UnauthorizedRoleScreen } from "@/components/UnauthorizedRoleScreen";
 import { getInstitutionConfig } from "@/config/institution";
-import {
-  clearAdminSession,
-  isAdminSessionExpired,
-  persistAdminSession,
-  readAdminSession,
-  type AdminSession,
-} from "@/lib/admin-session";
-import { SESSION_EXPIRED_MESSAGE } from "@/lib/auth-messages";
 import { adminUiCopy } from "@/content/admin-ui-es";
+import { useAdminSessionGate } from "@/hooks/useAdminSessionGate";
 import { adminPageTitle } from "@/lib/admin-nav";
 import { capabilitiesFor } from "@/lib/capabilities";
 
-function loadAdminSession(): {
-  session: AdminSession | null;
-  expiredNotice: string | null;
-} {
-  const stored = readAdminSession();
-  if (!stored) return { session: null, expiredNotice: null };
-  if (isAdminSessionExpired(stored)) {
-    clearAdminSession();
-    return { session: null, expiredNotice: SESSION_EXPIRED_MESSAGE };
-  }
-  return { session: stored, expiredNotice: null };
-}
-
 export function AdminStructurePage() {
   const institution = getInstitutionConfig();
-  const [loginNotice, setLoginNotice] = useState<string | null>(() => {
-    return loadAdminSession().expiredNotice;
-  });
-  const [session, setSession] = useState<LoginResponse | null>(() => {
-    return loadAdminSession().session;
-  });
-
-  const login = useCallback((nextSession: LoginResponse) => {
-    persistAdminSession(nextSession);
-    setLoginNotice(null);
-    setSession(nextSession);
-  }, []);
-
-  const logout = useCallback(() => {
-    clearAdminSession();
-    setSession(null);
-    setLoginNotice(null);
-  }, []);
+  const { session, loginNotice, login, logout, handleUnauthorized } =
+    useAdminSessionGate();
 
   if (!session) {
     return (
@@ -73,6 +34,7 @@ export function AdminStructurePage() {
       <DomainAdminPage
         session={session}
         onSignOut={logout}
+        onSessionExpired={handleUnauthorized}
         pageHeader={
           <AdminPageHeader
             eyebrow={institution.productName}

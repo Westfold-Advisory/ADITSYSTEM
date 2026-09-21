@@ -1,23 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import type { LoginResponse } from "@/api/auth";
 import { DomainApi } from "@/api/domain";
 import { EventsApi } from "@/api/events";
 import { ApiClient } from "@/api/http";
 import type { Event, EventInput } from "@/types/events";
 import { getInstitutionConfig } from "@/config/institution";
 import { adminUiCopy } from "@/content/admin-ui-es";
-import {
-  clearAdminSession,
-  isAdminSessionExpired,
-  persistAdminSession,
-  readAdminSession,
-  type AdminSession,
-} from "@/lib/admin-session";
-import {
-  requestFailureMessage,
-  SESSION_EXPIRED_MESSAGE,
-} from "@/lib/auth-messages";
+import { useAdminSessionGate } from "@/hooks/useAdminSessionGate";
+import { adminRequestFailureMessage } from "@/lib/request-error-handling";
 import { UnauthorizedRoleScreen } from "./UnauthorizedRoleScreen";
 import { capabilitiesFor } from "@/lib/capabilities";
 import { FormularioNuevoEvento } from "./FormularioNuevoEvento";
@@ -32,19 +22,6 @@ import { Button } from "./ui/button";
 import { EmptyState, ErrorState, LoadingState } from "./ui/AsyncState";
 
 import "@/components/events/public/events-public.css";
-
-function loadAdminSession(): {
-  session: AdminSession | null;
-  expiredNotice: string | null;
-} {
-  const stored = readAdminSession();
-  if (!stored) return { session: null, expiredNotice: null };
-  if (isAdminSessionExpired(stored)) {
-    clearAdminSession();
-    return { session: null, expiredNotice: SESSION_EXPIRED_MESSAGE };
-  }
-  return { session: stored, expiredNotice: null };
-}
 
 type EventAction =
   "publish" | "unpublish" | "start" | "finish" | "cancel" | "delete";
@@ -90,24 +67,26 @@ function actionButtonVariant(
 
 export function AdminEventsPage() {
   const institution = getInstitutionConfig();
-  const [loginNotice, setLoginNotice] = useState<string | null>(() => {
-    const loaded = loadAdminSession();
-    return loaded.expiredNotice;
-  });
-  const [session, setSession] = useState<LoginResponse | null>(() => {
-    return loadAdminSession().session;
-  });
+  const {
+    session,
+    loginNotice,
+    login,
+    logout,
+    handleUnauthorized: expireSession,
+  } = useAdminSessionGate();
   const [events, setEvents] = useState<Event[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [activeAction, setActiveAction] = useState<string | null>(null);
   const [editing, setEditing] = useState<Event | null | "new">(null);
   const handleUnauthorized = useCallback(() => {
-    clearAdminSession();
-    setSession(null);
-    setLoginNotice(SESSION_EXPIRED_MESSAGE);
+    expireSession();
     setEvents([]);
-  }, []);
+    setEditing(null);
+    setIsLoading(false);
+    setActiveAction(null);
+    setError(null);
+  }, [expireSession]);
   const api = useMemo(
     () =>
       new EventsApi(
@@ -141,21 +120,18 @@ export function AdminEventsPage() {
       return api
         .listAdmin()
         .then(setEvents)
-        .catch((requestError) => setError(requestFailureMessage(requestError)))
+        .catch((requestError) => {
+          const message = adminRequestFailureMessage(requestError);
+          if (message) setError(message);
+        })
         .finally(() => setIsLoading(false));
     });
   }, [api, canManage, session]);
 
-  const login = (nextSession: LoginResponse) => {
-    persistAdminSession(nextSession);
-    setLoginNotice(null);
-    setSession(nextSession);
-  };
-  const logout = () => {
-    clearAdminSession();
-    setSession(null);
-    setLoginNotice(null);
+  const signOut = () => {
+    logout();
     setEvents([]);
+    setEditing(null);
   };
   const save = async (input: EventInput) => {
     const saved =
@@ -192,7 +168,8 @@ export function AdminEventsPage() {
         );
       }
     } catch (requestError) {
-      setError(requestFailureMessage(requestError));
+      const message = adminRequestFailureMessage(requestError);
+      if (message) setError(message);
     } finally {
       setActiveAction(null);
     }
@@ -207,7 +184,7 @@ export function AdminEventsPage() {
   }
   if (!canManage)
     return (
-      <UnauthorizedRoleScreen role={session.user.rol} onSignOut={logout} />
+      <UnauthorizedRoleScreen role={session.user.rol} onSignOut={signOut} />
     );
 
   return (
@@ -218,7 +195,7 @@ export function AdminEventsPage() {
             eyebrow={institution.productName}
             title={adminPageTitle("/admin")}
             subtitle={adminUiCopy.eventos.pageSubtitle}
-            onSignOut={logout}
+            onSignOut={signOut}
             showModuleNav={false}
             showSignOut={false}
             showEyebrow={false}
@@ -236,7 +213,7 @@ export function AdminEventsPage() {
         userDisplayName={userDisplayName}
         userEmail={session.user.email}
         userRole={session.user.rol}
-        onSignOut={logout}
+        onSignOut={signOut}
       >
         {editing ? (
           <FormularioNuevoEvento

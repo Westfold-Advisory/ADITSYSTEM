@@ -9,6 +9,45 @@ export const adminUiCopy = {
       "Las acciones disponibles dependen de tu rol y del alcance de personas que administras.",
     loadingStructure: "Cargando estructura…",
     pageSubtitle: "Consulta y administra personas según tu rol y alcance.",
+    filters: {
+      searchLabel: "Buscar por nombre",
+      searchPlaceholder: "Nombre o apellido",
+      roleLabel: "Rol",
+      statusLabel: "Estado",
+      superiorLabel: "Superior",
+      allRoles: "Todos los roles",
+      allStatuses: "Todos",
+      allSuperiors: "Todos los superiores",
+      clear: "Limpiar filtros",
+      emptyMatch:
+        "Ninguna persona coincide con los filtros actuales. Ajusta la búsqueda, el rol, el estado o el superior.",
+    },
+    tree: {
+      title: "Directorio",
+      introDefault:
+        "Explora tu alcance jerárquico. Selecciona una persona para ver detalle y acciones permitidas.",
+      introAdmin:
+        "Estructura operativa completa. Tu cuenta de administrador no aparece como nodo padre.",
+    },
+    directory: {
+      title: "Listado de personal",
+      intro: (isAdmin: boolean) =>
+        isAdmin
+          ? "Compara personas operativas en tabla densa. Como administrador ves todo el alcance cargado, sin jerarquía bajo tu cuenta."
+          : "Compara personas en tu alcance y subordinados cargados. Usa filtros para acotar por rol, estado o superior.",
+      columns: {
+        name: "Nombre",
+        role: "Rol",
+        status: "Estado",
+        superior: "Superior",
+        actions: "Acciones",
+      },
+      viewDetail: "Ver ficha",
+      viewSelected: "Seleccionado",
+      emptyScope: "No hay personas en tu alcance todavía.",
+      resultCount: (count: number) =>
+        `${count} persona${count === 1 ? "" : "s"}`,
+    },
   },
   mapa: {
     pageSubtitle:
@@ -92,5 +131,9 @@ export const adminUiCopy = {
   documentos: {
     registerIntro:
       "Captura los datos del documento. El archivo se guarda en almacenamiento privado y no se muestra en pantalla; la carga completa del archivo estará disponible próximamente.",
+    downloadCv: "Descargar currículum",
+    downloadCvLoading: "Preparando descarga…",
+    downloadCvError:
+      "No pudimos descargar el currículum. Intenta de nuevo en unos momentos.",
   },
 } as const;

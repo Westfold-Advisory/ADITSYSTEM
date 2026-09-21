@@ -1,6 +1,7 @@
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -32,6 +33,7 @@ import {
 import type { PersonCreateOption } from "@/lib/person-provisioning";
 import { ErrorState, LoadingState } from "@/components/ui/AsyncState";
 import { useHierarchyScope } from "@/hooks/useHierarchyScope";
+import { useStableUnauthorizedHandler } from "@/hooks/useStableUnauthorizedHandler";
 import {
   ancestorIdsToExpandForFilter,
   emptyPersonFilter,
@@ -47,19 +49,29 @@ import type { Person, PersonInput, PersonProvisionInput } from "@/types/domain";
 export function DomainAdminPage({
   session,
   onSignOut,
+  onSessionExpired,
   pageHeader,
 }: {
   session: LoginResponse;
   onSignOut: () => void;
+  /** Limpia sesión y muestra login (401 / token ausente). */
+  onSessionExpired: () => void;
   pageHeader?: ReactNode;
 }) {
   const capabilities = capabilitiesFor(session.user.rol);
+  const sessionExpiryRef = useRef<() => void>(() => {});
+  const onUnauthorized = useStableUnauthorizedHandler(() =>
+    sessionExpiryRef.current(),
+  );
   const api = useMemo(
     () =>
       new DomainApi(
-        new ApiClient({ getAccessToken: () => session.access_token }),
+        new ApiClient({
+          getAccessToken: () => session.access_token,
+          onUnauthorized,
+        }),
       ),
-    [session.access_token],
+    [onUnauthorized, session.access_token],
   );
   const {
     self,
@@ -143,6 +155,16 @@ export function DomainAdminPage({
     setEditing(false);
     setChangingPassword(false);
   }, [clearSelection, setCreating, setEditing, setChangingPassword]);
+
+  useLayoutEffect(() => {
+    sessionExpiryRef.current = () => {
+      dismissAltDetail();
+      setTreeSheetOpen(false);
+      setRemoveConfirmOpen(false);
+      setRemoveBusy(false);
+      onSessionExpired();
+    };
+  }, [dismissAltDetail, onSessionExpired]);
 
   const altDetailOpen =
     (structureView === "listado" || structureView === "organigrama") &&
