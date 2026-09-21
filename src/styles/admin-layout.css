@@ -155,23 +155,30 @@
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto auto;
   }
-
-  .hierarchy-alt-layout--organigrama .hierarchy-alt-primary {
-    min-height: min(36rem, 62vh);
-  }
-
-  .hierarchy-alt-layout--organigrama .person-org-chart,
-  .hierarchy-alt-layout--organigrama .person-org-chart__viewport {
-    min-height: min(32rem, 58vh);
-  }
 }
 
 @media (min-width: 72rem) {
   .hierarchy-alt-layout--organigrama {
-    grid-template-columns: minmax(0, 2.2fr) minmax(20rem, 1fr);
+    grid-template-columns: minmax(0, 1.55fr) minmax(18rem, 22rem);
     grid-template-rows: none;
-    align-items: stretch;
+    align-items: start;
   }
+}
+
+.hierarchy-alt-layout--organigrama .hierarchy-alt-primary {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.hierarchy-alt-layout--organigrama .hierarchy-detail-section {
+  min-width: 0;
+  position: relative;
+  z-index: 1;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-radius-md, 8px);
+  background: var(--md-sys-color-surface);
+  padding: var(--md-sys-spacing-4, 1rem);
+  box-shadow: var(--md-sys-elevation-1, 0 1px 2px rgb(0 0 0 / 0.06));
 }
 
 .hierarchy-alt-primary {
@@ -255,8 +262,8 @@
 .person-org-chart__viewport {
   overflow: auto;
   flex: 1;
-  min-height: min(24rem, 55vh);
-  max-height: min(40rem, 72vh);
+  min-height: 14rem;
+  max-height: min(36rem, calc(100vh - 14rem));
   padding: var(--md-sys-spacing-3, 0.75rem);
   border: 1px solid var(--md-sys-color-outline-variant);
   border-radius: var(--md-sys-radius-md, 8px);
@@ -280,15 +287,17 @@
 .org-chart--forest {
   display: flex;
   flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: flex-start;
+  flex-wrap: wrap;
+  justify-content: center;
   align-items: flex-start;
-  gap: var(--md-sys-spacing-5, 1.25rem);
+  gap: var(--md-sys-spacing-6, 1.5rem);
+  width: fit-content;
+  max-width: none;
   min-width: min-content;
 }
 
 .org-chart--forest > .org-chart__node {
-  flex: 0 0 auto;
+  flex: 0 1 auto;
 }
 
 .org-chart__node {
@@ -305,93 +314,50 @@
   z-index: 1;
 }
 
-/* Conector vertical del padre hacia la fila de hijos */
 .org-chart__node:has(> .org-chart__children) > .org-chart__card-slot::after {
   content: "";
   position: absolute;
   left: 50%;
-  bottom: calc(-1 * var(--org-chart-connector, 1.25rem));
-  width: 0;
-  height: var(--org-chart-connector, 1.25rem);
-  border-left: 2px solid var(--md-sys-color-outline);
-  transform: translateX(-50%);
+  bottom: 0;
+  width: 2px;
+  height: var(--org-chart-connector, 1rem);
+  transform: translate(-50%, 100%);
+  background: var(--md-sys-color-outline);
   pointer-events: none;
 }
 
 .org-chart__children {
-  --org-chart-connector: 1.25rem;
-  display: flex;
+  --org-chart-connector: 1rem;
+  display: inline-flex;
   flex-direction: row;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   justify-content: center;
   align-items: flex-start;
+  gap: var(--md-sys-spacing-3, 0.75rem) var(--md-sys-spacing-4, 1rem);
   list-style: none;
-  margin: 0;
+  margin: var(--org-chart-connector) auto 0;
   padding: var(--org-chart-connector) 0 0;
   position: relative;
-}
-
-/* Barra horizontal entre hermanos */
-.org-chart__children::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 0;
+  width: fit-content;
+  max-width: 100%;
   border-top: 2px solid var(--md-sys-color-outline);
 }
 
 .org-chart__children > .org-chart__node {
-  padding-top: var(--org-chart-connector);
+  margin-top: var(--org-chart-connector);
+  padding-top: 0;
 }
 
-/* Conectores verticales desde la barra hasta cada hijo */
 .org-chart__children > .org-chart__node::before {
   content: "";
   position: absolute;
-  top: 0;
+  top: calc(-1 * var(--org-chart-connector));
   left: 50%;
-  width: 0;
+  width: 2px;
   height: var(--org-chart-connector);
-  border-left: 2px solid var(--md-sys-color-outline);
   transform: translateX(-50%);
-}
-
-/* Mitades horizontales hacia cada extremo del grupo */
-.org-chart__children > .org-chart__node::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  width: 50%;
-  height: 0;
-  border-top: 2px solid var(--md-sys-color-outline);
-}
-
-.org-chart__children > .org-chart__node::before {
-  z-index: 0;
-}
-
-.org-chart__children > .org-chart__node::after {
-  left: 0;
-}
-
-.org-chart__children > .org-chart__node:first-child::after {
-  left: 50%;
-  width: 50%;
-}
-
-.org-chart__children > .org-chart__node:last-child::after {
-  left: 0;
-  width: 50%;
-}
-
-.org-chart__children > .org-chart__node:only-child::after {
-  display: none;
-}
-
-.org-chart__children > .org-chart__node:first-child:last-child::before {
-  height: calc(var(--org-chart-connector) * 2);
+  background: var(--md-sys-color-outline);
+  pointer-events: none;
 }
 
 .org-chart__card {
@@ -452,15 +418,8 @@
 }
 
 @media (max-width: 48rem) {
-  .org-chart--forest {
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .org-chart__children {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: var(--md-sys-spacing-4, 1rem);
+  .hierarchy-alt-layout--organigrama .hierarchy-detail-section {
+    margin-top: var(--md-sys-spacing-2, 0.5rem);
   }
 }
 
