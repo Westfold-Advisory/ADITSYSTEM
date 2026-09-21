@@ -23,6 +23,7 @@ import { PublicAppShell } from "@/components/PublicAppShell";
 import { Capa } from "@/components/ui/Capa";
 import { ErrorState, LoadingState } from "@/components/ui/AsyncState";
 import { Button } from "@/components/ui/button";
+import { Drawer } from "@/components/ui/Drawer";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { PanelCapas } from "@/components/ui/PanelCapas";
 import {
@@ -541,10 +542,12 @@ export function AdminCoverageMapPage() {
           </div>
 
           {detailOpen ? (
-            <section
-              className="hierarchy-detail-drawer coverage-map-detail-drawer"
-              aria-live="polite"
-              aria-label="Detalle de la persona seleccionada"
+            <Drawer
+              open
+              onDismiss={dismissPersonDetail}
+              ariaLabel="Detalle de la persona seleccionada"
+              returnFocusRef={drawerReturnFocusRef}
+              className="coverage-map-detail-drawer"
             >
               {personDetailLoading && !selectedPerson ? (
                 <LoadingState label="Cargando persona…" />
@@ -588,7 +591,6 @@ export function AdminCoverageMapPage() {
                   onChangePassword={changePassword}
                   onRemove={requestRemove}
                   onDismiss={dismissPersonDetail}
-                  returnFocusRef={drawerReturnFocusRef}
                   mapPinLocation={
                     selectedPin
                       ? {
@@ -599,7 +601,7 @@ export function AdminCoverageMapPage() {
                   }
                 />
               ) : null}
-            </section>
+            </Drawer>
           ) : null}
         </div>
       </AdminWorkspaceShell>
