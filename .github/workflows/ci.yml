@@ -73,8 +73,9 @@ jobs:
     name: E2E smoke (Playwright)
     if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    needs:
-      - quality
+    # E2E and quality validate the same immutable commit in isolated runners.
+    # Keeping them independent puts both gates on the critical path in parallel;
+    # branch protection still requires each job to pass before merge.
     steps:
       - name: Checkout
         uses: actions/checkout@v7

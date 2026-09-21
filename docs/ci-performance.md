@@ -69,3 +69,55 @@ Las nuevas actualizaciones de una PR cancelan sólo la validación anterior de
 esa PR. Los pushes a `main` se serializan sin cancelar un despliegue que ya es
 válido. Tras merge, comparar la duración de despliegue contra 56 s, el promedio
 de `push` de la línea base.
+
+## Auditoría TRA-145 (2026-09-21)
+
+### Inventario actual
+
+| Job                | Evento             | Dependencias                      | Función                                                             |
+| ------------------ | ------------------ | --------------------------------- | ------------------------------------------------------------------- |
+| `Secret scan`      | PR, `main`, manual | Ninguna                           | Gitleaks sobre el checkout.                                         |
+| `Quality gates`    | PR, manual         | Ninguna                           | Formato, lint, unit tests, audit alto y build.                      |
+| `Semgrep SAST`     | PR                 | Ninguna                           | SAST obligatorio para la PR.                                        |
+| `E2E smoke`        | PR, manual         | `Quality gates` hasta TRA-145     | Chromium contra `vite preview`.                                     |
+| `Production build` | `main`             | `Secret scan`                     | Build con configuración de desarrollo y artefacto validado por SHA. |
+| `Deploy to S3`     | `main`             | `Secret scan`, `Production build` | OIDC, sincronización y verificación de revisión.                    |
+
+`concurrency` ya está correctamente delimitado por `github.ref`: cancela sólo
+ejecuciones obsoletas de la misma PR y nunca cancela un despliegue de `main`.
+
+### Medición reciente
+
+Fuente: cuatro PR exitosas y un fallo de formato consultados el 2026-09-21.
+Las duraciones son por job; el total es desde creación a finalización del run.
+
+| Run         | Quality | Semgrep | Secret scan |  E2E | Total PR |
+| ----------- | ------: | ------: | ----------: | ---: | -------: |
+| 35561251804 |    39 s |    28 s |        10 s | 46 s |     90 s |
+| 35558914287 |    33 s |    24 s |        10 s | 49 s |     89 s |
+| 35558512581 |    34 s |    23 s |         9 s | 44 s |     84 s |
+| 35556866070 |    44 s |    22 s |        10 s | 46 s |     96 s |
+
+El `needs: quality` hace que los 44–49 s de E2E queden enteramente después de
+los 33–44 s de calidad: son el camino crítico de los PR. El fallo 35561158159
+fue exclusivamente `format:check` (archivo sin formatear); se detectó en 23 s
+y el E2E no arrancó.
+
+### Recomendaciones
+
+| Decisión                      | Recomendación                                                                                                       | Impacto y trade-off                                                                                                                                                                                                  |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Adoptar ahora**             | Eliminar `needs: quality` de E2E.                                                                                   | Reduce la ruta crítica esperada de ~84–96 s a ~44–49 s (aprox. 40–50 %). Todos los gates permanecen requeridos por protección de rama. Si formato/lint falla, se habrá consumido un job E2E que ya no era necesario. |
+| **Adoptar ahora**             | Mantener `concurrency` actual y los tres análisis PR en paralelo.                                                   | Evita gasto en commits obsoletos sin cancelar despliegues. No requiere cambio.                                                                                                                                       |
+| **Diferir: medir primero**    | Añadir caché de `~/.cache/ms-playwright` con clave por SO y lockfile.                                               | Puede reducir descargas de Chromium, pero `playwright install --with-deps` seguirá comprobando dependencias del sistema; medir 10 runs antes/después y conservarla sólo si ahorra tiempo de forma consistente.       |
+| **Diferir: definir política** | Ejecutar una matriz/sharding E2E sólo cuando haya más de un proyecto o el smoke supere la calidad en más de ~2 min. | El único proyecto Chromium y 44–49 s actuales no justifican la complejidad ni el mayor consumo de runners. Una suite de regresión nocturna requerirá aprobación del PO/infra sobre retención, costo y ownership.     |
+| **Rechazar**                  | Filtros de rutas que omitan calidad, SAST o E2E para cambios aparentemente documentales.                            | Un cambio de configuración, lockfile o workflow puede alterar el producto; los pocos segundos ahorrados no compensan perder barreras.                                                                                |
+| **Rechazar**                  | Dividir format/lint/test/audit/build en varios jobs por ahora.                                                      | Exigiría múltiples `npm ci`, más runners y más checks. La ganancia no supera el ahorro directo de paralelizar E2E.                                                                                                   |
+
+### Fallos evitables de formato
+
+El fallo reciente se debe corregir localmente antes de subir cambios, no
+suprimiendo `format:check`: ejecutar `npm run format` antes de cada commit y,
+antes de PR, la secuencia de `docs/frontend-definition-of-done.md`. Como mejora
+posterior opcional, el equipo puede habilitar un hook local que ejecute Prettier
+sólo sobre archivos staged; no debe reemplazar el gate de CI.
