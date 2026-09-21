@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { nameOf, roleLabel } from "@/components/admin/person-display";
-import { orgChartRoots } from "@/lib/person-scope";
+import { orgChartRoots, sortPeopleByName } from "@/lib/person-scope";
 import type { Person } from "@/types/domain";
 
 function OrgChartNode({
@@ -16,26 +16,32 @@ function OrgChartNode({
   selectedId: string | null;
   onSelect: (person: Person) => void;
 }) {
-  const children = childrenById[person.id] ?? [];
+  const children = sortPeopleByName(childrenById[person.id] ?? []);
   const selected = person.id === selectedId;
+  const hasChildren = children.length > 0;
 
   return (
     <li className="org-chart__node">
-      <button
-        type="button"
-        className="org-chart__card"
-        data-selected={selected || undefined}
-        aria-current={selected ? "true" : undefined}
-        onClick={() => onSelect(person)}
-      >
-        <span className="org-chart__avatar" aria-hidden="true">
-          {person.nombre.charAt(0).toUpperCase()}
-        </span>
-        <span className="org-chart__name">{nameOf(person)}</span>
-        <span className="org-chart__role">{roleLabel(person.role)}</span>
-      </button>
-      {children.length > 0 && (
-        <ul className="org-chart__children">
+      <div className="org-chart__card-slot">
+        <button
+          type="button"
+          className="org-chart__card"
+          data-selected={selected || undefined}
+          aria-current={selected ? "true" : undefined}
+          onClick={() => onSelect(person)}
+        >
+          <span className="org-chart__avatar" aria-hidden="true">
+            {person.nombre.charAt(0).toUpperCase()}
+          </span>
+          <span className="org-chart__name">{nameOf(person)}</span>
+          <span className="org-chart__role">{roleLabel(person.role)}</span>
+        </button>
+      </div>
+      {hasChildren && (
+        <ul
+          className="org-chart__children"
+          aria-label={`Subordinados de ${nameOf(person)}`}
+        >
           {children.map((child) => (
             <OrgChartNode
               key={child.id}
@@ -72,7 +78,7 @@ export function PersonOrgChartView({
     setScale((current) => Math.min(1.5, Math.round((current + 0.1) * 10) / 10));
   }, []);
   const zoomOut = useCallback(() => {
-    setScale((current) => Math.max(0.6, Math.round((current - 0.1) * 10) / 10));
+    setScale((current) => Math.max(0.5, Math.round((current - 0.1) * 10) / 10));
   }, []);
   const resetZoom = useCallback(() => setScale(1), []);
 
@@ -84,8 +90,9 @@ export function PersonOrgChartView({
             Organigrama
           </h2>
           <p className="hierarchy-panel-intro">
-            Vista gráfica para validar jerarquía con el equipo. Haz clic en una
-            tarjeta para abrir la ficha.
+            Coordinadores generales al mismo nivel; debajo, cada rama muestra la
+            cadena CG → Coordinador → Enlace → Amigo. Haz clic en una tarjeta
+            para abrir la ficha.
           </p>
         </div>
         <div
@@ -107,25 +114,29 @@ export function PersonOrgChartView({
         </div>
       </div>
       <div className="person-org-chart__viewport">
-        <ul
-          className="org-chart"
+        <div
+          className="org-chart__scale"
           style={{ transform: `scale(${scale})` }}
-          aria-labelledby="org-chart-title"
         >
-          {roots.length === 0 ? (
-            <li className="org-chart__empty">No hay nodos para mostrar.</li>
-          ) : (
-            roots.map((person) => (
-              <OrgChartNode
-                key={person.id}
-                person={person}
-                childrenById={childrenById}
-                selectedId={selectedId}
-                onSelect={onSelect}
-              />
-            ))
-          )}
-        </ul>
+          <ul
+            className="org-chart org-chart--forest"
+            aria-labelledby="org-chart-title"
+          >
+            {roots.length === 0 ? (
+              <li className="org-chart__empty">No hay nodos para mostrar.</li>
+            ) : (
+              roots.map((person) => (
+                <OrgChartNode
+                  key={person.id}
+                  person={person}
+                  childrenById={childrenById}
+                  selectedId={selectedId}
+                  onSelect={onSelect}
+                />
+              ))
+            )}
+          </ul>
+        </div>
       </div>
     </div>
   );
