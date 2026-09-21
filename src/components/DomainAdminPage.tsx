@@ -15,6 +15,7 @@ import {
 import { AdminWorkspaceShell } from "@/components/admin/AdminWorkspaceShell";
 import { apiErrorMessage, nameOf } from "@/components/admin/person-display";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { Drawer } from "@/components/ui/Drawer";
 import { capabilitiesFor } from "@/lib/capabilities";
 import { canRegisterDocuments } from "@/lib/document-access";
 import {
@@ -377,10 +378,12 @@ export function DomainAdminPage({ session }: { session: LoginResponse }) {
                 )}
               </div>
               {altDetailOpen && selected ? (
-                <section
-                  className="hierarchy-detail-section hierarchy-detail-drawer"
-                  aria-live="polite"
-                  aria-label="Detalle de la persona seleccionada"
+                <Drawer
+                  open
+                  onDismiss={dismissAltDetail}
+                  ariaLabel="Detalle de la persona seleccionada"
+                  returnFocusRef={drawerReturnFocusRef}
+                  className="hierarchy-detail-section"
                 >
                   <PersonDetailPanel
                     selected={selected}
@@ -421,9 +424,8 @@ export function DomainAdminPage({ session }: { session: LoginResponse }) {
                     onChangePassword={changePassword}
                     onRemove={requestRemove}
                     onDismiss={dismissAltDetail}
-                    returnFocusRef={drawerReturnFocusRef}
                   />
-                </section>
+                </Drawer>
               ) : null}
             </div>
           )}

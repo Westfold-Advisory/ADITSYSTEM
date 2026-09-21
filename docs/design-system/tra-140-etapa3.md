@@ -72,8 +72,34 @@ Viewport **1440×900**, mismo usuario en Personas y **Admin → Mapa**:
 | P0.3 UX-02                        | PR #111                      |
 | P0.4 Doc + checklist              | `tra-140-etapa3.md`, PR #110 |
 
-**P2 diferido:** Drawer genérico DS, `DescriptionList` — no bloquea cierre P0.
+**P2 (TRA-142):** ver sección P2 abajo.
 
-### Fuera de alcance (P2 — TRA-142)
+---
 
-Drawer genérico abstracto; mapa público (Etapa 4).
+## P2 — Drawer DS y DescriptionList
+
+### P2.1 — `Drawer` (`src/components/ui/Drawer.tsx`)
+
+| Prop             | Uso                                                                                |
+| ---------------- | ---------------------------------------------------------------------------------- |
+| `open`           | Muestra u oculta el panel                                                          |
+| `onDismiss`      | Escape, trap restore; consumidor limpia selección                                  |
+| `ariaLabel`      | Nombre accesible del panel                                                         |
+| `returnFocusRef` | Elemento que abrió el drawer (pin, fila, etc.)                                     |
+| `className`      | Modificadores de layout (`hierarchy-detail-section`, `coverage-map-detail-drawer`) |
+
+**Consumidores:** `DomainAdminPage` (listado/organigrama), `AdminCoverageMapPage` (pin).
+
+Focus trap y foco inicial (`[data-ui-drawer-initial-focus]`) viven en el shell; `PersonDetailPanel` conserva botón ✕.
+
+Bottom sheet móvil: hereda `@media (max-width: 48rem)` de `.hierarchy-detail-drawer` en `admin-layout.css`.
+
+### P2.2 — `DescriptionList`
+
+Primitivo término/valor (`ui-description-list`). **MVP:** bloque de hechos en `PersonSummary` (teléfono, registro, métricas).
+
+Migración progresiva de otros `<dl class="person-profile-dl">` en fases posteriores.
+
+### Fuera de alcance
+
+Mapa público (Etapa 4); DataTable completo.

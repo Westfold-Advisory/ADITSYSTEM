@@ -91,42 +91,7 @@
   color: var(--md-sys-color-on-surface-variant);
 }
 
-.person-summary__facts {
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: var(--md-sys-radius-sm, 6px);
-  background: var(--md-sys-color-surface);
-  overflow: hidden;
-}
-
-.person-summary__fact {
-  display: grid;
-  grid-template-columns: minmax(6.5rem, 38%) minmax(0, 1fr);
-  gap: var(--md-sys-spacing-3, 0.75rem);
-  padding: 0.55rem 0.75rem;
-  border-bottom: 1px solid var(--md-sys-color-outline-variant);
-}
-
-.person-summary__fact:last-child {
-  border-bottom: none;
-}
-
-.person-summary__fact dt {
-  margin: 0;
-  font: var(--md-sys-typescale-label-small);
-  color: var(--md-sys-color-on-surface-variant);
-  text-transform: none;
-}
-
-.person-summary__fact dd {
-  margin: 0;
-  font: var(--md-sys-typescale-body-medium);
-  color: var(--md-sys-color-on-surface);
-  word-break: break-word;
-}
+/* Metadatos cabecera: `DescriptionList` (`ui-description-list`) */
 
 .person-drawer__actions.admin-action-bar {
   padding-bottom: var(--md-sys-spacing-2, 0.5rem);
