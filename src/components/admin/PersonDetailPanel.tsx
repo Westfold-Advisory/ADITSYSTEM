@@ -82,39 +82,65 @@ function PersonaTab({ person }: { person: Person }) {
 function TerritoryTab({
   scopedMap,
   selected,
+  mapPinLocation,
 }: {
   scopedMap: ScopedMap | null;
   selected: Person;
+  mapPinLocation?: { latitude: number; longitude: number } | null;
 }) {
+  const pinCoordsBlock =
+    mapPinLocation != null ? (
+      <dl className="person-profile-dl coverage-map-pin-coords">
+        <div>
+          <dt>Ubicación en mapa</dt>
+          <dd>
+            {mapPinLocation.latitude.toFixed(5)},{" "}
+            {mapPinLocation.longitude.toFixed(5)}
+          </dd>
+        </div>
+      </dl>
+    ) : null;
+
   if (!scopedMap) {
-    return <LoadingState label="Cargando territorio en tu alcance…" />;
+    return (
+      <>
+        {pinCoordsBlock}
+        <LoadingState label="Cargando territorio en tu alcance…" />
+      </>
+    );
   }
   const withGeofences = scopedMap.people.filter(
     (person) => person.geofences.length > 0,
   );
   if (withGeofences.length === 0) {
     return (
-      <EmptyState>
-        No hay geocercas asignadas en el alcance de {nameOf(selected)}.
-      </EmptyState>
+      <>
+        {pinCoordsBlock}
+        <EmptyState>
+          No hay geocercas asignadas en el alcance de {nameOf(selected)}.
+        </EmptyState>
+      </>
     );
   }
   return (
-    <ul className="scoped-map-list">
-      {withGeofences.map((person) => (
-        <li key={person.personId}>
-          <strong>{nameOf(person)}</strong> <RoleChip role={person.role} />
-          <ul>
-            {person.geofences.map((geofence) => (
-              <li key={`${person.personId}-${geofence.id}`}>
-                {geofence.type}: {geofence.name}
-                {geofence.code ? ` (${geofence.code})` : ""}
-              </li>
-            ))}
-          </ul>
-        </li>
-      ))}
-    </ul>
+    <>
+      {pinCoordsBlock}
+      <ul className="scoped-map-list">
+        {withGeofences.map((person) => (
+          <li key={person.personId}>
+            <strong>{nameOf(person)}</strong> <RoleChip role={person.role} />
+            <ul>
+              {person.geofences.map((geofence) => (
+                <li key={`${person.personId}-${geofence.id}`}>
+                  {geofence.type}: {geofence.name}
+                  {geofence.code ? ` (${geofence.code})` : ""}
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ul>
+    </>
   );
 }
 
@@ -133,6 +159,7 @@ function PersonDetailTabs({
   onStartChangePassword,
   onRemove,
   layout = "embedded",
+  mapPinLocation,
 }: {
   selected: Person;
   metrics: PersonMetrics | null;
@@ -148,6 +175,7 @@ function PersonDetailTabs({
   onStartChangePassword: () => void;
   onRemove: () => void;
   layout?: "drawer" | "embedded";
+  mapPinLocation?: { latitude: number; longitude: number } | null;
 }) {
   const [tab, setTab] = useState<DetailTab>("resumen");
   const [registerDocumentOpen, setRegisterDocumentOpen] = useState(false);
@@ -255,7 +283,11 @@ function PersonDetailTabs({
             Geocercas asignadas a personas dentro del subárbol seleccionado. No
             incluye coordenadas personales ni datos fuera de tu alcance.
           </p>
-          <TerritoryTab scopedMap={scopedMap} selected={selected} />
+          <TerritoryTab
+            scopedMap={scopedMap}
+            selected={selected}
+            mapPinLocation={mapPinLocation}
+          />
         </Tabs.Content>
         <Tabs.Content value="documentos" className="hierarchy-tab-panel">
           {tab === "documentos" ? (
@@ -298,6 +330,7 @@ export function PersonDetailPanel({
   onRemove,
   onDismiss,
   returnFocusRef,
+  mapPinLocation,
 }: {
   selected: Person;
   breadcrumb: Person[];
@@ -326,6 +359,8 @@ export function PersonDetailPanel({
   onDismiss?: () => void;
   /** Elemento que abrió el drawer; recibe foco al cerrar. */
   returnFocusRef?: RefObject<HTMLElement | null>;
+  /** Solo mapa admin: coordenadas del pin seleccionado (pestaña Territorio). */
+  mapPinLocation?: { latitude: number; longitude: number } | null;
 }) {
   const drawerRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -412,6 +447,7 @@ export function PersonDetailPanel({
       onStartEdit={onStartEdit}
       onStartChangePassword={onStartChangePassword}
       onRemove={onRemove}
+      mapPinLocation={mapPinLocation}
     />
   );
 

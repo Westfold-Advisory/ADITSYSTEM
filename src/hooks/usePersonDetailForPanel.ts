@@ -26,13 +26,13 @@ export function usePersonDetailForPanel({
   personId,
 }: {
   api: DomainApi;
-  session: LoginResponse;
+  session: LoginResponse | null;
   personId: UUID | null;
 }) {
-  const capabilities = useMemo(
-    () => capabilitiesFor(session.user.rol),
-    [session.user.rol],
-  );
+  const sessionPersonId = session?.user.persona_id ?? "";
+  const actorRole = session?.user.rol ?? "ENLACE";
+
+  const capabilities = useMemo(() => capabilitiesFor(actorRole), [actorRole]);
 
   const [self, setSelf] = useState<Person | null>(null);
   const [person, setPerson] = useState<Person | null>(null);
@@ -48,6 +48,7 @@ export function usePersonDetailForPanel({
   const [reloadToken, setReloadToken] = useState(0);
 
   useEffect(() => {
+    if (!session) return;
     const controller = new AbortController();
     void api
       .getPerson(session.user.persona_id, { signal: controller.signal })
@@ -59,10 +60,10 @@ export function usePersonDetailForPanel({
         setError(errorMessage(reason));
       });
     return () => controller.abort();
-  }, [api, session.user.persona_id]);
+  }, [api, session, sessionPersonId]);
 
   useEffect(() => {
-    if (!personId) return;
+    if (!session || !personId) return;
 
     const controller = new AbortController();
     void Promise.resolve().then(() => {
@@ -95,10 +96,10 @@ export function usePersonDetailForPanel({
     })();
 
     return () => controller.abort();
-  }, [api, personId, reloadToken]);
+  }, [api, personId, reloadToken, session]);
 
   useEffect(() => {
-    if (!personId) return;
+    if (!session || !personId) return;
     const controller = new AbortController();
     void Promise.resolve().then(() => {
       if (controller.signal.aborted) return;
@@ -117,7 +118,7 @@ export function usePersonDetailForPanel({
         });
     });
     return () => controller.abort();
-  }, [api, personId, reloadToken]);
+  }, [api, personId, reloadToken, session]);
 
   const metrics = useMemo(() => {
     if (!personId || selectionDetails?.personId !== personId) return null;
@@ -158,13 +159,13 @@ export function usePersonDetailForPanel({
       activeAncestors,
     );
     return canRegisterDocuments(
-      session.user.rol,
+      actorRole,
       capabilities,
       self,
       activePerson,
       knownPersons,
     );
-  }, [activeAncestors, activePerson, capabilities, self, session.user.rol]);
+  }, [activeAncestors, activePerson, actorRole, capabilities, self]);
 
   const refresh = useCallback(() => {
     setReloadToken((value) => value + 1);
