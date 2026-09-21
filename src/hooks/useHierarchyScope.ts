@@ -176,6 +176,10 @@ export function useHierarchyScope(api: DomainApi, rootPersonId: string) {
     if (anchorRef.current) setSelected(anchorRef.current);
   }, []);
 
+  const clearSelection = useCallback(() => {
+    setSelected(null);
+  }, []);
+
   const expandNode = useCallback((personId: string) => {
     setExpanded((current) => ({ ...current, [personId]: true }));
   }, []);
@@ -198,5 +202,6 @@ export function useHierarchyScope(api: DomainApi, rootPersonId: string) {
     applyPersonUpdate,
     removePersonFromTree,
     resetSelectionToRoot,
+    clearSelection,
   };
 }

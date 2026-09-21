@@ -12,7 +12,7 @@ otra devuelve la página 404.
 | `/mapa`                    | `MapPage`              | Ninguna | Explorador de mapa de eventos públicos (MapLibre), con capas territoriales y filtros por texto/tipo/fecha.                                                                                                      |
 | `/admin`                   | `AdminEventsPage`      | Login   | Consola administrativa. Sin sesión muestra el mismo login (compatibilidad; ver TRA-114).                                                                                                                        |
 | `/admin/mapa`              | `AdminCoverageMapPage` | Login   | Mapa de cobertura jerárquico (pines, capas, heatmap de necesidades).                                                                                                                                            |
-| `/admin/personas`          | `AdminStructurePage`   | Login   | Árbol y detalle de la estructura de personas (antes “Administrar perfiles” en `/admin`).                                                                                                                        |
+| `/admin/personas`          | `AdminStructurePage`   | Login   | Personas: sub-vistas **Listado** (tabla), **Árbol y detalle** y **Organigrama** (prototipo TRA-140).                                                                                                            |
 | `/privacidad`              | `PrivacyNoticePage`    | Ninguna | Aviso de privacidad integral.                                                                                                                                                                                   |
 | `/privacidad/simplificado` | `PrivacyNoticePage`    | Ninguna | Resumen simplificado.                                                                                                                                                                                           |
 | cualquier otra             | `NotFoundPage`         | —       | 404 con link de regreso a `/eventos`.                                                                                                                                                                           |
@@ -20,7 +20,7 @@ otra devuelve la página 404.
 ### Administración autenticada
 
 Las rutas `/admin`, `/admin/mapa` y `/admin/personas` comparten el mismo
-menú (`AdminNav`: Eventos · Personas · Mapa de cobertura) y
+menú (`AdminNav`: Personas · Mapa de cobertura · Eventos) y
 encabezado (`AdminPageHeader`).
 
 1. **Sin sesión** → `LoginPage` (`POST /auth/login`). Enlace preferido: `/login`. Sólo aceptan
@@ -29,9 +29,10 @@ encabezado (`AdminPageHeader`).
 2. **Con sesión, sin permisos** → mensaje "Acceso no autorizado" cuando aplica.
 3. **`/admin`** → administración de eventos (crear, editar,
    publicar/despublicar/iniciar/finalizar/cancelar/eliminar según el estado).
-4. **`/admin/personas`** → `DomainAdminPage`: árbol expandible de la jerarquía
-   (Coordinador General → Coordinador → Enlace → Amigo), con filtro por nombre
-   y estado, alta contextual y acciones acotadas al alcance del rol.
+4. **`/admin/personas`** → `DomainAdminPage`: listado tabular, árbol expandible u
+   organigrama (validación UX); jerarquía CG → Coordinador → Enlace → Amigo;
+   filtros, alta contextual y acciones acotadas al alcance del rol. Ver
+   `docs/tra-140-personas-prototype.md`.
 
 ### Cómo probar
 

@@ -20,6 +20,7 @@ export function HierarchyTreePanel({
   onClearFilter,
   onSelect,
   onToggle,
+  hideRoot = false,
 }: {
   self: Person;
   selectedId: string | null;
@@ -33,6 +34,7 @@ export function HierarchyTreePanel({
   onClearFilter: () => void;
   onSelect: (person: Person) => void;
   onToggle: (person: Person) => void;
+  hideRoot?: boolean;
 }) {
   return (
     <>
@@ -40,10 +42,12 @@ export function HierarchyTreePanel({
         Directorio
       </h2>
       <p className="hierarchy-panel-intro">
-        Explora tu alcance jerárquico. Selecciona una persona para ver detalle y
-        acciones permitidas.
+        {hideRoot
+          ? "Estructura operativa completa. Tu cuenta de administrador no aparece como nodo padre."
+          : "Explora tu alcance jerárquico. Selecciona una persona para ver detalle y acciones permitidas."}
       </p>
       <HierarchyTreeRoot
+        omitRoot={hideRoot}
         busy={loadingNode === self.id}
         filterBar={
           <HierarchyTreeFilterBar>

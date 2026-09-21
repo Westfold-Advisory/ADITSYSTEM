@@ -38,6 +38,7 @@ export function buildVisibleTreeRows(
   root: Person,
   childrenById: Record<string, Person[]>,
   expandedById: Record<string, boolean>,
+  options?: { omitRoot?: boolean },
 ): TreeRow[] {
   const rows: TreeRow[] = [];
 
@@ -51,7 +52,13 @@ export function buildVisibleTreeRows(
     }
   }
 
-  visit(root, 0);
+  if (options?.omitRoot) {
+    for (const child of childrenById[root.id] ?? []) {
+      visit(child, 0);
+    }
+  } else {
+    visit(root, 0);
+  }
   return rows;
 }
 
