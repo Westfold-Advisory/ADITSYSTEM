@@ -186,7 +186,7 @@ jobs:
           test -n "${VITE_API_BASE_URL}" || { echo "Missing VITE_API_BASE_URL in GitHub Variables."; exit 1; }
 
       - name: Download validated build
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: frontend-dist
           path: dist
