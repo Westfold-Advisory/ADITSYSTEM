@@ -1,7 +1,9 @@
+import { GitBranch, List, Network } from "lucide-react";
+
 const VIEWS = [
-  { value: "listado" as const, label: "Listado" },
-  { value: "arbol" as const, label: "Árbol y detalle" },
-  { value: "organigrama" as const, label: "Organigrama" },
+  { value: "listado" as const, label: "Listado", Icon: List },
+  { value: "arbol" as const, label: "Árbol y detalle", Icon: GitBranch },
+  { value: "organigrama" as const, label: "Organigrama", Icon: Network },
 ];
 
 export type PersonasStructureView = (typeof VIEWS)[number]["value"];
@@ -25,7 +27,12 @@ export function PersonasViewNav({
               aria-current={value === view.value ? "page" : undefined}
               onClick={() => onChange(view.value)}
             >
-              {view.label}
+              <view.Icon
+                size={16}
+                className="personas-view-nav__icon"
+                aria-hidden
+              />
+              <span>{view.label}</span>
             </button>
           </li>
         ))}
