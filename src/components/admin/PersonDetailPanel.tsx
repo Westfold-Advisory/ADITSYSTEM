@@ -21,6 +21,7 @@ import type {
   ScopedMap,
 } from "@/types/domain";
 
+import { adminUiCopy } from "@/content/admin-ui-es";
 import { MetricGrid } from "@/components/ui/MetricGrid";
 import { RoleChip } from "@/components/ui/RoleChip";
 
@@ -90,7 +91,7 @@ function TerritoryTab({
     mapPinLocation != null ? (
       <dl className="person-profile-dl coverage-map-pin-coords">
         <div>
-          <dt>Ubicación en mapa</dt>
+          <dt>{adminUiCopy.mapa.mapCoordinatesLabel}</dt>
           <dd>
             {mapPinLocation.latitude.toFixed(5)},{" "}
             {mapPinLocation.longitude.toFixed(5)}
@@ -103,7 +104,7 @@ function TerritoryTab({
     return (
       <>
         {pinCoordsBlock}
-        <LoadingState label="Cargando territorio en tu alcance…" />
+        <LoadingState label={adminUiCopy.personDetail.territoryLoading} />
       </>
     );
   }
@@ -115,7 +116,7 @@ function TerritoryTab({
       <>
         {pinCoordsBlock}
         <EmptyState>
-          No hay geocercas asignadas en el alcance de {nameOf(selected)}.
+          {adminUiCopy.personDetail.territoryEmpty(nameOf(selected))}
         </EmptyState>
       </>
     );
@@ -235,7 +236,7 @@ function PersonDetailTabs({
           {(primaryAction || secondaryActions) && (
             <AdminActionBar
               className="person-drawer__actions"
-              ariaLabel="Acciones sobre la persona"
+              ariaLabel={adminUiCopy.personDetail.actionsAriaLabel}
             >
               {primaryAction}
               {secondaryActions}
@@ -249,7 +250,9 @@ function PersonDetailTabs({
             <h2>{nameOf(selected)}</h2>
           </div>
           {(primaryAction || secondaryActions) && (
-            <AdminActionBar ariaLabel="Acciones sobre la persona">
+            <AdminActionBar
+              ariaLabel={adminUiCopy.personDetail.actionsAriaLabel}
+            >
               {primaryAction}
               {secondaryActions}
             </AdminActionBar>
@@ -278,8 +281,7 @@ function PersonDetailTabs({
         </Tabs.Content>
         <Tabs.Content value="territorio" className="hierarchy-tab-panel">
           <p className="form-intro">
-            Geocercas asignadas a personas dentro del subárbol seleccionado. No
-            incluye coordenadas personales ni datos fuera de tu alcance.
+            {adminUiCopy.personDetail.territoryIntro}
           </p>
           <TerritoryTab
             scopedMap={scopedMap}
@@ -449,7 +451,7 @@ export function PersonDetailPanel({
             className="person-drawer__close"
             data-ui-drawer-initial-focus=""
             onClick={onDismiss}
-            aria-label="Cerrar detalle"
+            aria-label={adminUiCopy.personDetail.closeDetail}
           >
             <X size={18} aria-hidden="true" />
           </Button>

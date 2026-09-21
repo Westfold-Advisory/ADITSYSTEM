@@ -16,6 +16,7 @@ import { apiErrorMessage, nameOf } from "@/components/admin/person-display";
 import { UnauthorizedRoleScreen } from "@/components/UnauthorizedRoleScreen";
 import { LoginPage } from "@/components/LoginPage";
 import { PublicAppShell } from "@/components/PublicAppShell";
+import { adminUiCopy } from "@/content/admin-ui-es";
 import { Capa } from "@/components/ui/Capa";
 import { ErrorState, LoadingState } from "@/components/ui/AsyncState";
 import { Button } from "@/components/ui/button";
@@ -376,7 +377,7 @@ export function AdminCoverageMapPage() {
           <AdminPageHeader
             eyebrow={institution.productName}
             title={adminPageTitle("/admin/mapa")}
-            subtitle="Cobertura territorial y detalle de personas por pin."
+            subtitle={adminUiCopy.mapa.pageSubtitle}
             onSignOut={logout}
             showModuleNav={false}
             showSignOut={false}
@@ -402,7 +403,7 @@ export function AdminCoverageMapPage() {
               type="search"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Buscar por nombre"
+              placeholder={adminUiCopy.mapa.filterSearchPlaceholder}
               className="min-h-10 rounded border px-3"
             />
           </label>
@@ -419,7 +420,7 @@ export function AdminCoverageMapPage() {
             ))}
           </div>
           <label className="flex items-center gap-2 text-sm">
-            Necesidad (heatmap)
+            {adminUiCopy.mapa.needFilterLabel}
             <select
               value={needFilter}
               onChange={(event) =>
@@ -440,7 +441,9 @@ export function AdminCoverageMapPage() {
             size="sm"
             onClick={() => setShowHeatmap((current) => !current)}
           >
-            {showHeatmap ? "Ocultar" : "Mostrar"} mapa de calor
+            {showHeatmap
+              ? adminUiCopy.mapa.heatmapToggleHide
+              : adminUiCopy.mapa.heatmapToggleShow}
           </Button>
           <Button
             ref={capasTriggerRef}
@@ -454,7 +457,9 @@ export function AdminCoverageMapPage() {
             ) : (
               <PanelLeftOpen size={14} aria-hidden />
             )}
-            {panelCapasAbierto ? "Ocultar capas" : "Capas y búsqueda"}
+            {panelCapasAbierto
+              ? adminUiCopy.mapa.layersToggleHide
+              : adminUiCopy.mapa.layersToggleShow}
           </Button>
         </section>
 
@@ -499,14 +504,14 @@ export function AdminCoverageMapPage() {
             )}
             <div className="coverage-map-stage">
               {coverageLoading ? (
-                <LoadingState label="Cargando cobertura…" />
+                <LoadingState label={adminUiCopy.mapa.loadingCoverage} />
               ) : coverageError ? null : (
                 <>
                   {filteredPins.length === 0 && (
                     <p className="coverage-map-empty-banner" role="status">
                       {pins.length === 0
-                        ? "No hay personas con ubicación en tu alcance. Puedes activar capas territoriales y el mapa de calor."
-                        : "Ningún pin coincide con los filtros actuales. Ajusta rol o búsqueda."}
+                        ? adminUiCopy.mapa.emptyNoLocations
+                        : adminUiCopy.mapa.emptyNoFilterMatch}
                     </p>
                   )}
                   <Map
@@ -549,12 +554,12 @@ export function AdminCoverageMapPage() {
             <Drawer
               open
               onDismiss={dismissPersonDetail}
-              ariaLabel="Detalle de la persona seleccionada"
+              ariaLabel={adminUiCopy.mapa.detailDrawerLabel}
               returnFocusRef={drawerReturnFocusRef}
               className="coverage-map-detail-drawer"
             >
               {personDetailLoading && !selectedPerson ? (
-                <LoadingState label="Cargando persona…" />
+                <LoadingState label={adminUiCopy.mapa.loadingPerson} />
               ) : selectedPerson ? (
                 <PersonDetailPanel
                   selected={selectedPerson}
@@ -611,23 +616,21 @@ export function AdminCoverageMapPage() {
       </AdminWorkspaceShell>
       <ConfirmDialog
         open={removeConfirmOpen && Boolean(selectedPerson)}
-        title="Dar de baja persona"
+        title={adminUiCopy.destructive.removePersonTitle}
         description={
           selectedPerson ? (
             <>
               <p>
-                ¿Confirmas dar de baja a{" "}
-                <strong>{nameOf(selectedPerson)}</strong>?
+                {adminUiCopy.destructive.removePersonConfirm(
+                  nameOf(selectedPerson),
+                )}
               </p>
-              <p>
-                Es una baja lógica: la persona dejará de aparecer en la
-                estructura activa, pero se conservan los datos históricos.
-              </p>
+              <p>{adminUiCopy.destructive.removePersonConsequence}</p>
             </>
           ) : null
         }
-        confirmLabel="Dar de baja"
-        cancelLabel="Cancelar"
+        confirmLabel={adminUiCopy.destructive.confirmLabel}
+        cancelLabel={adminUiCopy.destructive.cancelLabel}
         confirmVariant="destructive"
         busy={removeBusy}
         onConfirm={() => void confirmRemove()}
