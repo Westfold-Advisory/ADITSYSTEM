@@ -13,11 +13,7 @@ import { apiErrorMessage } from "@/components/admin/person-display";
 import { capabilitiesFor } from "@/lib/capabilities";
 import { canRegisterDocuments } from "@/lib/document-access";
 import type { PersonCreateOption } from "@/lib/person-provisioning";
-import {
-  EmptyState,
-  ErrorState,
-  LoadingState,
-} from "@/components/ui/AsyncState";
+import { ErrorState, LoadingState } from "@/components/ui/AsyncState";
 import { useHierarchyScope } from "@/hooks/useHierarchyScope";
 import {
   ancestorIdsToExpandForFilter,
@@ -114,6 +110,17 @@ export function DomainAdminPage({ session }: { session: LoginResponse }) {
     ],
   );
 
+  const dismissAltDetail = useCallback(() => {
+    clearSelection();
+    setCreating(false);
+    setEditing(false);
+    setChangingPassword(false);
+  }, [clearSelection, setCreating, setEditing, setChangingPassword]);
+
+  const altDetailOpen =
+    (structureView === "listado" || structureView === "organigrama") &&
+    Boolean(selected);
+
   const applyTreeFilter = useCallback(
     (next: PersonFilter) => {
       if (!self) return;
@@ -152,6 +159,13 @@ export function DomainAdminPage({ session }: { session: LoginResponse }) {
       expandNode(ancestorId);
     }
   }, [children, expandNode, filter, filterActive, self, structureView]);
+
+  useEffect(() => {
+    if (!self) return;
+    if (structureView === "listado" || structureView === "organigrama") {
+      clearSelection();
+    }
+  }, [clearSelection, self, structureView]);
 
   const createChild = async (
     input: PersonProvisionInput,
@@ -309,11 +323,14 @@ export function DomainAdminPage({ session }: { session: LoginResponse }) {
             onValueChange={(value) => {
               const next = value as StructureView;
               setStructureView(next);
-              if (next === "listado" && isAdmin) {
-                clearSelection();
+              if (next === "listado" || next === "organigrama") {
+                dismissAltDetail();
               }
-              if (next === "arbol" && isPersonFilterActive(filter)) {
-                applyTreeFilter(filter);
+              if (next === "arbol") {
+                if (self) resetSelectionToRoot();
+                if (isPersonFilterActive(filter)) {
+                  applyTreeFilter(filter);
+                }
               }
             }}
           >
@@ -335,7 +352,7 @@ export function DomainAdminPage({ session }: { session: LoginResponse }) {
             />
           ) : (
             <div
-              className={`hierarchy-alt-layout hierarchy-alt-layout--${structureView}`}
+              className={`hierarchy-alt-layout hierarchy-alt-layout--${structureView}${altDetailOpen ? " hierarchy-alt-layout--detail-open" : ""}`}
             >
               <div className="hierarchy-alt-primary">
                 {structureView === "listado" ? (
@@ -357,20 +374,54 @@ export function DomainAdminPage({ session }: { session: LoginResponse }) {
                   />
                 )}
               </div>
-              <section
-                className="hierarchy-detail-section"
-                aria-live="polite"
-                aria-label="Detalle de la persona seleccionada"
-              >
-                {selected ? (
-                  detailPanel
-                ) : (
-                  <EmptyState>
-                    Selecciona una persona en el{" "}
-                    {structureView === "listado" ? "listado" : "organigrama"}.
-                  </EmptyState>
-                )}
-              </section>
+              {altDetailOpen && selected ? (
+                <section
+                  className="hierarchy-detail-section hierarchy-detail-drawer"
+                  aria-live="polite"
+                  aria-label="Detalle de la persona seleccionada"
+                >
+                  <PersonDetailPanel
+                    selected={selected}
+                    breadcrumb={breadcrumb}
+                    metrics={metrics}
+                    scopedMap={scopedMap}
+                    api={api}
+                    actorRole={session.user.rol}
+                    sessionPersonId={session.user.persona_id}
+                    canManageSelected={canManageSelected}
+                    canRegisterDocuments={canRegisterDocumentsForSelected}
+                    creating={creating}
+                    editing={editing}
+                    changingPassword={changingPassword}
+                    onNavigateBreadcrumb={select}
+                    onStartCreate={() => {
+                      setCreating(true);
+                      setEditing(false);
+                      setChangingPassword(false);
+                    }}
+                    onStartEdit={() => {
+                      setEditing(true);
+                      setCreating(false);
+                      setChangingPassword(false);
+                    }}
+                    onStartChangePassword={() => {
+                      setChangingPassword(true);
+                      setCreating(false);
+                      setEditing(false);
+                    }}
+                    onCancelForm={() => {
+                      setCreating(false);
+                      setEditing(false);
+                      setChangingPassword(false);
+                    }}
+                    onCreate={createChild}
+                    onUpdate={updatePerson}
+                    onChangePassword={changePassword}
+                    onRemove={() => void remove()}
+                    onDismiss={dismissAltDetail}
+                  />
+                </section>
+              ) : null}
             </div>
           )}
         </>

@@ -121,6 +121,11 @@
   border-radius: var(--md-sys-radius-lg, 12px);
 }
 
+.hierarchy-page .admin-header__band {
+  max-width: none;
+  margin-inline: 0;
+}
+
 .hierarchy-master-detail {
   max-width: 60rem;
   margin-inline: auto;
@@ -145,40 +150,75 @@
   margin-inline: 0;
 }
 
-@media (min-width: 56rem) {
-  .hierarchy-alt-layout--listado {
-    grid-template-columns: minmax(0, 1.35fr) minmax(18rem, 1fr);
-    align-items: start;
-  }
+.hierarchy-alt-layout--listado,
+.hierarchy-alt-layout--organigrama {
+  grid-template-columns: minmax(0, 1fr);
+  align-items: stretch;
+}
 
-  .hierarchy-alt-layout--organigrama {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto auto;
+@media (min-width: 56rem) {
+  .hierarchy-alt-layout--listado.hierarchy-alt-layout--detail-open {
+    grid-template-columns: minmax(0, 1fr) minmax(20rem, 24rem);
+    align-items: start;
   }
 }
 
 @media (min-width: 72rem) {
-  .hierarchy-alt-layout--organigrama {
-    grid-template-columns: minmax(0, 1.55fr) minmax(18rem, 22rem);
-    grid-template-rows: none;
-    align-items: start;
+  .hierarchy-alt-layout--organigrama.hierarchy-alt-layout--detail-open {
+    grid-template-columns: minmax(0, 1fr) minmax(22rem, 26rem);
+    align-items: stretch;
   }
+}
+
+.hierarchy-alt-layout--organigrama {
+  flex: 1;
+  min-height: calc(100vh - 13rem);
 }
 
 .hierarchy-alt-layout--organigrama .hierarchy-alt-primary {
   min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
+  border: none;
+  padding: 0;
+  background: transparent;
 }
 
-.hierarchy-alt-layout--organigrama .hierarchy-detail-section {
+.hierarchy-detail-drawer {
   min-width: 0;
-  position: relative;
-  z-index: 1;
+  max-height: calc(100vh - 13rem);
+  overflow: auto;
+  position: sticky;
+  top: var(--md-sys-spacing-3, 0.75rem);
+  z-index: 2;
   border: 1px solid var(--md-sys-color-outline-variant);
   border-radius: var(--md-sys-radius-md, 8px);
   background: var(--md-sys-color-surface);
-  padding: var(--md-sys-spacing-4, 1rem);
-  box-shadow: var(--md-sys-elevation-1, 0 1px 2px rgb(0 0 0 / 0.06));
+  padding: var(--md-sys-spacing-3, 0.75rem);
+  box-shadow: var(--md-sys-elevation-2, 0 4px 12px rgb(0 0 0 / 0.08));
+}
+
+.hierarchy-detail-drawer .hierarchy-detail-panel.ui-card,
+.hierarchy-detail-drawer .hierarchy-detail-panel {
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  background: transparent;
+}
+
+.hierarchy-detail-panel__toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin: calc(-1 * var(--md-sys-spacing-1, 0.25rem)) 0
+    var(--md-sys-spacing-2, 0.5rem);
+}
+
+.hierarchy-detail-panel__close {
+  min-width: 2.25rem;
+  min-height: 2.25rem;
+  padding: 0.25rem;
 }
 
 .hierarchy-alt-primary {
@@ -262,16 +302,19 @@
 .person-org-chart__viewport {
   overflow: auto;
   flex: 1;
-  min-height: 14rem;
-  max-height: min(36rem, calc(100vh - 14rem));
-  padding: var(--md-sys-spacing-3, 0.75rem);
+  min-height: min(24rem, calc(100vh - 16rem));
+  max-height: none;
+  padding: var(--md-sys-spacing-5, 1.25rem);
   border: 1px solid var(--md-sys-color-outline-variant);
   border-radius: var(--md-sys-radius-md, 8px);
-  background: var(--md-sys-color-surface-container-lowest);
+  background: var(--md-sys-color-surface-container-low);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
 
 .org-chart__scale {
-  transform-origin: top left;
+  transform-origin: top center;
   display: inline-block;
   min-width: min-content;
   padding: var(--md-sys-spacing-2, 0.5rem);
@@ -287,10 +330,10 @@
 .org-chart--forest {
   display: flex;
   flex-direction: row;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: center;
   align-items: flex-start;
-  gap: var(--md-sys-spacing-6, 1.5rem);
+  gap: var(--md-sys-spacing-8, 2rem);
   width: fit-content;
   max-width: none;
   min-width: min-content;
@@ -327,20 +370,33 @@
 }
 
 .org-chart__children {
-  --org-chart-connector: 1rem;
+  --org-chart-connector: 1.25rem;
   display: inline-flex;
   flex-direction: row;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: center;
   align-items: flex-start;
-  gap: var(--md-sys-spacing-3, 0.75rem) var(--md-sys-spacing-4, 1rem);
+  gap: var(--md-sys-spacing-4, 1rem);
   list-style: none;
   margin: var(--org-chart-connector) auto 0;
   padding: var(--org-chart-connector) 0 0;
   position: relative;
   width: fit-content;
-  max-width: 100%;
+  max-width: none;
   border-top: 2px solid var(--md-sys-color-outline);
+}
+
+.org-chart__children[data-child-count="1"] {
+  border-top: none;
+  padding-top: 0;
+}
+
+.org-chart__children[data-child-count="1"] > .org-chart__node {
+  margin-top: 0;
+}
+
+.org-chart__children[data-child-count="1"] > .org-chart__node::before {
+  display: none;
 }
 
 .org-chart__children > .org-chart__node {
@@ -365,9 +421,9 @@
   border: 1px solid var(--md-sys-color-outline-variant);
   border-radius: var(--md-sys-radius-md, 8px);
   background: var(--md-sys-color-surface);
-  min-width: 9rem;
-  max-width: 12rem;
-  padding: 0.65rem 0.75rem;
+  min-width: 10.5rem;
+  max-width: 13rem;
+  padding: 0.75rem 0.85rem;
   text-align: center;
   cursor: pointer;
   display: grid;
@@ -418,8 +474,17 @@
 }
 
 @media (max-width: 48rem) {
-  .hierarchy-alt-layout--organigrama .hierarchy-detail-section {
-    margin-top: var(--md-sys-spacing-2, 0.5rem);
+  .hierarchy-alt-layout--organigrama.hierarchy-alt-layout--detail-open {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .hierarchy-detail-drawer {
+    position: fixed;
+    inset: auto 0 0 0;
+    max-height: min(85vh, 32rem);
+    border-radius: var(--md-sys-radius-lg, 12px) var(--md-sys-radius-lg, 12px) 0
+      0;
+    box-shadow: var(--md-sys-elevation-3, 0 8px 24px rgb(0 0 0 / 0.15));
   }
 }
 
