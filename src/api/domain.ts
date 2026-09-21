@@ -7,6 +7,7 @@ import type {
   Geofence,
   Person,
   PersonInput,
+  PersonProvisionInput,
   PersonMetrics,
   PersonRole,
   PersonStatus,
@@ -151,20 +152,33 @@ export class DomainApi {
     ).map(mapPerson);
   }
   async createPerson(
-    input: PersonInput,
+    input: PersonProvisionInput,
     role: PersonRole,
     parentId: UUID | null,
   ): Promise<Person> {
+    const body: Record<string, unknown> = {
+      ...mapPersonInput(input),
+      rol: role,
+      parent_persona_id: parentId,
+    };
+    if (input.email !== undefined) body.email = input.email;
+    if (input.password !== undefined) body.password = input.password;
     return mapPerson(
       await this.client.request<PersonResponse>("/personas", {
         access: "authenticated",
         method: "POST",
-        body: {
-          ...mapPersonInput(input),
-          rol: role,
-          parent_persona_id: parentId,
-        },
+        body,
       }),
+    );
+  }
+  changePersonPassword(personaId: UUID, newPassword: string): Promise<void> {
+    return this.client.request(
+      `/personas/${personaId}/credenciales/contrasena`,
+      {
+        access: "authenticated",
+        method: "PUT",
+        body: { new_password: newPassword },
+      },
     );
   }
   async updatePerson(

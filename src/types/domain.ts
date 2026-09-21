@@ -73,6 +73,11 @@ export interface PersonInput {
   telefono: string;
 }
 
+export interface PersonProvisionInput extends PersonInput {
+  email?: string;
+  password?: string;
+}
+
 export interface Person extends PersonInput {
   id: UUID;
   role: PersonRole;
