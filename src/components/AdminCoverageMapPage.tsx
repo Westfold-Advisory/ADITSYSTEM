@@ -300,6 +300,7 @@ export function AdminCoverageMapPage() {
   const selectedPin = filteredPins.find(
     (pin) => pin.personId === selectedPinId,
   );
+  const hasSelectedPin = Boolean(selectedPinId && selectedPin);
 
   return (
     <main className="admin-page coverage-map-page">
@@ -388,8 +389,12 @@ export function AdminCoverageMapPage() {
         />
       )}
 
-      <div className="coverage-map-layout grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <div className="coverage-map-workspace">
+      <div
+        className={`coverage-map-layout grid gap-4 ${hasSelectedPin ? "lg:grid-cols-[minmax(0,1fr)_320px]" : ""}`}
+      >
+        <div
+          className={`coverage-map-workspace ${panelCapasAbierto ? "coverage-map-workspace--layers-open" : ""}`}
+        >
           {panelCapasAbierto && (
             <PanelCapas
               variant="sidebar"
@@ -461,59 +466,57 @@ export function AdminCoverageMapPage() {
           </div>
         </div>
 
-        <aside className="coverage-map-detail border p-4" aria-live="polite">
-          {!selectedPinId || !selectedPin ? (
-            <p className="text-sm text-muted-foreground">
-              Selecciona un pin en el mapa para ver detalle o editar la persona.
-            </p>
-          ) : detailLoading || !selectedPerson ? (
-            <LoadingState label="Cargando persona…" />
-          ) : (
-            <>
-              <RoleChip role={selectedPerson.role} />
-              <h2 className="text-lg font-semibold">
-                {nameOf(selectedPerson)}
-              </h2>
-              <p className="text-sm">{roleLabel(selectedPerson.role)}</p>
-              <p className="text-sm">
-                {selectedPin.latitude.toFixed(5)},{" "}
-                {selectedPin.longitude.toFixed(5)}
-              </p>
-              <div
-                className="mt-2 h-3 w-3 rounded-full"
-                style={{ background: pinColorForRole(selectedPerson.role) }}
-                aria-hidden
-              />
-              {!editing ? (
-                <Button
-                  className="mt-4"
-                  variant="outline"
-                  onClick={() => setEditing(true)}
-                >
-                  Editar persona
-                </Button>
-              ) : parentPerson ? (
-                <PersonForm
-                  role={selectedPerson.role}
-                  parent={parentPerson}
-                  initialValues={{
-                    nombre: selectedPerson.nombre,
-                    apellidoPaterno: selectedPerson.apellidoPaterno,
-                    apellidoMaterno: selectedPerson.apellidoMaterno,
-                    telefono: selectedPerson.telefono,
-                  }}
-                  submitLabel="Guardar cambios"
-                  onCancel={() => setEditing(false)}
-                  onSave={async (input) => {
-                    await api.updatePerson(selectedPerson.id, input);
-                    setEditing(false);
-                    setReloadToken((value) => value + 1);
-                  }}
+        {selectedPin && (
+          <aside className="coverage-map-detail border p-4" aria-live="polite">
+            {detailLoading || !selectedPerson ? (
+              <LoadingState label="Cargando persona…" />
+            ) : (
+              <>
+                <RoleChip role={selectedPerson.role} />
+                <h2 className="text-lg font-semibold">
+                  {nameOf(selectedPerson)}
+                </h2>
+                <p className="text-sm">{roleLabel(selectedPerson.role)}</p>
+                <p className="text-sm">
+                  {selectedPin.latitude.toFixed(5)},{" "}
+                  {selectedPin.longitude.toFixed(5)}
+                </p>
+                <div
+                  className="mt-2 h-3 w-3 rounded-full"
+                  style={{ background: pinColorForRole(selectedPerson.role) }}
+                  aria-hidden
                 />
-              ) : null}
-            </>
-          )}
-        </aside>
+                {!editing ? (
+                  <Button
+                    className="mt-4"
+                    variant="outline"
+                    onClick={() => setEditing(true)}
+                  >
+                    Editar persona
+                  </Button>
+                ) : parentPerson ? (
+                  <PersonForm
+                    role={selectedPerson.role}
+                    parent={parentPerson}
+                    initialValues={{
+                      nombre: selectedPerson.nombre,
+                      apellidoPaterno: selectedPerson.apellidoPaterno,
+                      apellidoMaterno: selectedPerson.apellidoMaterno,
+                      telefono: selectedPerson.telefono,
+                    }}
+                    submitLabel="Guardar cambios"
+                    onCancel={() => setEditing(false)}
+                    onSave={async (input) => {
+                      await api.updatePerson(selectedPerson.id, input);
+                      setEditing(false);
+                      setReloadToken((value) => value + 1);
+                    }}
+                  />
+                ) : null}
+              </>
+            )}
+          </aside>
+        )}
       </div>
     </main>
   );
