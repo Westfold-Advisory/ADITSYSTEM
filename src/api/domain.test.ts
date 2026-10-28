@@ -28,6 +28,60 @@ test("maps the final Persona schema and sends only documented write fields", () 
   );
 });
 
+test("uploadDocument presigns, uploads bytes, then registers metadata", async () => {
+  const calls: string[] = [];
+  const file = new File(["hello"], "cv.pdf", { type: "application/pdf" });
+  const api = new DomainApi(
+    new ApiClient({
+      getAccessToken: () => "token",
+      fetchFn: async (input, init) => {
+        const url = String(input);
+        calls.push(url);
+        if (url.endsWith("/documentos/carga")) {
+          return new Response(
+            JSON.stringify({
+              url: "https://storage.example/upload",
+              s3_key: "personas/person-1/cv/u/cv.pdf",
+              expires_at: "2026-01-01T00:05:00Z",
+              mime_type: "application/pdf",
+            }),
+            { headers: { "content-type": "application/json" } },
+          );
+        }
+        if (url.endsWith("/documentos")) {
+          return new Response(
+            JSON.stringify({
+              id: "doc-1",
+              persona_id: "person-1",
+              tipo: "CV",
+              titulo: "CV",
+              version: 1,
+              mime_type: "application/pdf",
+              size_bytes: file.size,
+              is_current: true,
+              created_at: "2026-01-01T00:00:00Z",
+            }),
+            { headers: { "content-type": "application/json" } },
+          );
+        }
+        if (url === "https://storage.example/upload") {
+          assert.equal(init?.method, "PUT");
+          assert.equal(init?.headers?.["Content-Type"], "application/pdf");
+          return new Response(null, { status: 200 });
+        }
+        throw new Error(`unexpected fetch: ${url}`);
+      },
+    }),
+  );
+  const doc = await api.uploadDocument("person-1", {
+    type: "CV",
+    title: "CV",
+    file,
+  });
+  assert.equal(doc.id, "doc-1");
+  assert.equal(calls.length, 3);
+});
+
 test("registers a private document below its persona route", async () => {
   let request: Request | undefined;
   const api = new DomainApi(
