@@ -124,7 +124,10 @@ export class ApiClient {
   }
 
   /** Presigned URLs (p. ej. S3) fuera de `baseUrl`; reutiliza `fetchFn` inyectable en tests. */
-  fetchExternal(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+  fetchExternal(
+    input: RequestInfo | URL,
+    init?: RequestInit,
+  ): Promise<Response> {
     return this.fetchFn(input, init);
   }
 
